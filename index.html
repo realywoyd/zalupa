@@ -3,64 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#ff6600"> <!-- Цвет заголовка в Telegram -->
-  <title>Shiba Tap Game</title>
+  <title>Shiba Game</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script>
-    // Инициализация Telegram Web App
-    window.Telegram.WebApp.ready();
-  </script>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: url('https://i.imgur.com/NjXbA3b.jpeg') no-repeat center center fixed;
-      background-size: cover;
+      text-align: center;
+      padding: 20px;
     }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .shiba {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: url('https://i.imgur.com/dPqT7R1.png') no-repeat center center;
-      background-size: contain;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-    .score {
-      font-size: 24px;
-      color: white;
-      background: rgba(0, 0, 0, 0.5);
+    button {
       padding: 10px 20px;
-      border-radius: 20px;
+      font-size: 16px;
+      background-color: #0088cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005f8c;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="shiba" class="shiba"></div>
-    <div id="score" class="score">Score: 0</div>
-  </div>
+  <h1>Shiba Inu Game</h1>
+  <p>Score: <span id="score">0</span></p>
+  <button id="sendData">Send Data</button>
+
   <script>
-    const shiba = document.getElementById('shiba');
-    const scoreElement = document.getElementById('score');
-    let score = 0;
+    // Telegram WebApp Initialization
+    window.Telegram.WebApp.ready();
 
-    shiba.addEventListener('click', () => {
-      score++;
-      scoreElement.textContent = `Score: ${score}`;
+    const tg = window.Telegram.WebApp;
+
+    document.getElementById("sendData").addEventListener("click", () => {
+      tg.sendData(JSON.stringify({ score: 0 })); // Example: send the score to bot
     });
-
-    // Если хотите отправить данные обратно в бота
-    function sendScore() {
-      window.Telegram.WebApp.sendData(JSON.stringify({ score }));
-    }
   </script>
 </body>
 </html>
