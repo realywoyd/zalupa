@@ -3,82 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shiba Inu Game</title>
+  <meta name="theme-color" content="#ff6600"> <!-- Цвет заголовка в Telegram -->
+  <title>Shiba Tap Game</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    // Инициализация Telegram Web App
+    window.Telegram.WebApp.ready();
+  </script>
   <style>
     body {
       margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      background: url('https://example.com/shiba-background.jpg') no-repeat center center fixed;
+      background: url('https://i.imgur.com/NjXbA3b.jpeg') no-repeat center center fixed;
       background-size: cover;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
     }
     .container {
-      text-align: center;
-      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    .coin {
+    .shiba {
       width: 100px;
       height: 100px;
-      margin: 20px auto;
-      background: url('https://example.com/shiba-coin.png') no-repeat center;
+      border-radius: 50%;
+      background: url('https://i.imgur.com/dPqT7R1.png') no-repeat center center;
       background-size: contain;
       cursor: pointer;
+      margin-bottom: 20px;
     }
     .score {
       font-size: 24px;
-      margin: 10px 0;
-    }
-    .btn {
-      background-color: #007bff;
       color: white;
-      border: none;
+      background: rgba(0, 0, 0, 0.5);
       padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
+      border-radius: 20px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Shiba Inu Game</h1>
-    <div class="score" id="score">Score: 0</div>
-    <div class="coin" onclick="incrementScore()"></div>
-    <button class="btn" id="sendDataBtn">Send Data</button>
+    <div id="shiba" class="shiba"></div>
+    <div id="score" class="score">Score: 0</div>
   </div>
-
   <script>
+    const shiba = document.getElementById('shiba');
+    const scoreElement = document.getElementById('score');
     let score = 0;
 
-    // Проверяем наличие API Telegram WebApp
-    if (window.Telegram && Telegram.WebApp) {
-      const tg = Telegram.WebApp;
+    shiba.addEventListener('click', () => {
+      score++;
+      scoreElement.textContent = `Score: ${score}`;
+    });
 
-      // Инициализация WebApp
-      tg.ready();
-
-      // Смена темы интерфейса в зависимости от настроек Telegram
-      document.body.style.backgroundColor = tg.themeParams.bg_color || '#FFFFFF';
-      document.body.style.color = tg.themeParams.text_color || '#000000';
-
-      // Отправка данных в Telegram
-      document.getElementById('sendDataBtn').addEventListener('click', () => {
-        tg.sendData(JSON.stringify({ score }));
-      });
-    } else {
-      // Если Telegram API недоступен
-      alert("This app works only in Telegram WebApp.");
-    }
-
-    // Увеличение счётчика при нажатии на монету
-    function incrementScore() {
-      score += 1;
-      document.getElementById('score').textContent = `Score: ${score}`;
+    // Если хотите отправить данные обратно в бота
+    function sendScore() {
+      window.Telegram.WebApp.sendData(JSON.stringify({ score }));
     }
   </script>
 </body>
