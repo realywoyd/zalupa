@@ -1,0 +1,7 @@
+{
+  "url": "https://your-username.github.io/your-repo-name", // Замените на ваш URL
+  "name": "Shiba Inu Galactic Tap Game",
+  "iconUrl": "https://your-username.github.io/your-repo-name/icon.png", // Иконка вашего приложения
+  "termsOfUseUrl": "https://your-username.github.io/your-repo-name/terms", // Условия использования
+  "privacyPolicyUrl": "https://your-username.github.io/your-repo-name/privacy" // Политика конфиденциальности
+}
