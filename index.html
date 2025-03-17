@@ -1392,16 +1392,24 @@ const reviews = {
 
         function updateDistricts() {
     const districtSelect = document.getElementById('districtSelect');
-    const lang = translations[userLanguage] || translations['ru']; // Fallback на русский
+    if (!districtSelect) {
+        console.error('Элемент districtSelect не найден в DOM');
+        return;
+    }
     
+    const lang = translations[userLanguage] || translations['ru'];
     console.log('Обновление районов для города:', selectedCity);
-    
+    console.log('Переводы для языка:', lang);
+
     districtSelect.innerHTML = `<option value="all">${lang.allDistrictsOption}</option>`;
     if (selectedCity !== 'all' && translations[userLanguage][`${selectedCity}Districts`]) {
         const districts = translations[userLanguage][`${selectedCity}Districts`];
+        console.log('Районы для', selectedCity, ':', districts);
         for (let district in districts) {
             districtSelect.innerHTML += `<option value="${district}">${districts[district]}</option>`;
         }
+    } else {
+        console.warn('Районы не найдены для города:', selectedCity);
     }
     
     selectedDistrict = districtSelect.value;
@@ -1427,10 +1435,12 @@ function updateMailNotification() {
 function filterByCity() {
     const citySelect = document.getElementById('citySelect');
     if (!citySelect) {
-        console.error('Элемент citySelect не найден');
+        console.error('Элемент citySelect не найден в DOM');
         return;
     }
+    
     selectedCity = citySelect.value;
+    console.log('Выбран город в filterByCity:', selectedCity);
     updateDistricts();
     filterProducts();
     const cityName = translations[userLanguage][`${selectedCity}Option`] || selectedCity;
@@ -2016,11 +2026,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }).catch(err => console.error('Telegram API error:', err));
         }
         function initCityFilter() {
-    const lang = translations[userLanguage];
     const citySelect = document.getElementById('citySelect');
+    if (!citySelect) {
+        console.error('Элемент citySelect не найден в DOM');
+        return;
+    }
     
-    console.log('Инициализация фильтра городов, язык:', userLanguage); // Дебаг
-    
+    const lang = translations[userLanguage] || translations['ru'];
+    console.log('Инициализация фильтра городов, язык:', userLanguage);
+    console.log('Данные перевода:', lang);
+
     citySelect.innerHTML = `
         <option value="all">${lang.allCitiesOption}</option>
         <option value="phuket">${lang.phuketOption}</option>
@@ -2029,9 +2044,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <option value="samui">${lang.samuiOption}</option>
     `;
     
-    selectedCity = citySelect.value; // Устанавливаем начальное значение
-    console.log('Выбранный город:', selectedCity); // Дебаг
-    updateDistricts(); // Обновляем районы сразу
+    selectedCity = citySelect.value;
+    console.log('Установлен город:', selectedCity);
+    updateDistricts(); // Сразу обновляем районы
 }
         function updateUserData() {
     if (currentUser) {
