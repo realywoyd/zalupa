@@ -1391,16 +1391,23 @@ const reviews = {
 }
 
         function updateDistricts() {
-            const districtSelect = document.getElementById('districtSelect');
-            districtSelect.innerHTML = `<option value="all">${translations[userLanguage].allDistrictsOption}</option>`;
-            if (selectedCity !== 'all' && cities[selectedCity]) {
-                const districts = translations[userLanguage][`${selectedCity}Districts`];
-                for (let district in districts) {
-                    districtSelect.innerHTML += `<option value="${district}">${districts[district]}</option>`;
-                }
-            }
-            filterByDistrict();
+    const districtSelect = document.getElementById('districtSelect');
+    const lang = translations[userLanguage];
+    
+    console.log('Обновление районов для города:', selectedCity); // Дебаг
+    
+    districtSelect.innerHTML = `<option value="all">${lang.allDistrictsOption}</option>`;
+    if (selectedCity !== 'all' && translations[userLanguage][`${selectedCity}Districts`]) {
+        const districts = translations[userLanguage][`${selectedCity}Districts`];
+        for (let district in districts) {
+            districtSelect.innerHTML += `<option value="${district}">${districts[district]}</option>`;
         }
+    }
+    
+    selectedDistrict = districtSelect.value; // Устанавливаем начальное значение
+    console.log('Выбранный район:', selectedDistrict); // Дебаг
+    filterProducts(); // Фильтруем товары сразу
+}
         function updateMailNotification() {
     const unreadCount = mailMessages.filter(msg => msg.unread).length;
     const notification = document.getElementById('mailNotification');
@@ -1994,15 +2001,20 @@ document.addEventListener('DOMContentLoaded', () => {
         function initCityFilter() {
     const lang = translations[userLanguage];
     const citySelect = document.getElementById('citySelect');
+    
+    console.log('Инициализация фильтра городов, язык:', userLanguage); // Дебаг
+    
     citySelect.innerHTML = `
         <option value="all">${lang.allCitiesOption}</option>
         <option value="phuket">${lang.phuketOption}</option>
-        <option value="p"Can you help me fix this issue?attaya">${lang.pattayaOption}</option>
+        <option value="pattaya">${lang.pattayaOption}</option>
         <option value="bangkok">${lang.bangkokOption}</option>
         <option value="samui">${lang.samuiOption}</option>
     `;
+    
     selectedCity = citySelect.value; // Устанавливаем начальное значение
-    updateDistricts(); // Обновляем районы для выбранного города
+    console.log('Выбранный город:', selectedCity); // Дебаг
+    updateDistricts(); // Обновляем районы сразу
 }
         function updateUserData() {
     if (currentUser) {
