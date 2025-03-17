@@ -374,17 +374,17 @@
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
     let user = users.find(u => u.nickname === nickname);
     if (user) {
-        // Если юзер уже получил стартовый бонус, не даём ещё
+        // Если бонус ещё не выдан, начисляем
         if (!user.receivedBonus) {
             user.balance = (user.balance || 0) + amount;
-            user.receivedBonus = true; // Помечаем, что бонус выдан
+            user.receivedBonus = true; // Помечаем, что бабки выданы
             console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${user.balance}`);
             sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${user.balance}`);
         } else {
-            console.log(`${nickname} уже получил свои бабки, хватит жрать!`);
+            console.log(`${nickname} уже получил свои бабки, пиздец жадности!`);
         }
     } else {
-        // Если юзера нет, создаём с бонусом и флагом
+        // Если юзера нет, создаём с бонусом
         user = { 
             nickname: nickname, 
             language: 'ru', 
@@ -392,12 +392,32 @@
             orderCount: 0, 
             referralCount: 0, 
             orderHistory: [],
-            receivedBonus: true // Сразу помечаем, что бонус выдан
+            receivedBonus: true // Сразу флаг, чтобы не повторялось
         };
         users.push(user);
         console.log(`Создал ${nickname} и начислил ${amount} ฿`);
         sendToTelegram(`Новый юзер ${nickname} создан с ${amount} ฿`);
     }
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+    if (currentUser === nickname) {
+        balance = user.balance;
+        document.getElementById('balance').innerText = `${balance} ฿`;
+    }
+}
+
+// Разовое начисление для Gtori при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    let gtori = users.find(u => u.nickname === 'Gtori');
+    if (!gtori || !gtori.receivedBonus) {
+        manualAddBalance('Gtori', 1488); // Разово даём Gtori 1488 ฿
+    }
+    loadCurrentUser();
+    if (!currentUser) showRegistrationModal();
+    loadLanguage();
+    updateTabs();
+    updateProductCards();
+});
     localStorage.setItem('registeredUsers', JSON.stringify(users));
     if (currentUser === nickname) {
         balance = user.balance;
