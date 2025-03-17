@@ -81,12 +81,13 @@
         </div>
         
         <div class="catalog-menu" id="catalogMenu">
-            <div class="city-filter
-                <select id="districtSelect" onchange="filterByDistrict()">
-                    <option value="all" id="allDistrictsOption"></option>
-                </select>
-            </div>
-            <div class="tabs">
+    <div class="city-filter">
+        <select id="citySelect" onchange="filterByCity()"></select>
+        <select id="districtSelect" onchange="filterByDistrict()">
+            <option value="all" id="allDistrictsOption"></option>
+        </select>
+    </div>
+    <div class="tabs">
                 <div class="tab" data-tab="weed" id="weedTab">Марихуана</div>
                 <div class="tab" data-tab="hash" id="hashTab">Гашиш</div>
                 <div class="tab" data-tab="coke" id="cokeTab">Кокаин</div>
