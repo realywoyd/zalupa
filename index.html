@@ -1392,9 +1392,9 @@ const reviews = {
 
         function updateDistricts() {
     const districtSelect = document.getElementById('districtSelect');
-    const lang = translations[userLanguage];
+    const lang = translations[userLanguage] || translations['ru']; // Fallback на русский
     
-    console.log('Обновление районов для города:', selectedCity); // Дебаг
+    console.log('Обновление районов для города:', selectedCity);
     
     districtSelect.innerHTML = `<option value="all">${lang.allDistrictsOption}</option>`;
     if (selectedCity !== 'all' && translations[userLanguage][`${selectedCity}Districts`]) {
@@ -1404,15 +1404,18 @@ const reviews = {
         }
     }
     
-    selectedDistrict = districtSelect.value; // Устанавливаем начальное значение
-    console.log('Выбранный район:', selectedDistrict); // Дебаг
-    filterProducts(); // Фильтруем товары сразу
+    selectedDistrict = districtSelect.value;
+    console.log('Выбранный район:', selectedDistrict);
+    filterProducts();
 }
-        function updateMailNotification() {
-    const unreadCount = mailMessages.filter(msg => msg.unread).length;
+
+function updateMailNotification() {
+    const unreadCount = (mailMessages || []).filter(msg => msg.unread).length;
     const notification = document.getElementById('mailNotification');
     const mailText = document.getElementById('mailText');
-    mailText.innerText = translations[userLanguage].mailButton; // Текст кнопки
+    const lang = translations[userLanguage] || translations['ru'];
+    
+    mailText.innerText = lang.mailButton;
     if (unreadCount > 0) {
         notification.innerText = `(${unreadCount})`;
         notification.style.display = 'inline';
@@ -1421,17 +1424,31 @@ const reviews = {
     }
 }
 
-        function filterByCity() {
-    selectedCity = document.getElementById('citySelect').value;
+function filterByCity() {
+    const citySelect = document.getElementById('citySelect');
+    if (!citySelect) {
+        console.error('Элемент citySelect не найден');
+        return;
+    }
+    selectedCity = citySelect.value;
     updateDistricts();
     filterProducts();
-    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал город: ${translations[userLanguage][`${selectedCity}Option`]}`);
+    const cityName = translations[userLanguage][`${selectedCity}Option`] || selectedCity;
+    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал город: ${cityName}`);
 }
 
 function filterByDistrict() {
-    selectedDistrict = document.getElementById('districtSelect').value;
+    const districtSelect = document.getElementById('districtSelect');
+    if (!districtSelect) {
+        console.error('Элемент districtSelect не найден');
+        return;
+    }
+    selectedDistrict = districtSelect.value;
     filterProducts();
-    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал район: ${translations[userLanguage][`${selectedCity}Districts`][selectedDistrict] || 'Все районы'} в ${translations[userLanguage][`${selectedCity}Option`]}`);
+    const districts = translations[userLanguage][`${selectedCity}Districts`] || {};
+    const districtName = districts[selectedDistrict] || 'Все районы';
+    const cityName = translations[userLanguage][`${selectedCity}Option`] || selectedCity;
+    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал район: ${districtName} в ${cityName}`);
 }
 
         function filterProducts() {
