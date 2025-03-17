@@ -6,11 +6,6 @@
     <meta http-equiv="Content-Security-Policy" content="sandbox allow-same-origin allow-modals allow-scripts; img-src 'self' https://i.postimg.cc https://images.unsplash.com">
     <title>Dark Thailand - Надёжный шоп</title>
     <style>
-        #mailNotification {
-    position: relative;
-    top: -5px;
-    font-weight: bold;
-}
         body {
             font-family: 'Courier New', monospace;
             margin: 0;
@@ -73,21 +68,24 @@
         <div class="nav">
             <button class="nav-button" id="catalogButton" onclick="toggleCatalog()"></button>
             <button class="nav-button" id="vacanciesButton" onclick="toggleVacancies()"></button>
-            <button class="nav-button" id="mailButton" onclick="toggleMail()">
-    <span id="mailText"></span>
-    <span id="mailNotification" style="display: none; background-color: #ff4444; color: #000; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 5px;"></span>
-</button>
+            <button class="nav-button" id="mailButton" onclick="toggleMail()"></button>
             <button class="profile-button" onclick="toggleProfile()">☠️</button>
         </div>
         
         <div class="catalog-menu" id="catalogMenu">
-    <div class="city-filter">
-        <select id="citySelect" onchange="filterByCity()"></select>
-        <select id="districtSelect" onchange="filterByDistrict()">
-            <option value="all" id="allDistrictsOption"></option>
-        </select>
-    </div>
-    <div class="tabs">
+            <div class="city-filter">
+                <select id="citySelect" onchange="filterByCity()">
+                    <option value="all" id="allCitiesOption"></option>
+                    <option value="phuket" id="phuketOption"></option>
+                    <option value="pattaya" id="pattayaOption"></option>
+                    <option value="bangkok" id="bangkokOption"></option>
+                    <option value="samui" id="samuiOption"></option>
+                </select>
+                <select id="districtSelect" onchange="filterByDistrict()">
+                    <option value="all" id="allDistrictsOption"></option>
+                </select>
+            </div>
+            <div class="tabs">
                 <div class="tab" data-tab="weed" id="weedTab">Марихуана</div>
                 <div class="tab" data-tab="hash" id="hashTab">Гашиш</div>
                 <div class="tab" data-tab="coke" id="cokeTab">Кокаин</div>
@@ -435,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let selectedDistrict = 'all';
         let currentUser = null;
         let userLanguage = 'en';
-        let mailMessages = JSON.parse(localStorage.getItem('mailMessages')) || [];
+        let mailMessages = [];
         let pendingPayments = {};
         const MIN_DEPOSIT = 1000;
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
@@ -466,13 +464,6 @@ document.addEventListener('DOMContentLoaded', () => {
             SOL: "Solana",
             TON: "TON"
         };
-        
-        const adminMessage = {
-    sender: "Администрация Dark Thailand",
-    text: "Уважаемые клиенты! Мы столкнулись с временными трудностями при пополнении баланса из-за DDoS-атак на наши системы. Возможны задержки в обработке платежей, а также сбои в работе маркета. Мы активно устраняем проблемы и приносим извинения за неудобства. По срочным вопросам обращайтесь в Telegram: @DARKTHAI_HELP. Спасибо за ваше терпение и доверие!",
-    date: "17.03.2025",
-    unread: true // Флаг для нового сообщения
-};
 
         const translations = {
             en: {
@@ -1343,122 +1334,82 @@ const reviews = {
 };
 
         function loadLanguage() {
-    const lang = translations[userLanguage];
-    document.getElementById('promoBanner').innerText = lang.promoBanner;
-    document.getElementById('headerText').innerText = lang.headerText;
-    document.getElementById('catalogButton').innerText = lang.catalogButton;
-    document.getElementById('vacanciesButton').innerText = lang.vacanciesButton;
-    document.getElementById('mailTitle').innerText = lang.mailTitle;
-    document.getElementById('weedDesc').innerText = lang.weedDesc;
-    document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + (currentUser || 'Гость');
-    document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-    document.getElementById('referralsLabel').innerText = lang.referralsLabel + referralCount;
-    document.getElementById('depositTitle').innerText = lang.depositTitle;
-    document.getElementById('orderHistoryTitle').innerText = lang.orderHistoryTitle;
-    document.getElementById('vacanciesTitle').innerText = lang.vacanciesTitle;
-    document.getElementById('courierTitle').innerText = lang.courierTitle;
-    document.getElementById('courierDuties').innerText = lang.courierDuties;
-    document.getElementById('courierPay').innerText = lang.courierPay;
-    document.getElementById('warehousemanTitle').innerText = lang.warehousemanTitle;
-    document.getElementById('warehousemanDuties').innerText = lang.warehousemanDuties;
-    document.getElementById('warehousemanPay').innerText = lang.warehousemanPay;
-    document.getElementById('transporterTitle').innerText = lang.transporterTitle;
-    document.getElementById('transporterDuties').innerText = lang.transporterDuties;
-    document.getElementById('transporterPay').innerText = lang.transporterPay;
-    document.getElementById('smmTitle').innerText = lang.smmTitle;
-    document.getElementById('smmDuties').innerText = lang.smmDuties;
-    document.getElementById('smmPay').innerText = lang.smmPay;
-    document.getElementById('applyButton1').innerText = lang.applyButton;
-    document.getElementById('applyButton2').innerText = lang.applyButton;
-    document.getElementById('applyButton3').innerText = lang.applyButton;
-    document.getElementById('applyButton4').innerText = lang.applyButton;
-    document.getElementById('weedTab').innerText = lang.weedTab;
-    document.getElementById('hashTab').innerText = lang.hashTab;
-    document.getElementById('cokeTab').innerText = lang.cokeTab;
-    document.getElementById('amphTab').innerText = lang.amphTab;
-    document.getElementById('methTab').innerText = lang.methTab;
-    document.getElementById('mephTab').innerText = lang.mephTab;
-    document.getElementById('alphaTab').innerText = lang.alphaTab;
-    document.getElementById('lsdTab').innerText = lang.lsdTab;
-    document.getElementById('mdmaTab').innerText = lang.mdmaTab;
-    document.getElementById('heroinTab').innerText = lang.heroinTab;
-    document.getElementById('promoInfo').innerText = lang.promoInfo;
-    updateOrderHistory();
-    updateMailList();
-    updateTabs();
-    updateProductCards();
-    updateMailNotification(); // Добавляем обновление уведомления
-}
+            const lang = translations[userLanguage];
+            document.getElementById('promoBanner').innerText = lang.promoBanner;
+            document.getElementById('headerText').innerText = lang.headerText;
+            document.getElementById('catalogButton').innerText = lang.catalogButton;
+            document.getElementById('vacanciesButton').innerText = lang.vacanciesButton;
+            document.getElementById('mailButton').innerText = lang.mailButton;
+            document.getElementById('allCitiesOption').innerText = lang.allCitiesOption;
+            document.getElementById('phuketOption').innerText = lang.phuketOption;
+            document.getElementById('pattayaOption').innerText = lang.pattayaOption;
+            document.getElementById('bangkokOption').innerText = lang.bangkokOption;
+            document.getElementById('samuiOption').innerText = lang.samuiOption;
+            document.getElementById('allDistrictsOption').innerText = lang.allDistrictsOption;
+            document.getElementById('weedDesc').innerText = lang.weedDesc;
+            document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + (currentUser || 'Гость');
+            document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+            document.getElementById('referralsLabel').innerText = lang.referralsLabel + referralCount;
+            document.getElementById('depositTitle').innerText = lang.depositTitle;
+            document.getElementById('orderHistoryTitle').innerText = lang.orderHistoryTitle;
+            document.getElementById('vacanciesTitle').innerText = lang.vacanciesTitle;
+            document.getElementById('courierTitle').innerText = lang.courierTitle;
+            document.getElementById('courierDuties').innerText = lang.courierDuties;
+            document.getElementById('courierPay').innerText = lang.courierPay;
+            document.getElementById('warehousemanTitle').innerText = lang.warehousemanTitle;
+            document.getElementById('warehousemanDuties').innerText = lang.warehousemanDuties;
+            document.getElementById('warehousemanPay').innerText = lang.warehousemanPay;
+            document.getElementById('transporterTitle').innerText = lang.transporterTitle;
+            document.getElementById('transporterDuties').innerText = lang.transporterDuties;
+            document.getElementById('transporterPay').innerText = lang.transporterPay;
+            document.getElementById('smmTitle').innerText = lang.smmTitle;
+            document.getElementById('smmDuties').innerText = lang.smmDuties;
+            document.getElementById('smmPay').innerText = lang.smmPay;
+            document.getElementById('applyButton1').innerText = lang.applyButton;
+            document.getElementById('applyButton2').innerText = lang.applyButton;
+            document.getElementById('applyButton3').innerText = lang.applyButton;
+            document.getElementById('applyButton4').innerText = lang.applyButton;
+            document.getElementById('mailTitle').innerText = lang.mailTitle;
+            document.getElementById('weedTab').innerText = lang.weedTab;
+            document.getElementById('hashTab').innerText = lang.hashTab;
+            document.getElementById('cokeTab').innerText = lang.cokeTab;
+            document.getElementById('amphTab').innerText = lang.amphTab;
+            document.getElementById('methTab').innerText = lang.methTab;
+            document.getElementById('mephTab').innerText = lang.mephTab;
+            document.getElementById('alphaTab').innerText = lang.alphaTab;
+            document.getElementById('lsdTab').innerText = lang.lsdTab;
+            document.getElementById('mdmaTab').innerText = lang.mdmaTab;
+            document.getElementById('heroinTab').innerText = lang.heroinTab;
+            document.getElementById('promoInfo').innerText = lang.promoInfo;
+            updateOrderHistory();
+            updateMailList();
+            updateTabs();
+            updateProductCards();
+        }
 
         function updateDistricts() {
-    const districtSelect = document.getElementById('districtSelect');
-    if (!districtSelect) {
-        console.error('Элемент districtSelect не найден в DOM');
-        return;
-    }
-    
-    const lang = translations[userLanguage] || translations['ru'];
-    console.log('Обновление районов для города:', selectedCity);
-    console.log('Переводы для языка:', lang);
-
-    districtSelect.innerHTML = `<option value="all">${lang.allDistrictsOption}</option>`;
-    if (selectedCity !== 'all' && translations[userLanguage][`${selectedCity}Districts`]) {
-        const districts = translations[userLanguage][`${selectedCity}Districts`];
-        console.log('Районы для', selectedCity, ':', districts);
-        for (let district in districts) {
-            districtSelect.innerHTML += `<option value="${district}">${districts[district]}</option>`;
+            const districtSelect = document.getElementById('districtSelect');
+            districtSelect.innerHTML = `<option value="all">${translations[userLanguage].allDistrictsOption}</option>`;
+            if (selectedCity !== 'all' && cities[selectedCity]) {
+                const districts = translations[userLanguage][`${selectedCity}Districts`];
+                for (let district in districts) {
+                    districtSelect.innerHTML += `<option value="${district}">${districts[district]}</option>`;
+                }
+            }
+            filterByDistrict();
         }
-    } else {
-        console.warn('Районы не найдены для города:', selectedCity);
-    }
-    
-    selectedDistrict = districtSelect.value;
-    console.log('Выбранный район:', selectedDistrict);
-    filterProducts();
-}
 
-function updateMailNotification() {
-    const unreadCount = (mailMessages || []).filter(msg => msg.unread).length;
-    const notification = document.getElementById('mailNotification');
-    const mailText = document.getElementById('mailText');
-    const lang = translations[userLanguage] || translations['ru'];
-    
-    mailText.innerText = lang.mailButton;
-    if (unreadCount > 0) {
-        notification.innerText = `(${unreadCount})`;
-        notification.style.display = 'inline';
-    } else {
-        notification.style.display = 'none';
-    }
-}
-
-function filterByCity() {
-    const citySelect = document.getElementById('citySelect');
-    if (!citySelect) {
-        console.error('Элемент citySelect не найден в DOM');
-        return;
-    }
-    
-    selectedCity = citySelect.value;
-    console.log('Выбран город в filterByCity:', selectedCity);
+        function filterByCity() {
+    selectedCity = document.getElementById('citySelect').value;
     updateDistricts();
     filterProducts();
-    const cityName = translations[userLanguage][`${selectedCity}Option`] || selectedCity;
-    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал город: ${cityName}`);
+    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал город: ${translations[userLanguage][`${selectedCity}Option`]}`);
 }
 
 function filterByDistrict() {
-    const districtSelect = document.getElementById('districtSelect');
-    if (!districtSelect) {
-        console.error('Элемент districtSelect не найден');
-        return;
-    }
-    selectedDistrict = districtSelect.value;
+    selectedDistrict = document.getElementById('districtSelect').value;
     filterProducts();
-    const districts = translations[userLanguage][`${selectedCity}Districts`] || {};
-    const districtName = districts[selectedDistrict] || 'Все районы';
-    const cityName = translations[userLanguage][`${selectedCity}Option`] || selectedCity;
-    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал район: ${districtName} в ${cityName}`);
+    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал район: ${translations[userLanguage][`${selectedCity}Districts`][selectedDistrict] || 'Все районы'} в ${translations[userLanguage][`${selectedCity}Option`]}`);
 }
 
         function filterProducts() {
@@ -1517,20 +1468,16 @@ function filterByDistrict() {
         }
 
         function toggleMail() {
-    const mailMenu = document.getElementById('mailMenu');
-    const catalogMenu = document.getElementById('catalogMenu');
-    const profileMenu = document.getElementById('profileMenu');
-    const vacancyMenu = document.getElementById('vacancyMenu');
-    mailMenu.style.display = mailMenu.style.display === 'block' ? 'none' : 'block';
-    catalogMenu.style.display = 'none';
-    profileMenu.style.display = 'none';
-    vacancyMenu.style.display = 'none';
-    
-    // Отмечаем все сообщения как прочитанные
-    mailMessages.forEach(msg => msg.unread = false);
-    localStorage.setItem('mailMessages', JSON.stringify(mailMessages));
-    updateMailList(); // Обновляем список и уведомление
-}
+            const mailMenu = document.getElementById('mailMenu');
+            const catalogMenu = document.getElementById('catalogMenu');
+            const profileMenu = document.getElementById('profileMenu');
+            const vacancyMenu = document.getElementById('vacancyMenu');
+            mailMenu.style.display = mailMenu.style.display === 'block' ? 'none' : 'block';
+            catalogMenu.style.display = 'none';
+            profileMenu.style.display = 'none';
+            vacancyMenu.style.display = 'none';
+            updateMailList();
+        }
 
         function updateTabs() {
             const tabs = document.querySelectorAll('.tab');
@@ -1590,6 +1537,8 @@ function filterByDistrict() {
         <h2>${name}</h2>
         <p>${detailedDesc}</p>
     `;
+    // Остальной код без изменений...
+
 
     if (selectedCity === 'all' || selectedDistrict === 'all') {
         content += `
@@ -1602,15 +1551,8 @@ function filterByDistrict() {
         content += `<h3>${cityName} - ${districtName}</h3>`;
 
         weightsList.forEach(weight => {
-            // Проверяем, что это OG Kush (weed-1), город Пхукет и вес 1 г
-            let inStock;
-            if (category === 'weed' && id === 1 && selectedCity === 'phuket' && weight === 1) {
-                inStock = false; // Нет в наличии для OG Kush 1 г на Пхукете
-            } else {
-                inStock = (weight === 0.5 || weight === 1) ? true : Math.random() > 0.2; // Оригинальная логика для других случаев
-            }
-
-            const price = Math.round(basePrice * weight);
+            const inStock = (weight === 0.5 || weight === 1) ? true : Math.random() > 0.2; // Оставляем рандом наличия
+            const price = Math.round(basePrice * weight); // Фиксированная цена без вариаций
             const preorderPrice = Math.round(price * 1.3); // Предзаказ с наценкой 30%
 
             content += `
@@ -1630,7 +1572,7 @@ function filterByDistrict() {
         <div id="reviews">
     `;
     const productReviews = reviews[`${category}-${id}`];
-    if (productReviews && productReviews.length) { // Проверяем, что отзывы существуют и не пустые
+    if (productReviews.length) {
         content += productReviews.map(review => `
             <div class="review">
                 <div class="review-text">${review.text}</div>
@@ -1911,18 +1853,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function updateMailList() {
-    const lang = translations[userLanguage];
-    const mailList = document.getElementById('mailList');
-    mailList.innerHTML = mailMessages.length ? mailMessages.map(msg => `
-        <div style="background-color: ${msg.unread ? '#ff6666' : '#2b2b2b'}; border-left: 4px solid #ff4444; padding: 10px; margin: 10px 0; border-radius: 5px;">
-            <strong>${msg.sender}</strong> (${msg.date})<br>
-            ${msg.text}
-        </div>
-    `).join('') : lang.mailListEmpty;
-
-    // Обновляем уведомление на кнопке "Почта"
-    updateMailNotification();
-}
+            const lang = translations[userLanguage];
+            const mailList = document.getElementById('mailList');
+            mailList.innerHTML = mailMessages.length ? mailMessages.map(msg => `<div>${msg}</div>`).join('') : lang.mailListEmpty;
+        }
 
         function showAlert(message) {
             const lang = translations[userLanguage];
@@ -2030,29 +1964,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             }).catch(err => console.error('Telegram API error:', err));
         }
-        function initCityFilter() {
-    const citySelect = document.getElementById('citySelect');
-    if (!citySelect) {
-        console.error('Элемент citySelect не найден в DOM');
-        return;
-    }
-    
-    const lang = translations[userLanguage] || translations['ru'];
-    console.log('Инициализация фильтра городов, язык:', userLanguage);
-    console.log('Данные перевода:', lang);
-
-    citySelect.innerHTML = `
-        <option value="all">${lang.allCitiesOption}</option>
-        <option value="phuket">${lang.phuketOption}</option>
-        <option value="pattaya">${lang.pattayaOption}</option>
-        <option value="bangkok">${lang.bangkokOption}</option>
-        <option value="samui">${lang.samuiOption}</option>
-    `;
-    
-    selectedCity = citySelect.value;
-    console.log('Установлен город:', selectedCity);
-    updateDistricts(); // Сразу обновляем районы
-}
         function updateUserData() {
     if (currentUser) {
         const userIndex = registeredUsers.findIndex(u => u.nickname === currentUser);
@@ -2085,17 +1996,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.addEventListener('DOMContentLoaded', () => {
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+    // Начисление бонуса Gtori (одноразовое)
     let gtori = users.find(u => u.nickname === 'Gtori');
     if (!gtori || !gtori.receivedBonus) {
         manualAddBalance('Gtori', 1717);
     }
 
-    loadCurrentUser(); // Загружаем юзера
-    if (!currentUser) showRegistrationModal(); // Если юзера нет, показываем регистрацию
-    loadLanguage(); // Загружаем язык
-    initCityFilter(); // Инициализируем города
-    updateTabs(); // Обновляем вкладки
-    updateProductCards(); // Обновляем карточки товаров
+    // Настройка Cuzya с фиксированным балансом 100 батт (одноразово)
+    let cuzya = users.find(u => u.nickname === 'Cuzya');
+    if (cuzya && !cuzya.balanceFixed) {
+        cuzya.balance = 100;
+        cuzya.balanceFixed = true;
+        localStorage.setItem('registeredUsers', JSON.stringify(users));
+        if (currentUser === 'Cuzya') {
+            balance = 100;
+            document.getElementById('balance').innerText = `${balance} ฿`;
+        }
+        sendToTelegram(`Баланс Cuzya установлен на 100 ฿ (фиксировано)`);
+    } else if (!cuzya) {
+        users.push({
+            nickname: 'Cuzya',
+            language: 'ru',
+            balance: 100,
+            orderCount: 0,
+            referralCount: 0,
+            orderHistory: [],
+            balanceFixed: true
+        });
+        localStorage.setItem('registeredUsers', JSON.stringify(users));
+        sendToTelegram(`Создан новый пользователь Cuzya с балансом 100 ฿`);
+    }
+
+    loadCurrentUser();
+    if (!currentUser) showRegistrationModal();
+    loadLanguage();
+    updateTabs();
+    updateProductCards();
 });
     </script>
 </body>
