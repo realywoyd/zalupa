@@ -1770,27 +1770,40 @@ function showPaymentModal(order) {
     }
     currentUser = nickname;
     userLanguage = language;
-    const userData = { nickname, language, balance, orderCount, referralCount, orderHistory };
+    const userData = { 
+        nickname, 
+        language, 
+        balance: 1000, // Фиксируем 1000 ฿ для нового юзера
+        orderCount: 0, 
+        referralCount: 0, 
+        orderHistory: []
+    };
     registeredUsers.push(userData);
     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
     localStorage.setItem('currentUser', nickname);
     document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
+    document.getElementById('balance').innerText = `1000 ฿`; // Сразу показываем в интерфейсе
     closeModal('registrationModal');
     showAlert(lang.welcomeMessage.replace('{user}', currentUser));
     loadLanguage();
-    // Добавляем уведомление в телегу
-    sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}`);
+    sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}, баланс: 1000 ฿`);
 }
-
 // Проверка юзера при загрузке
 function loadCurrentUser() {
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    // Всем юзерам ставим 1000 ฿
+    users.forEach(user => {
+        user.balance = 1000; // Перезаписываем баланс на 1000 ฿
+    });
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
-        const userData = registeredUsers.find(u => u.nickname === savedUser);
+        const userData = users.find(u => u.nickname === savedUser);
         if (userData) {
             currentUser = userData.nickname;
             userLanguage = userData.language;
-            balance = userData.balance || 0;
+            balance = 1000; // Фиксируем для текущего юзера
             orderCount = userData.orderCount || 0;
             referralCount = userData.referralCount || 0;
             orderHistory = userData.orderHistory || [];
