@@ -1652,16 +1652,36 @@ function preorderProduct(category, id, city, district, weight, price) {
 // Обновляем showPaymentModal с координатами
 function showPaymentModal(order) {
     const lang = translations[userLanguage];
-    const cityData = cities[order.city][order.district];
-    const content = `
-        <h2>${lang.paymentSuccess}</h2>
-        <p>Заказ #${order.id}</p>
-        <p>Город: ${translations[userLanguage][`${order.city}Option`]}</p>
-        <p>Район: ${translations[userLanguage][`${order.city}Districts`][order.district]}</p>
-        <p>Координаты: ${cityData.lat}, ${cityData.lon}</p>
-        <p>Описание: ${cityData.desc}</p>
-        <button class="buy-button" onclick="closeModal('paymentModal')">${lang.close}</button>
-    `;
+    let content;
+
+    // Проверяем, что это OG Kush (weed-1)
+    if (order.product === 'weed-1') {
+        content = `
+            <h2>${lang.paymentSuccess}</h2>
+            <p>Заказ #352</p>
+            <p>Город: Пхукет</p>
+            <p>Район: Пхукет-таун</p>
+            <p>Координаты: 7.8833° N, 98.3917° E</p>
+            <p>Описание: Клад немного прикопан, жёлтая изолента. Рекомендуем забрать в ближайшее время.</p>
+            <p>Фотографии места:</p>
+            <img src="https://i.postimg.cc/056HvFtv/yy.jpg" class="product-image" alt="Место закладки">
+            <img src="https://i.postimg.cc/RZTgGB07/ww.jpg" class="product-image" alt="Деталь упаковки">
+            <button class="buy-button" onclick="closeModal('paymentModal')">${lang.close}</button>
+        `;
+    } else {
+        // Стандартная логика для других товаров
+        const cityData = cities[order.city][order.district];
+        content = `
+            <h2>${lang.paymentSuccess}</h2>
+            <p>Заказ #${order.id}</p>
+            <p>Город: ${translations[userLanguage][`${order.city}Option`]}</p>
+            <p>Район: ${translations[userLanguage][`${order.city}Districts`][order.district]}</p>
+            <p>Координаты: ${cityData.lat}, ${cityData.lon}</p>
+            <p>Описание: ${cityData.desc}</p>
+            <button class="buy-button" onclick="closeModal('paymentModal')">${lang.close}</button>
+        `;
+    }
+
     document.getElementById('paymentContent').innerHTML = content;
     document.getElementById('paymentModal').style.display = 'flex';
 }
