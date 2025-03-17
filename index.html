@@ -376,10 +376,7 @@ async function fetchCryptoRates() {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,solana,ton-crystal&vs_currencies=usd');
         const data = await response.json();
         
-        // Фиксированный курс USD/THB (можно заменить на динамический позже)
-        const usdToThb = 33; // Примерное значение на март 2025
-
-        // Обновляем cryptoRates на основе данных от CoinGecko
+        const usdToThb = 33; // Фиксированный курс USD/THB
         cryptoRates = {
             BTC: data.bitcoin.usd * usdToThb,
             ETH: data.ethereum.usd * usdToThb,
@@ -388,10 +385,10 @@ async function fetchCryptoRates() {
             TON: data['ton-crystal'].usd * usdToThb
         };
 
-        console.log('Актуальные курсы загружены:', cryptoRates);
+        console.log('Актуальные курсы в THB:', cryptoRates);
+        console.log('TON за 1000 THB:', (1000 / cryptoRates.TON).toFixed(2), 'TON');
     } catch (error) {
         console.error('Ошибка загрузки курсов:', error);
-        // Оставляем старые курсы как запасной вариант
         cryptoRates = {
             BTC: 2000000,
             ETH: 100000,
@@ -399,7 +396,9 @@ async function fetchCryptoRates() {
             SOL: 5000,
             TON: 200
         };
+        console.log('Используются запасные курсы:', cryptoRates);
     }
+}
 }
         function manualAddBalance(nickname, amount) {
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
@@ -1778,7 +1777,7 @@ function showPaymentModal(order) {
         showAlert(lang.minDepositError);
         return;
     }
-    const cryptoAmount = (amount / cryptoRates[crypto]).toFixed(6); // Используем актуальный курс
+    const cryptoAmount = (amount / cryptoRates[crypto]).toFixed(6); // Актуальный курс
     const address = testAddresses[crypto];
     const content = `
         <p>${lang.depositInstruction.replace('{amount}', amount).replace('{cryptoAmount}', cryptoAmount).replace('{crypto}', crypto)}</p>
@@ -1788,6 +1787,7 @@ function showPaymentModal(order) {
         <button class="buy-button" onclick="confirmDeposit('${crypto}', ${amount}, '${address}')">${lang.confirmPayment}</button>
     `;
     document.getElementById('depositAddress').innerHTML = content;
+    console.log(`Для ${amount} THB в ${crypto}: ${cryptoAmount} ${crypto} (курс: ${cryptoRates[crypto]} THB/${crypto})`);
 }
         function confirmDeposit(crypto, amount, address) {
     const lang = translations[userLanguage];
@@ -2030,7 +2030,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
         document.addEventListener('DOMContentLoaded', async () => {
-    // Загружаем актуальные курсы
+    // Ждём загрузки курсов перед любой инициализацией
     await fetchCryptoRates();
 
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
