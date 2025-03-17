@@ -81,14 +81,7 @@
         </div>
         
         <div class="catalog-menu" id="catalogMenu">
-            <div class="city-filter">
-                <select id="citySelect" onchange="filterByCity()">
-                    <option value="all" id="allCitiesOption"></option>
-                    <option value="phuket" id="phuketOption"></option>
-                    <option value="pattaya" id="pattayaOption"></option>
-                    <option value="bangkok" id="bangkokOption"></option>
-                    <option value="samui" id="samuiOption"></option>
-                </select>
+            <div class="city-filter
                 <select id="districtSelect" onchange="filterByDistrict()">
                     <option value="all" id="allDistrictsOption"></option>
                 </select>
@@ -1997,6 +1990,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             }).catch(err => console.error('Telegram API error:', err));
         }
+        function initCityFilter() {
+    const lang = translations[userLanguage];
+    const citySelect = document.getElementById('citySelect');
+    citySelect.innerHTML = `
+        <option value="all">${lang.allCitiesOption}</option>
+        <option value="phuket">${lang.phuketOption}</option>
+        <option value="p"Can you help me fix this issue?attaya">${lang.pattayaOption}</option>
+        <option value="bangkok">${lang.bangkokOption}</option>
+        <option value="samui">${lang.samuiOption}</option>
+    `;
+    selectedCity = citySelect.value; // Устанавливаем начальное значение
+    updateDistricts(); // Обновляем районы для выбранного города
+}
         function updateUserData() {
     if (currentUser) {
         const userIndex = registeredUsers.findIndex(u => u.nickname === currentUser);
@@ -2043,12 +2049,13 @@ document.addEventListener('DOMContentLoaded', () => {
             unread: true
         };
         mailMessages.push(adminMessage);
-        localStorage.setItem('mailMessages', JSON.stringify(mailMessages)); // Сохраняем в localStorage
+        localStorage.setItem('mailMessages', JSON.stringify(mailMessages));
     }
 
     loadCurrentUser();
     if (!currentUser) showRegistrationModal();
     loadLanguage();
+    initCityFilter(); // Инициализируем фильтр городов
     updateTabs();
     updateProductCards();
 });
