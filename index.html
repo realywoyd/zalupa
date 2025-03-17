@@ -1802,6 +1802,7 @@ function showPaymentModal(order) {
     document.getElementById('depositAddress').innerHTML = content;
     console.log(`Для ${amount} THB в ${crypto}: ${cryptoAmount} ${crypto} (курс: ${cryptoRates[crypto]} THB/${crypto})`);
 }
+        
         function confirmDeposit(crypto, amount, address) {
     const lang = translations[userLanguage];
     const paymentId = Date.now(); // Уникальный ID платежа на основе времени
