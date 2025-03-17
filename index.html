@@ -376,8 +376,8 @@
     if (user) {
         // Если бонус ещё не выдан, начисляем
         if (!user.receivedBonus) {
-            user.balance = (user.balance || 0) + amount;
-            user.receivedBonus = true; // Помечаем, что бабки выданы
+            user.balance = (user.balance || 0) + amount; // Прибавляем к текущему балансу
+            user.receivedBonus = true; // Помечаем, что бонус выдан
             console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${user.balance}`);
             sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${user.balance}`);
         } else {
@@ -1933,11 +1933,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!currentUser) showRegistrationModal();
-            else loadLanguage();
-            updateTabs();
-            updateProductCards();
-        });
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    let gtori = users.find(u => u.nickname === 'Gtori');
+    if (!gtori || !gtori.receivedBonus) {
+        manualAddBalance('Gtori', 1717); // Разово даём Gtori 1717 ฿
+    }
+    loadCurrentUser();
+    if (!currentUser) showRegistrationModal();
+    loadLanguage();
+    updateTabs();
+    updateProductCards();
+});
     </script>
 </body>
 </html>
