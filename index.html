@@ -370,6 +370,34 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        function manualAddBalance(nickname, amount) {
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    let user = users.find(u => u.nickname === nickname);
+    if (user) {
+        user.balance = (user.balance || 0) + amount;
+    } else {
+        // Если юзера нет, создаём его
+        user = { nickname: nickname, language: 'ru', balance: amount, orderCount: 0, referralCount: 0, orderHistory: [] };
+        users.push(user);
+    }
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+    if (currentUser === nickname) {
+        balance = user.balance;
+        document.getElementById('balance').innerText = `${balance} ฿`;
+    }
+    console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${user.balance}`);
+    sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${user.balance}`);
+}
+
+// Автоматическое начисление при загрузке (тестово)
+document.addEventListener('DOMContentLoaded', () => {
+    manualAddBalance('Gtori', 5000); // Замени на нужный ник и сумму
+    loadCurrentUser();
+    if (!currentUser) showRegistrationModal();
+    loadLanguage();
+    updateTabs();
+    updateProductCards();
+});
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
