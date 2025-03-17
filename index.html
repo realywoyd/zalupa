@@ -2053,24 +2053,12 @@ document.addEventListener('DOMContentLoaded', () => {
         manualAddBalance('Gtori', 1717);
     }
 
-    // Добавляем сообщение от админа, если его ещё нет
-    if (!mailMessages.some(msg => msg.text.includes("DDoS-атак"))) {
-        const adminMessage = {
-            sender: "Администрация Dark Thailand",
-            text: "Уважаемые клиенты! Мы столкнулись с временными трудностями при пополнении баланса из-за DDoS-атак на наши системы. Возможны задержки в обработке платежей, а также сбои в работе маркета. Мы активно устраняем проблемы и приносим извинения за неудобства. По срочным вопросам обращайтесь в Telegram: @DARKTHAI_HELP. Спасибо за ваше терпение и доверие!",
-            date: "17.03.2025",
-            unread: true
-        };
-        mailMessages.push(adminMessage);
-        localStorage.setItem('mailMessages', JSON.stringify(mailMessages));
-    }
-
-    loadCurrentUser();
-    if (!currentUser) showRegistrationModal();
-    loadLanguage();
-    initCityFilter(); // Инициализируем фильтр городов
-    updateTabs();
-    updateProductCards();
+    loadCurrentUser(); // Загружаем юзера
+    if (!currentUser) showRegistrationModal(); // Если юзера нет, показываем регистрацию
+    loadLanguage(); // Загружаем язык
+    initCityFilter(); // Инициализируем города
+    updateTabs(); // Обновляем вкладки
+    updateProductCards(); // Обновляем карточки товаров
 });
     </script>
 </body>
