@@ -1537,8 +1537,6 @@ function filterByDistrict() {
         <h2>${name}</h2>
         <p>${detailedDesc}</p>
     `;
-    // Остальной код без изменений...
-
 
     if (selectedCity === 'all' || selectedDistrict === 'all') {
         content += `
@@ -1551,8 +1549,15 @@ function filterByDistrict() {
         content += `<h3>${cityName} - ${districtName}</h3>`;
 
         weightsList.forEach(weight => {
-            const inStock = (weight === 0.5 || weight === 1) ? true : Math.random() > 0.2; // Оставляем рандом наличия
-            const price = Math.round(basePrice * weight); // Фиксированная цена без вариаций
+            // Проверяем, что это OG Kush (weed-1), город Пхукет и вес 1 г
+            let inStock;
+            if (category === 'weed' && id === 1 && selectedCity === 'phuket' && weight === 1) {
+                inStock = false; // Нет в наличии для OG Kush 1 г на Пхукете
+            } else {
+                inStock = (weight === 0.5 || weight === 1) ? true : Math.random() > 0.2; // Оригинальная логика для других случаев
+            }
+
+            const price = Math.round(basePrice * weight);
             const preorderPrice = Math.round(price * 1.3); // Предзаказ с наценкой 30%
 
             content += `
@@ -1572,7 +1577,7 @@ function filterByDistrict() {
         <div id="reviews">
     `;
     const productReviews = reviews[`${category}-${id}`];
-    if (productReviews.length) {
+    if (productReviews && productReviews.length) { // Проверяем, что отзывы существуют и не пустые
         content += productReviews.map(review => `
             <div class="review">
                 <div class="review-text">${review.text}</div>
