@@ -399,7 +399,6 @@ async function fetchCryptoRates() {
         console.log('Используются запасные курсы:', cryptoRates);
     }
 }
-}
         function manualAddBalance(nickname, amount) {
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
     let user = users.find(u => u.nickname === nickname);
