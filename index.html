@@ -1546,61 +1546,60 @@ function filterByDistrict() {
 // Обновляем buyProduct для работы с конкретным городом, районом и весом
 function buyProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
-    if (balance >= price) {
-        balance -= price;
-        orderCount++;
-        const order = {
-            id: orderCount,
-            product: `${category}-${id}`,
-            weight: weight,
-            price: price,
-            date: new Date().toLocaleString(),
-            city: city,
-            district: district
-        };
-        orderHistory.push(order);
-        updateOrderHistory();
-        document.getElementById('balance').innerText = `${balance} ฿`;
-        document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-        showPaymentModal(order);
-        sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-        updateUserData();
-    } else {
-        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
+    // Автоматически начисляем бабки, если не хватает
+    if (balance < price) {
+        balance += price; // Начисляем ровно столько, сколько надо
+        console.log(`Начислил ${price} ฿, теперь баланс: ${balance}`);
     }
+    orderCount++;
+    const order = {
+        id: orderCount,
+        product: `${category}-${id}`,
+        weight: weight,
+        price: price,
+        date: new Date().toLocaleString(),
+        city: city,
+        district: district
+    };
+    orderHistory.push(order);
+    updateOrderHistory();
+    document.getElementById('balance').innerText = `${balance} ฿`;
+    document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+    showPaymentModal(order); // Оставляем координаты, но без оплаты
+    sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
+    updateUserData();
     closeModal('productModal');
 }
 
 // Обновляем preorderProduct
 function preorderProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
-    const totalPrice = Math.round(price); // Уже с наценкой 30%
-    if (balance >= totalPrice) {
-        balance -= totalPrice;
-        orderCount++;
-        const order = {
-            id: orderCount,
-            product: `${category}-${id}`,
-            weight: weight,
-            price: totalPrice,
-            date: new Date().toLocaleString(),
-            city: city,
-            district: district,
-            preorder: true
-        };
-        orderHistory.push(order);
-        updateOrderHistory();
-        document.getElementById('balance').innerText = `${balance} ฿`;
-        document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-        showPreorderModal(order);
-        sendToTelegram(`New preorder #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-        updateUserData();
-    } else {
-        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
+    const totalPrice = Math.round(price);
+    // Автоматически начисляем бабки, если не хватает
+    if (balance < totalPrice) {
+        balance += totalPrice; // Начисляем ровно столько, сколько надо
+        console.log(`Начислил ${totalPrice} ฿, теперь баланс: ${balance}`);
     }
+    orderCount++;
+    const order = {
+        id: orderCount,
+        product: `${category}-${id}`,
+        weight: weight,
+        price: totalPrice,
+        date: new Date().toLocaleString(),
+        city: city,
+        district: district,
+        preorder: true
+    };
+    orderHistory.push(order);
+    updateOrderHistory();
+    document.getElementById('balance').innerText = `${balance} ฿`;
+    document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+    showPreorderModal(order);
+    sendToTelegram(`New preorder #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
+    updateUserData();
     closeModal('productModal');
 }
-
 // Обновляем showPaymentModal с координатами
 function showPaymentModal(order) {
     const lang = translations[userLanguage];
