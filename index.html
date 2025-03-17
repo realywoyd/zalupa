@@ -374,19 +374,35 @@
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
     let user = users.find(u => u.nickname === nickname);
     if (user) {
-        user.balance = (user.balance || 0) + amount;
+        // Если юзер уже получил стартовый бонус, не даём ещё
+        if (!user.receivedBonus) {
+            user.balance = (user.balance || 0) + amount;
+            user.receivedBonus = true; // Помечаем, что бонус выдан
+            console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${user.balance}`);
+            sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${user.balance}`);
+        } else {
+            console.log(`${nickname} уже получил свои бабки, хватит жрать!`);
+        }
     } else {
-        // Если юзера нет, создаём его
-        user = { nickname: nickname, language: 'ru', balance: amount, orderCount: 0, referralCount: 0, orderHistory: [] };
+        // Если юзера нет, создаём с бонусом и флагом
+        user = { 
+            nickname: nickname, 
+            language: 'ru', 
+            balance: amount, 
+            orderCount: 0, 
+            referralCount: 0, 
+            orderHistory: [],
+            receivedBonus: true // Сразу помечаем, что бонус выдан
+        };
         users.push(user);
+        console.log(`Создал ${nickname} и начислил ${amount} ฿`);
+        sendToTelegram(`Новый юзер ${nickname} создан с ${amount} ฿`);
     }
     localStorage.setItem('registeredUsers', JSON.stringify(users));
     if (currentUser === nickname) {
         balance = user.balance;
         document.getElementById('balance').innerText = `${balance} ฿`;
     }
-    console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${user.balance}`);
-    sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${user.balance}`);
 }
 
 // Автоматическое начисление при загрузке (тестово)
