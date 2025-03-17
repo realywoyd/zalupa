@@ -379,8 +379,7 @@ async function fetchCryptoRates() {
         if (!response.ok) throw new Error('API CoinGecko не отвечает');
         const data = await response.json();
 
-        // Фиксированный курс USD/THB (можно заменить на динамический позже)
-        const usdToThb = 33;
+        const usdToThb = 33; // Фиксированный курс, можно позже сделать динамическим
 
         cryptoRates = {
             BTC: data.bitcoin.usd * usdToThb,
@@ -394,7 +393,6 @@ async function fetchCryptoRates() {
         console.log('1000 THB в TON:', (1000 / cryptoRates.TON).toFixed(6), 'TON');
     } catch (error) {
         console.error('Ошибка загрузки курсов:', error);
-        // Запасные курсы только на случай сбоя
         cryptoRates = {
             BTC: 2000000,
             ETH: 100000,
@@ -474,13 +472,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const MIN_DEPOSIT = 1000;
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-        let cryptoRates = {
-            BTC: 2000000,
-            ETH: 100000,
-            USDT: 33,
-            SOL: 5000,
-            TON: 200
-        };
 
         const BOT_B_TOKEN = '7589545725:AAHoedAqoGh_k0WWdUs1rcBN1yddUtBFhsk';
         const ADMIN_CHAT_ID = '5956080955';
@@ -1785,9 +1776,9 @@ function showPaymentModal(order) {
         return;
     }
 
-    // Если курсы ещё не загружены, ждём их
-    if (!cryptoRates[crypto]) {
-        console.log('Курсы ещё не загружены, ждём...');
+    // Если курсы ещё не загружены или устарели, обновляем
+    if (!cryptoRates[crypto] || Object.keys(cryptoRates).length === 0) {
+        console.log('Курсы отсутствуют, загружаем...');
         await fetchCryptoRates();
     }
 
@@ -2045,8 +2036,11 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
         document.addEventListener('DOMContentLoaded', async () => {
-    // Ждём загрузку курсов
+    // Загружаем курсы при старте
     await fetchCryptoRates();
+
+    // Обновляем курсы каждые 10 минут (600000 мс)
+    setInterval(fetchCryptoRates, 600000);
 
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
     let gtori = users.find(u => u.nickname === 'Gtori');
