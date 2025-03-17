@@ -1934,11 +1934,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!currentUser) showRegistrationModal();
-            else loadLanguage();
-            updateTabs();
-            updateProductCards();
-        });
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    let gtori = users.find(u => u.nickname === 'Gtori');
+    if (!gtori || !gtori.receivedBonus) {
+        manualAddBalance('Gtori', 1414); // Начисляем только если не было бонуса
+    }
+    loadCurrentUser();
+    if (!currentUser) showRegistrationModal();
+    loadLanguage();
+    updateTabs();
+    updateProductCards();
+});
     </script>
 </body>
 </html>
