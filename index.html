@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let balance = 0;
-        let orderCount = 0;
+        let orderCount = 352;
         let referralCount = 0;
         let orderHistory = [];
         let selectedCity = 'all';
@@ -1790,21 +1790,14 @@ function showPaymentModal(order) {
 }
 // Проверка юзера при загрузке
 function loadCurrentUser() {
-    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-    // Всем юзерам ставим 1000 ฿
-    users.forEach(user => {
-        user.balance = 1000; // Перезаписываем баланс на 1000 ฿
-    });
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
-
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
-        const userData = users.find(u => u.nickname === savedUser);
+        const userData = registeredUsers.find(u => u.nickname === savedUser);
         if (userData) {
             currentUser = userData.nickname;
             userLanguage = userData.language;
-            balance = 1000; // Фиксируем для текущего юзера
-            orderCount = userData.orderCount || 0;
+            balance = userData.balance || 0;
+            orderCount = userData.orderCount || 352; // Если нет сохранённого, начинаем с 352
             referralCount = userData.referralCount || 0;
             orderHistory = userData.orderHistory || [];
             document.getElementById('balance').innerText = `${balance} ฿`;
