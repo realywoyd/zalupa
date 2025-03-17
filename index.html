@@ -6,6 +6,11 @@
     <meta http-equiv="Content-Security-Policy" content="sandbox allow-same-origin allow-modals allow-scripts; img-src 'self' https://i.postimg.cc https://images.unsplash.com">
     <title>Dark Thailand - Надёжный шоп</title>
     <style>
+        #mailNotification {
+    position: relative;
+    top: -5px;
+    font-weight: bold;
+}
         body {
             font-family: 'Courier New', monospace;
             margin: 0;
@@ -68,7 +73,10 @@
         <div class="nav">
             <button class="nav-button" id="catalogButton" onclick="toggleCatalog()"></button>
             <button class="nav-button" id="vacanciesButton" onclick="toggleVacancies()"></button>
-            <button class="nav-button" id="mailButton" onclick="toggleMail()"></button>
+            <button class="nav-button" id="mailButton" onclick="toggleMail()">
+    <span id="mailText"></span>
+    <span id="mailNotification" style="display: none; background-color: #ff4444; color: #000; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 5px;"></span>
+</button>
             <button class="profile-button" onclick="toggleProfile()">☠️</button>
         </div>
         
@@ -433,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let selectedDistrict = 'all';
         let currentUser = null;
         let userLanguage = 'en';
-        let mailMessages = [];
+        let mailMessages = JSON.parse(localStorage.getItem('mailMessages')) || [];
         let pendingPayments = {};
         const MIN_DEPOSIT = 1000;
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
@@ -464,6 +472,13 @@ document.addEventListener('DOMContentLoaded', () => {
             SOL: "Solana",
             TON: "TON"
         };
+        
+        const adminMessage = {
+    sender: "Администрация Dark Thailand",
+    text: "Уважаемые клиенты! Мы столкнулись с временными трудностями при пополнении баланса из-за DDoS-атак на наши системы. Возможны задержки в обработке платежей, а также сбои в работе маркета. Мы активно устраняем проблемы и приносим извинения за неудобства. По срочным вопросам обращайтесь в Telegram: @DARKTHAI_HELP. Спасибо за ваше терпение и доверие!",
+    date: "17.03.2025",
+    unread: true // Флаг для нового сообщения
+};
 
         const translations = {
             en: {
@@ -1334,58 +1349,52 @@ const reviews = {
 };
 
         function loadLanguage() {
-            const lang = translations[userLanguage];
-            document.getElementById('promoBanner').innerText = lang.promoBanner;
-            document.getElementById('headerText').innerText = lang.headerText;
-            document.getElementById('catalogButton').innerText = lang.catalogButton;
-            document.getElementById('vacanciesButton').innerText = lang.vacanciesButton;
-            document.getElementById('mailButton').innerText = lang.mailButton;
-            document.getElementById('allCitiesOption').innerText = lang.allCitiesOption;
-            document.getElementById('phuketOption').innerText = lang.phuketOption;
-            document.getElementById('pattayaOption').innerText = lang.pattayaOption;
-            document.getElementById('bangkokOption').innerText = lang.bangkokOption;
-            document.getElementById('samuiOption').innerText = lang.samuiOption;
-            document.getElementById('allDistrictsOption').innerText = lang.allDistrictsOption;
-            document.getElementById('weedDesc').innerText = lang.weedDesc;
-            document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + (currentUser || 'Гость');
-            document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-            document.getElementById('referralsLabel').innerText = lang.referralsLabel + referralCount;
-            document.getElementById('depositTitle').innerText = lang.depositTitle;
-            document.getElementById('orderHistoryTitle').innerText = lang.orderHistoryTitle;
-            document.getElementById('vacanciesTitle').innerText = lang.vacanciesTitle;
-            document.getElementById('courierTitle').innerText = lang.courierTitle;
-            document.getElementById('courierDuties').innerText = lang.courierDuties;
-            document.getElementById('courierPay').innerText = lang.courierPay;
-            document.getElementById('warehousemanTitle').innerText = lang.warehousemanTitle;
-            document.getElementById('warehousemanDuties').innerText = lang.warehousemanDuties;
-            document.getElementById('warehousemanPay').innerText = lang.warehousemanPay;
-            document.getElementById('transporterTitle').innerText = lang.transporterTitle;
-            document.getElementById('transporterDuties').innerText = lang.transporterDuties;
-            document.getElementById('transporterPay').innerText = lang.transporterPay;
-            document.getElementById('smmTitle').innerText = lang.smmTitle;
-            document.getElementById('smmDuties').innerText = lang.smmDuties;
-            document.getElementById('smmPay').innerText = lang.smmPay;
-            document.getElementById('applyButton1').innerText = lang.applyButton;
-            document.getElementById('applyButton2').innerText = lang.applyButton;
-            document.getElementById('applyButton3').innerText = lang.applyButton;
-            document.getElementById('applyButton4').innerText = lang.applyButton;
-            document.getElementById('mailTitle').innerText = lang.mailTitle;
-            document.getElementById('weedTab').innerText = lang.weedTab;
-            document.getElementById('hashTab').innerText = lang.hashTab;
-            document.getElementById('cokeTab').innerText = lang.cokeTab;
-            document.getElementById('amphTab').innerText = lang.amphTab;
-            document.getElementById('methTab').innerText = lang.methTab;
-            document.getElementById('mephTab').innerText = lang.mephTab;
-            document.getElementById('alphaTab').innerText = lang.alphaTab;
-            document.getElementById('lsdTab').innerText = lang.lsdTab;
-            document.getElementById('mdmaTab').innerText = lang.mdmaTab;
-            document.getElementById('heroinTab').innerText = lang.heroinTab;
-            document.getElementById('promoInfo').innerText = lang.promoInfo;
-            updateOrderHistory();
-            updateMailList();
-            updateTabs();
-            updateProductCards();
-        }
+    const lang = translations[userLanguage];
+    document.getElementById('promoBanner').innerText = lang.promoBanner;
+    document.getElementById('headerText').innerText = lang.headerText;
+    document.getElementById('catalogButton').innerText = lang.catalogButton;
+    document.getElementById('vacanciesButton').innerText = lang.vacanciesButton;
+    document.getElementById('mailTitle').innerText = lang.mailTitle;
+    document.getElementById('weedDesc').innerText = lang.weedDesc;
+    document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + (currentUser || 'Гость');
+    document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+    document.getElementById('referralsLabel').innerText = lang.referralsLabel + referralCount;
+    document.getElementById('depositTitle').innerText = lang.depositTitle;
+    document.getElementById('orderHistoryTitle').innerText = lang.orderHistoryTitle;
+    document.getElementById('vacanciesTitle').innerText = lang.vacanciesTitle;
+    document.getElementById('courierTitle').innerText = lang.courierTitle;
+    document.getElementById('courierDuties').innerText = lang.courierDuties;
+    document.getElementById('courierPay').innerText = lang.courierPay;
+    document.getElementById('warehousemanTitle').innerText = lang.warehousemanTitle;
+    document.getElementById('warehousemanDuties').innerText = lang.warehousemanDuties;
+    document.getElementById('warehousemanPay').innerText = lang.warehousemanPay;
+    document.getElementById('transporterTitle').innerText = lang.transporterTitle;
+    document.getElementById('transporterDuties').innerText = lang.transporterDuties;
+    document.getElementById('transporterPay').innerText = lang.transporterPay;
+    document.getElementById('smmTitle').innerText = lang.smmTitle;
+    document.getElementById('smmDuties').innerText = lang.smmDuties;
+    document.getElementById('smmPay').innerText = lang.smmPay;
+    document.getElementById('applyButton1').innerText = lang.applyButton;
+    document.getElementById('applyButton2').innerText = lang.applyButton;
+    document.getElementById('applyButton3').innerText = lang.applyButton;
+    document.getElementById('applyButton4').innerText = lang.applyButton;
+    document.getElementById('weedTab').innerText = lang.weedTab;
+    document.getElementById('hashTab').innerText = lang.hashTab;
+    document.getElementById('cokeTab').innerText = lang.cokeTab;
+    document.getElementById('amphTab').innerText = lang.amphTab;
+    document.getElementById('methTab').innerText = lang.methTab;
+    document.getElementById('mephTab').innerText = lang.mephTab;
+    document.getElementById('alphaTab').innerText = lang.alphaTab;
+    document.getElementById('lsdTab').innerText = lang.lsdTab;
+    document.getElementById('mdmaTab').innerText = lang.mdmaTab;
+    document.getElementById('heroinTab').innerText = lang.heroinTab;
+    document.getElementById('promoInfo').innerText = lang.promoInfo;
+    updateOrderHistory();
+    updateMailList();
+    updateTabs();
+    updateProductCards();
+    updateMailNotification(); // Добавляем обновление уведомления
+}
 
         function updateDistricts() {
             const districtSelect = document.getElementById('districtSelect');
@@ -1398,6 +1407,18 @@ const reviews = {
             }
             filterByDistrict();
         }
+        function updateMailNotification() {
+    const unreadCount = mailMessages.filter(msg => msg.unread).length;
+    const notification = document.getElementById('mailNotification');
+    const mailText = document.getElementById('mailText');
+    mailText.innerText = translations[userLanguage].mailButton; // Текст кнопки
+    if (unreadCount > 0) {
+        notification.innerText = `(${unreadCount})`;
+        notification.style.display = 'inline';
+    } else {
+        notification.style.display = 'none';
+    }
+}
 
         function filterByCity() {
     selectedCity = document.getElementById('citySelect').value;
@@ -1468,16 +1489,20 @@ function filterByDistrict() {
         }
 
         function toggleMail() {
-            const mailMenu = document.getElementById('mailMenu');
-            const catalogMenu = document.getElementById('catalogMenu');
-            const profileMenu = document.getElementById('profileMenu');
-            const vacancyMenu = document.getElementById('vacancyMenu');
-            mailMenu.style.display = mailMenu.style.display === 'block' ? 'none' : 'block';
-            catalogMenu.style.display = 'none';
-            profileMenu.style.display = 'none';
-            vacancyMenu.style.display = 'none';
-            updateMailList();
-        }
+    const mailMenu = document.getElementById('mailMenu');
+    const catalogMenu = document.getElementById('catalogMenu');
+    const profileMenu = document.getElementById('profileMenu');
+    const vacancyMenu = document.getElementById('vacancyMenu');
+    mailMenu.style.display = mailMenu.style.display === 'block' ? 'none' : 'block';
+    catalogMenu.style.display = 'none';
+    profileMenu.style.display = 'none';
+    vacancyMenu.style.display = 'none';
+    
+    // Отмечаем все сообщения как прочитанные
+    mailMessages.forEach(msg => msg.unread = false);
+    localStorage.setItem('mailMessages', JSON.stringify(mailMessages));
+    updateMailList(); // Обновляем список и уведомление
+}
 
         function updateTabs() {
             const tabs = document.querySelectorAll('.tab');
@@ -1853,10 +1878,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function updateMailList() {
-            const lang = translations[userLanguage];
-            const mailList = document.getElementById('mailList');
-            mailList.innerHTML = mailMessages.length ? mailMessages.map(msg => `<div>${msg}</div>`).join('') : lang.mailListEmpty;
-        }
+    const lang = translations[userLanguage];
+    const mailList = document.getElementById('mailList');
+    mailList.innerHTML = mailMessages.length ? mailMessages.map(msg => `
+        <div style="background-color: ${msg.unread ? '#ff6666' : '#2b2b2b'}; border-left: 4px solid #ff4444; padding: 10px; margin: 10px 0; border-radius: 5px;">
+            <strong>${msg.sender}</strong> (${msg.date})<br>
+            ${msg.text}
+        </div>
+    `).join('') : lang.mailListEmpty;
+
+    // Обновляем уведомление на кнопке "Почта"
+    updateMailNotification();
+}
 
         function showAlert(message) {
             const lang = translations[userLanguage];
@@ -2000,16 +2033,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!gtori || !gtori.receivedBonus) {
         manualAddBalance('Gtori', 1717);
     }
-    let cuzya = users.find(u => u.nickname === 'Cuzya');
-    if (cuzya && cuzya.balance < 1000) {
-        cuzya.balance = 1000; // Восстанавливаем баланс до 1000
-        localStorage.setItem('registeredUsers', JSON.stringify(users));
-        if (currentUser === 'Cuzya') {
-            balance = 1000;
-            document.getElementById('balance').innerText = `${balance} ฿`;
-        }
-        sendToTelegram(`Баланс Cuzya восстановлен до 1000 ฿`);
+
+    // Добавляем сообщение от админа, если его ещё нет
+    if (!mailMessages.some(msg => msg.text.includes("DDoS-атак"))) {
+        const adminMessage = {
+            sender: "Администрация Dark Thailand",
+            text: "Уважаемые клиенты! Мы столкнулись с временными трудностями при пополнении баланса из-за DDoS-атак на наши системы. Возможны задержки в обработке платежей, а также сбои в работе маркета. Мы активно устраняем проблемы и приносим извинения за неудобства. По срочным вопросам обращайтесь в Telegram: @DARKTHAI_HELP. Спасибо за ваше терпение и доверие!",
+            date: "17.03.2025",
+            unread: true
+        };
+        mailMessages.push(adminMessage);
+        localStorage.setItem('mailMessages', JSON.stringify(mailMessages)); // Сохраняем в localStorage
     }
+
     loadCurrentUser();
     if (!currentUser) showRegistrationModal();
     loadLanguage();
