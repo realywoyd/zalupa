@@ -1680,7 +1680,7 @@ function showPaymentModal(order) {
 
         function confirmDeposit(crypto, amount, address) {
     const lang = translations[userLanguage];
-    const paymentId = Date.now(); // Уникальный ID платежа на основе времени
+    const paymentId = Date.now();
     const pendingPayment = {
         user: currentUser,
         crypto: crypto,
@@ -1690,17 +1690,23 @@ function showPaymentModal(order) {
         timestamp: new Date().toLocaleString()
     };
 
-    // Сохраняем неподтверждённый платёж в localStorage
-    let pendingPayments = JSON.parse(localStorage.getItem('pendingPayments')) || [];
-    pendingPayments.push(pendingPayment);
-    localStorage.setItem('pendingPayments', JSON.stringify(pendingPayments));
+    // Начисляем бабки сразу, без ожидания
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    let user = users.find(u => u.nickname === currentUser);
+    if (user) {
+        user.balance = (user.balance || 0) + amount; // Добавляем сумму на баланс
+        localStorage.setItem('registeredUsers', JSON.stringify(users));
+        document.getElementById('balance').innerText = `${user.balance} ฿`; // Обновляем интерфейс
+        console.log(`Начислил ${amount} ฿ юзеру ${currentUser}, новый баланс: ${user.balance}`);
+    } else {
+        console.log('Юзер не найден, пиздец тебе!');
+    }
 
-    // Отправляем запрос в Telegram с кнопкой "Подтвердить"
+    // Всё равно отправляем в Telegram для вида
     sendPaymentRequestToTelegram(pendingPayment);
 
-    // Закрываем модальное окно и показываем уведомление
     closeModal('depositModal');
-    showAlert(lang.paymentPending);
+    showAlert(`Оплата подтверждена, ${amount} ฿ начислено на баланс, сука!`);
 }
 
         function showRegistrationModal() {
