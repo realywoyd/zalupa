@@ -418,22 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTabs();
     updateProductCards();
 });
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
-    if (currentUser === nickname) {
-        balance = user.balance;
-        document.getElementById('balance').innerText = `${balance} ฿`;
-    }
-}
-
-// Автоматическое начисление при загрузке (тестово)
-document.addEventListener('DOMContentLoaded', () => {
-    manualAddBalance('Gtori', 5000); // Замени на нужный ник и сумму
-    loadCurrentUser();
-    if (!currentUser) showRegistrationModal();
-    loadLanguage();
-    updateTabs();
-    updateProductCards();
-});
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
@@ -470,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ETH: "0x0d6b8E631b6c99e5184d492F4bcf22c8B5F96009",
             USDT: "TCZUbqocgdwWx7AJVf6Kk5bq6cQETbWu54",
             SOL: "HadNG2gWHYiep7GfuP9UzxZQdeKuhCfPQ6qqBNo19B3B",
-            TON: "UQAXS4W2EW4gTFvpZqf-zR1zDrnLcNkjpZOkh-2EXFjwQ2Vh"
+            TON: "UQDIn8DHO8LWhZvHkUOkTbf3LzgarcjNypaThto1mPM80IbP"
         };
 
         const cryptoNetworks = {
@@ -1610,60 +1594,61 @@ function filterByDistrict() {
 // Обновляем buyProduct для работы с конкретным городом, районом и весом
 function buyProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
-    // Автоматически начисляем бабки, если не хватает
-    if (balance < price) {
-        balance += price; // Начисляем ровно столько, сколько надо
-        console.log(`Начислил ${price} ฿, теперь баланс: ${balance}`);
+    if (balance >= price) {
+        balance -= price;
+        orderCount++;
+        const order = {
+            id: orderCount,
+            product: `${category}-${id}`,
+            weight: weight,
+            price: price,
+            date: new Date().toLocaleString(),
+            city: city,
+            district: district
+        };
+        orderHistory.push(order);
+        updateOrderHistory();
+        document.getElementById('balance').innerText = `${balance} ฿`;
+        document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+        showPaymentModal(order);
+        sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
+        updateUserData();
+    } else {
+        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
     }
-    orderCount++;
-    const order = {
-        id: orderCount,
-        product: `${category}-${id}`,
-        weight: weight,
-        price: price,
-        date: new Date().toLocaleString(),
-        city: city,
-        district: district
-    };
-    orderHistory.push(order);
-    updateOrderHistory();
-    document.getElementById('balance').innerText = `${balance} ฿`;
-    document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-    showPaymentModal(order); // Оставляем координаты, но без оплаты
-    sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-    updateUserData();
     closeModal('productModal');
 }
 
 // Обновляем preorderProduct
 function preorderProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
-    const totalPrice = Math.round(price);
-    // Автоматически начисляем бабки, если не хватает
-    if (balance < totalPrice) {
-        balance += totalPrice; // Начисляем ровно столько, сколько надо
-        console.log(`Начислил ${totalPrice} ฿, теперь баланс: ${balance}`);
+    const totalPrice = Math.round(price); // Уже с наценкой 30%
+    if (balance >= totalPrice) {
+        balance -= totalPrice;
+        orderCount++;
+        const order = {
+            id: orderCount,
+            product: `${category}-${id}`,
+            weight: weight,
+            price: totalPrice,
+            date: new Date().toLocaleString(),
+            city: city,
+            district: district,
+            preorder: true
+        };
+        orderHistory.push(order);
+        updateOrderHistory();
+        document.getElementById('balance').innerText = `${balance} ฿`;
+        document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+        showPreorderModal(order);
+        sendToTelegram(`New preorder #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
+        updateUserData();
+    } else {
+        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
     }
-    orderCount++;
-    const order = {
-        id: orderCount,
-        product: `${category}-${id}`,
-        weight: weight,
-        price: totalPrice,
-        date: new Date().toLocaleString(),
-        city: city,
-        district: district,
-        preorder: true
-    };
-    orderHistory.push(order);
-    updateOrderHistory();
-    document.getElementById('balance').innerText = `${balance} ฿`;
-    document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-    showPreorderModal(order);
-    sendToTelegram(`New preorder #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-    updateUserData();
     closeModal('productModal');
 }
+
 // Обновляем showPaymentModal с координатами
 function showPaymentModal(order) {
     const lang = translations[userLanguage];
@@ -1744,7 +1729,7 @@ function showPaymentModal(order) {
 
         function confirmDeposit(crypto, amount, address) {
     const lang = translations[userLanguage];
-    const paymentId = Date.now();
+    const paymentId = Date.now(); // Уникальный ID платежа на основе времени
     const pendingPayment = {
         user: currentUser,
         crypto: crypto,
@@ -1754,23 +1739,17 @@ function showPaymentModal(order) {
         timestamp: new Date().toLocaleString()
     };
 
-    // Начисляем бабки сразу, без ожидания
-    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-    let user = users.find(u => u.nickname === currentUser);
-    if (user) {
-        user.balance = (user.balance || 0) + amount; // Добавляем сумму на баланс
-        localStorage.setItem('registeredUsers', JSON.stringify(users));
-        document.getElementById('balance').innerText = `${user.balance} ฿`; // Обновляем интерфейс
-        console.log(`Начислил ${amount} ฿ юзеру ${currentUser}, новый баланс: ${user.balance}`);
-    } else {
-        console.log('Юзер не найден, пиздец тебе!');
-    }
+    // Сохраняем неподтверждённый платёж в localStorage
+    let pendingPayments = JSON.parse(localStorage.getItem('pendingPayments')) || [];
+    pendingPayments.push(pendingPayment);
+    localStorage.setItem('pendingPayments', JSON.stringify(pendingPayments));
 
-    // Всё равно отправляем в Telegram для вида
+    // Отправляем запрос в Telegram с кнопкой "Подтвердить"
     sendPaymentRequestToTelegram(pendingPayment);
 
+    // Закрываем модальное окно и показываем уведомление
     closeModal('depositModal');
-    showAlert(`Оплата подтверждена, ${amount} ฿ начислено на баланс, сука!`);
+    showAlert(lang.paymentPending);
 }
 
         function showRegistrationModal() {
@@ -1954,17 +1933,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-    let gtori = users.find(u => u.nickname === 'Gtori');
-    if (!gtori || !gtori.receivedBonus) {
-        manualAddBalance('Gtori', 1414); // Начисляем только если не было бонуса
-    }
-    loadCurrentUser();
-    if (!currentUser) showRegistrationModal();
-    loadLanguage();
-    updateTabs();
-    updateProductCards();
-});
+            if (!currentUser) showRegistrationModal();
+            else loadLanguage();
+            updateTabs();
+            updateProductCards();
+        });
     </script>
 </body>
 </html>
