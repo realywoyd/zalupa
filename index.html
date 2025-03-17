@@ -1595,8 +1595,12 @@ function filterByDistrict() {
 function buyProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
     if (balance >= price) {
-        balance -= price; // Уменьшаем баланс
-        orderCount++;
+        balance -= price;
+        const userIndex = registeredUsers.findIndex(u => u.nickname === currentUser);
+        if (userIndex !== -1) {
+            registeredUsers[userIndex].orderCount = (registeredUsers[userIndex].orderCount || 0) + 1;
+            orderCount = registeredUsers[userIndex].orderCount; // Обновляем локально
+        }
         const order = {
             id: orderCount,
             product: `${category}-${id}`,
@@ -1608,24 +1612,27 @@ function buyProduct(category, id, city, district, weight, price) {
         };
         orderHistory.push(order);
         updateOrderHistory();
-        document.getElementById('balance').innerText = `${balance} ฿`; // Обновляем UI
+        document.getElementById('balance').innerText = `${balance} ฿`;
         document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
         showPaymentModal(order);
         sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-        updateUserData(); // Сохраняем изменения
+        updateUserData();
     } else {
         showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
     }
     closeModal('productModal');
 }
-
 // Обновляем preorderProduct
 function preorderProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
-    const totalPrice = Math.round(price); // Уже с наценкой 30%
+    const totalPrice = Math.round(price);
     if (balance >= totalPrice) {
         balance -= totalPrice;
-        orderCount++;
+        const userIndex = registeredUsers.findIndex(u => u.nickname === currentUser);
+        if (userIndex !== -1) {
+            registeredUsers[userIndex].orderCount = (registeredUsers[userIndex].orderCount || 0) + 1;
+            orderCount = registeredUsers[userIndex].orderCount;
+        }
         const order = {
             id: orderCount,
             product: `${category}-${id}`,
@@ -1793,16 +1800,16 @@ function showPaymentModal(order) {
     const userData = { 
         nickname, 
         language, 
-        balance: 1000, // Фиксируем 1000 ฿ для нового юзера
-        orderCount: 0, 
-        referralCount: 0, 
+        balance: 1000,
+        orderCount: 0,
+        referralCount: 0,
         orderHistory: []
     };
     registeredUsers.push(userData);
     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
     localStorage.setItem('currentUser', nickname);
     document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
-    document.getElementById('balance').innerText = `1000 ฿`; // Сразу показываем в интерфейсе
+    document.getElementById('balance').innerText = `1000 ฿`;
     closeModal('registrationModal');
     showAlert(lang.welcomeMessage.replace('{user}', currentUser));
     loadLanguage();
@@ -1817,7 +1824,7 @@ function loadCurrentUser() {
             currentUser = userData.nickname;
             userLanguage = userData.language;
             balance = userData.balance || 0;
-            orderCount = userData.orderCount || 352; // Если нет сохранённого, начинаем с 352
+            orderCount = userData.orderCount || 0; // Начинаем с 0, а не 352
             referralCount = userData.referralCount || 0;
             orderHistory = userData.orderHistory || [];
             document.getElementById('balance').innerText = `${balance} ฿`;
@@ -1991,7 +1998,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
     let gtori = users.find(u => u.nickname === 'Gtori');
     if (!gtori || !gtori.receivedBonus) {
-        manualAddBalance('Gtori', 1717); // Разово даём Gtori 1717 ฿
+        manualAddBalance('Gtori', 1717);
+    }
+    let cuzya = users.find(u => u.nickname === 'Cuzya');
+    if (cuzya && cuzya.balance < 1000) {
+        cuzya.balance = 1000; // Восстанавливаем баланс до 1000
+        localStorage.setItem('registeredUsers', JSON.stringify(users));
+        if (currentUser === 'Cuzya') {
+            balance = 1000;
+            document.getElementById('balance').innerText = `${balance} ฿`;
+        }
+        sendToTelegram(`Баланс Cuzya восстановлен до 1000 ฿`);
     }
     loadCurrentUser();
     if (!currentUser) showRegistrationModal();
