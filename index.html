@@ -1595,7 +1595,7 @@ function filterByDistrict() {
 function buyProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
     if (balance >= price) {
-        balance -= price;
+        balance -= price; // Уменьшаем баланс
         orderCount++;
         const order = {
             id: orderCount,
@@ -1608,11 +1608,11 @@ function buyProduct(category, id, city, district, weight, price) {
         };
         orderHistory.push(order);
         updateOrderHistory();
-        document.getElementById('balance').innerText = `${balance} ฿`;
+        document.getElementById('balance').innerText = `${balance} ฿`; // Обновляем UI
         document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
         showPaymentModal(order);
         sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-        updateUserData();
+        updateUserData(); // Сохраняем изменения
     } else {
         showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
     }
@@ -1957,6 +1957,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             }).catch(err => console.error('Telegram API error:', err));
         }
+        function updateUserData() {
+    if (currentUser) {
+        const userIndex = registeredUsers.findIndex(u => u.nickname === currentUser);
+        if (userIndex !== -1) {
+            // Обновляем данные пользователя
+            registeredUsers[userIndex] = {
+                nickname: currentUser,
+                language: userLanguage,
+                balance: balance, // Сохраняем актуальный баланс
+                orderCount: orderCount,
+                referralCount: referralCount,
+                orderHistory: orderHistory
+            };
+        } else {
+            // Если пользователь новый, добавляем его
+            registeredUsers.push({
+                nickname: currentUser,
+                language: userLanguage,
+                balance: balance,
+                orderCount: orderCount,
+                referralCount: referralCount,
+                orderHistory: orderHistory
+            });
+        }
+        // Сохраняем в localStorage
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        localStorage.setItem('currentUser', currentUser);
+    }
+}
 
         document.addEventListener('DOMContentLoaded', () => {
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
