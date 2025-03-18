@@ -1819,7 +1819,7 @@ function loadCurrentUser() {
         if (userData) {
             currentUser = userData.nickname;
             userLanguage = userData.language;
-            balance = userData.balance !== undefined ? userData.balance : 1000; // Если баланса нет, даём 1000 ฿ всем
+            balance = 1000; // Всегда 1000 ฿ для всех пользователей
             orderCount = userData.orderCount || 0;
             referralCount = userData.referralCount || 0;
             orderHistory = userData.orderHistory || [];
@@ -1993,13 +1993,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('DOMContentLoaded', () => {
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-    // Начисление бонуса Gtori (одноразовое)
+    // Обновляем баланс всех пользователей до 1000 ฿
+    users = users.map(user => ({
+        ...user,
+        balance: 1000 // Принудительно 1000 ฿ для всех
+    }));
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+
+    // Начисление бонуса Gtori (если нужен, оставляем)
     let gtori = users.find(u => u.nickname === 'Gtori');
     if (!gtori || !gtori.receivedBonus) {
-        manualAddBalance('Gtori', 1717);
+        manualAddBalance('Gtori', 1717); // Это добавит 1717 к 1000, если хочешь — уберём
     }
 
-    // Больше не создаём Cuzya отдельно — он регистрируется как все
     loadCurrentUser();
     if (!currentUser) showRegistrationModal();
     loadLanguage();
