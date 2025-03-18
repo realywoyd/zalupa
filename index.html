@@ -1525,11 +1525,11 @@ function filterByDistrict() {
     const name = productCard.querySelector('h3').innerText;
     const shortDesc = productCard.querySelector('p').innerText;
     const basePrice = basePrices[category][id];
-    const weightsList = (category === 'coke') ? weights.coke : (category === 'lsd' ? weights.lsd : (category === 'mdma' && id === '3' ? weights.mdmaTabs : weights.default));
+    const weightsList = (category === 'coke') ? weights.coke : (category === 'lsd' ? weights.lsd : (category === 'mdma' && id === 3 ? weights.mdmaTabs : weights.default));
     const image = productImages[category][id];
     const detailedDesc = `${shortDesc}. Этот продукт — чистый кайф для тех, кто знает толк в стаффе. Произведён с душой, доставка в твой район.`;
 
-    // Уведомление о просмотре
+    // Уведомление в Telegram — пусть админы знают, что ты копаешься в их шопе
     sendToTelegram(`Юзер ${currentUser || 'Гость'} смотрит товар: ${name} (категория: ${translations[userLanguage][`${category}Tab`]})`);
 
     let content = `
@@ -1549,12 +1549,21 @@ function filterByDistrict() {
         content += `<h3>${cityName} - ${districtName}</h3>`;
 
         weightsList.forEach(weight => {
-            // Проверяем, что это OG Kush (weed-1), город Пхукет и вес 1 г
             let inStock;
-            if (category === 'weed' && id === 1 && selectedCity === 'phuket' && weight === 1) {
-                inStock = false; // Нет в наличии для OG Kush 1 г на Пхукете
+
+            // Мои новые условия для твоих позиций
+            if (category === 'mdma' && (id === 2 || id === 3)) {
+                // Pink Hearts (mdma-2) и Ecstasy Givenchy (mdma-3) — в наличии только от 3 грамм
+                inStock = weight >= 3;
+            } else if (category === 'mdma' && id === 4) {
+                // Street Pills (mdma-4) — в наличии только от 5 грамм
+                inStock = weight >= 5;
+            } else if (category === 'weed' && id === 1 && selectedCity === 'phuket' && weight === 1) {
+                // Твоё старое условие для OG Kush на Пхукете
+                inStock = false;
             } else {
-                inStock = (weight === 0.5 || weight === 1) ? true : Math.random() > 0.2; // Оригинальная логика для других случаев
+                // Стандартная логика для остальных товаров
+                inStock = (weight === 0.5 || weight === 1) ? true : Math.random() > 0.2;
             }
 
             const price = Math.round(basePrice * weight);
@@ -1571,13 +1580,13 @@ function filterByDistrict() {
         });
     }
 
-    // Добавляем отзывы
+    // Отзывы — оставляем как в твоём оригинале
     content += `
         <h3>${lang.reviewsTitle}</h3>
         <div id="reviews">
     `;
     const productReviews = reviews[`${category}-${id}`];
-    if (productReviews && productReviews.length) { // Проверяем, что отзывы существуют и не пустые
+    if (productReviews && productReviews.length) {
         content += productReviews.map(review => `
             <div class="review">
                 <div class="review-text">${review.text}</div>
@@ -1592,6 +1601,7 @@ function filterByDistrict() {
         </div>
         <button class="buy-button" onclick="closeModal('productModal')">${lang.close}</button>
     `;
+
     document.getElementById('productContent').innerHTML = content;
     document.getElementById('productModal').style.display = 'flex';
 }
