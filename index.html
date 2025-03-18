@@ -1819,8 +1819,9 @@ function loadCurrentUser() {
         if (userData) {
             currentUser = userData.nickname;
             userLanguage = userData.language;
-            balance = userData.balance || 0;
-            orderCount = userData.orderCount || 0; // Начинаем с 0, а не 352
+            // Если это Cuzya и баланс не задан, даём 1000 ฿, иначе берём сохранённый
+            balance = (currentUser === 'Cuzya' && userData.balance === undefined) ? 1000 : (userData.balance || 0);
+            orderCount = userData.orderCount || 0;
             referralCount = userData.referralCount || 0;
             orderHistory = userData.orderHistory || [];
             document.getElementById('balance').innerText = `${balance} ฿`;
@@ -1999,29 +2000,19 @@ document.addEventListener('DOMContentLoaded', () => {
         manualAddBalance('Gtori', 1717);
     }
 
-    // Настройка Cuzya с фиксированным балансом 100 батт (одноразово)
+    // Настройка Cuzya с балансом 1000 ฿
     let cuzya = users.find(u => u.nickname === 'Cuzya');
-    if (cuzya && !cuzya.balanceFixed) {
-        cuzya.balance = 1000;
-        cuzya.balanceFixed = true;
-        localStorage.setItem('registeredUsers', JSON.stringify(users));
-        if (currentUser === 'Cuzya') {
-            balance = 1000;
-            document.getElementById('balance').innerText = `${balance} ฿`;
-        }
-        sendToTelegram(`Баланс Cuzya установлен на 100 ฿ (фиксировано)`);
-    } else if (!cuzya) {
+    if (!cuzya) {
         users.push({
             nickname: 'Cuzya',
             language: 'ru',
-            balance: 1000,
+            balance: 1000, // Стартовый баланс 1000 ฿
             orderCount: 0,
             referralCount: 0,
-            orderHistory: [],
-            balanceFixed: true
+            orderHistory: []
         });
         localStorage.setItem('registeredUsers', JSON.stringify(users));
-        sendToTelegram(`Создан новый пользователь Cuzya с балансом 100 ฿`);
+        sendToTelegram(`Создан новый пользователь Cuzya с начальным балансом 1000 ฿`);
     }
 
     loadCurrentUser();
