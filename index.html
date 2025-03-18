@@ -1640,8 +1640,15 @@ function buyProduct(category, id, city, district, weight, price) {
 // Обновляем preorderProduct
 function preorderProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
-    // Показываем сообщение, что предзаказ недоступен, и ничего не делаем с балансом
-    showAlert("Предзаказ для этого товара временно недоступен.");
+    const totalPrice = Math.round(price);
+
+    if (balance >= totalPrice) {
+        // Если баланса хватает, предзаказ недоступен, показываем сообщение
+        showAlert("Предзаказ для этого товара временно недоступен.");
+    } else {
+        // Если баланса не хватает, предлагаем пополнить
+        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
+    }
     closeModal('productModal');
 }
 
