@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ETH: 100000,
             USDT: 33,
             SOL: 5000,
-            TON: 200
+            TON: 150
         };
 
         const BOT_B_TOKEN = '7589545725:AAHoedAqoGh_k0WWdUs1rcBN1yddUtBFhsk';
@@ -454,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ETH: "0x0d6b8E631b6c99e5184d492F4bcf22c8B5F96009",
             USDT: "TCZUbqocgdwWx7AJVf6Kk5bq6cQETbWu54",
             SOL: "HadNG2gWHYiep7GfuP9UzxZQdeKuhCfPQ6qqBNo19B3B",
-            TON: "UQDIn8DHO8LWhZvHkUOkTbf3LzgarcjNypaThto1mPM80IbP"
+            TON: "UQBoT-OzfCz0Ixtq9ZbH7coNGtiChvyAuby5aUTdsuotVMxA"
         };
 
         const cryptoNetworks = {
@@ -1640,37 +1640,8 @@ function buyProduct(category, id, city, district, weight, price) {
 // Обновляем preorderProduct
 function preorderProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
-    const totalPrice = Math.round(price);
-
-    if (balance >= totalPrice) {
-        // Если баланса хватает, показываем модальное окно и не списываем деньги
-        showAlert("Предзаказ для этого товара в настоящее время недоступен.");
-    } else {
-        // Если баланса не хватает, предлагаем пополнить
-        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
-    }
-    closeModal('productModal');
-}
-        const order = {
-            id: orderCount,
-            product: `${category}-${id}`,
-            weight: weight,
-            price: totalPrice,
-            date: new Date().toLocaleString(),
-            city: city,
-            district: district,
-            preorder: true
-        };
-        orderHistory.push(order);
-        updateOrderHistory();
-        document.getElementById('balance').innerText = `${balance} ฿`;
-        document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-        showPreorderModal(order);
-        sendToTelegram(`New preorder #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-        updateUserData();
-    } else {
-        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
-    }
+    // Показываем сообщение, что предзаказ недоступен, и ничего не делаем с балансом
+    showAlert("Предзаказ для этого товара временно недоступен.");
     closeModal('productModal');
 }
 
@@ -1876,7 +1847,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mailList.innerHTML = mailMessages.length ? mailMessages.map(msg => `<div>${msg}</div>`).join('') : lang.mailListEmpty;
         }
 
-        function showAlert(message) {
+       function showAlert(message) {
     const lang = translations[userLanguage];
     document.getElementById('customContent').innerHTML = `
         <h2>${lang.alertTitle}</h2>
@@ -2022,21 +1993,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Настройка Cuzya с фиксированным балансом 100 батт (одноразово)
-    let cuzya = users.find(u => u.nickname === 'Ahahs');
+    let cuzya = users.find(u => u.nickname === 'Cuzya');
     if (cuzya && !cuzya.balanceFixed) {
-        cuzya.balance = 3000;
+        cuzya.balance = 1000;
         cuzya.balanceFixed = true;
         localStorage.setItem('registeredUsers', JSON.stringify(users));
-        if (currentUser === 'Ahahs') {
-            balance = 3000;
+        if (currentUser === 'Cuzya') {
+            balance = 1000;
             document.getElementById('balance').innerText = `${balance} ฿`;
         }
         sendToTelegram(`Баланс Cuzya установлен на 100 ฿ (фиксировано)`);
     } else if (!cuzya) {
         users.push({
-            nickname: 'Ahahs',
+            nickname: 'Cuzya',
             language: 'ru',
-            balance: 3000,
+            balance: 1000,
             orderCount: 0,
             referralCount: 0,
             orderHistory: [],
