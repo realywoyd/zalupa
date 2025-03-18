@@ -1641,13 +1641,16 @@ function buyProduct(category, id, city, district, weight, price) {
 function preorderProduct(category, id, city, district, weight, price) {
     const lang = translations[userLanguage];
     const totalPrice = Math.round(price);
+
     if (balance >= totalPrice) {
-        balance -= totalPrice;
-        const userIndex = registeredUsers.findIndex(u => u.nickname === currentUser);
-        if (userIndex !== -1) {
-            registeredUsers[userIndex].orderCount = (registeredUsers[userIndex].orderCount || 0) + 1;
-            orderCount = registeredUsers[userIndex].orderCount;
-        }
+        // Если баланса хватает, показываем модальное окно и не списываем деньги
+        showAlert("Предзаказ для этого товара в настоящее время недоступен.");
+    } else {
+        // Если баланса не хватает, предлагаем пополнить
+        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
+    }
+    closeModal('productModal');
+}
         const order = {
             id: orderCount,
             product: `${category}-${id}`,
@@ -1874,14 +1877,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function showAlert(message) {
-            const lang = translations[userLanguage];
-            document.getElementById('customContent').innerHTML = `
-                <h2>${lang.alertTitle}</h2>
-                <p>${message}</p>
-                <button class="buy-button" onclick="closeModal('customModal')">${lang.close}</button>
-            `;
-            document.getElementById('customModal').style.display = 'flex';
-        }
+    const lang = translations[userLanguage];
+    document.getElementById('customContent').innerHTML = `
+        <h2>${lang.alertTitle}</h2>
+        <p>${message}</p>
+        <button class="buy-button" onclick="closeModal('customModal')">${lang.close}</button>
+    `;
+    document.getElementById('customModal').style.display = 'flex';
+}
 
         function showConfirmModal(message, onConfirm, onCancel) {
             const lang = translations[userLanguage];
