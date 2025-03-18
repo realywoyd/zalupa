@@ -1796,7 +1796,7 @@ function showPaymentModal(order) {
     const userData = { 
         nickname, 
         language, 
-        balance: 1000,
+        balance: 1000, // Все новые пользователи получают 1000 ฿
         orderCount: 0,
         referralCount: 0,
         orderHistory: []
@@ -1819,8 +1819,7 @@ function loadCurrentUser() {
         if (userData) {
             currentUser = userData.nickname;
             userLanguage = userData.language;
-            // Если это Cuzya и баланс не задан, даём 1000 ฿, иначе берём сохранённый
-            balance = (currentUser === 'Cuzya' && userData.balance === undefined) ? 1000 : (userData.balance || 0);
+            balance = userData.balance !== undefined ? userData.balance : 1000; // Если баланса нет, даём 1000 ฿ всем
             orderCount = userData.orderCount || 0;
             referralCount = userData.referralCount || 0;
             orderHistory = userData.orderHistory || [];
@@ -2000,21 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
         manualAddBalance('Gtori', 1717);
     }
 
-    // Настройка Cuzya с балансом 1000 ฿
-    let cuzya = users.find(u => u.nickname === 'Cuzya');
-    if (!cuzya) {
-        users.push({
-            nickname: 'Cuzya',
-            language: 'ru',
-            balance: 1000, // Стартовый баланс 1000 ฿
-            orderCount: 0,
-            referralCount: 0,
-            orderHistory: []
-        });
-        localStorage.setItem('registeredUsers', JSON.stringify(users));
-        sendToTelegram(`Создан новый пользователь Cuzya с начальным балансом 1000 ฿`);
-    }
-
+    // Больше не создаём Cuzya отдельно — он регистрируется как все
     loadCurrentUser();
     if (!currentUser) showRegistrationModal();
     loadLanguage();
