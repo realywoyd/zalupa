@@ -1,347 +1,370 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://telegram.org; img-src 'self' https://i.postimg.cc https://images.unsplash.com; style-src 'self' 'unsafe-inline';">
-    <title>Dark Thailand - Надёжный шоп</title>
+    <title>Dark Thailand</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <style>
         body {
-            font-family: 'Courier New', monospace;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2b0000 100%);
+            background: #1a1a1a;
             color: #ff4444;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             overflow-x: hidden;
         }
-        .container { max-width: 600px; margin: 0 auto; padding: 15px; position: relative; }
-        .header { text-align: center; padding: 15px 0; background-color: #2b2b2b; color: #ff4444; margin-bottom: 20px; border-radius: 5px; border: 2px solid #ff4444; box-shadow: 0 0 10px rgba(255, 68, 68, 0.5); }
-        .logo { font-size: 48px; animation: textPulse 2s infinite; display: inline-block; }
-        @keyframes textPulse { 0% { transform: scale(1); text-shadow: 0 0 5px #ff4444; } 50% { transform: scale(1.05); text-shadow: 0 0 20px #ff4444, 0 0 30px #ff6666; } 100% { transform: scale(1); text-shadow: 0 0 5px #ff4444; } }
-        .header-text { font-size: 16px; margin-top: 5px; animation: textFlicker 3s infinite; }
-        @keyframes textFlicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .nav { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .nav-button { background-color: #ff4444; color: #000; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; animation: neonPulse 1.5s infinite; }
-        .profile-button { background-color: #ff4444; color: #000; border: none; padding: 0; border-radius: 5px; cursor: pointer; font-size: 26px; width: 60px; height: 40px; line-height: 40px; text-align: center; animation: neonPulse 1.5s infinite; }
-        @keyframes neonPulse { 0% { box-shadow: 0 0 5px #ff4444; } 50% { box-shadow: 0 0 20px #ff4444; } 100% { box-shadow: 0 0 5px #ff4444; } }
-        .catalog-menu, .profile-menu, .vacancy-menu, .mail-menu { display: none; background-color: #333; border-radius: 5px; padding: 15px; box-shadow: 0 0 15px rgba(255, 68, 68, 0.3); }
-        .city-filter { margin-bottom: 15px; }
-        .city-filter select, .district-filter select { width: 100%; padding: 10px; background-color: #2b2b2b; color: #ff4444; border: 1px solid #ff4444; border-radius: 5px; font-size: 16px; margin-bottom: 10px; }
-        .tabs { display: flex; flex-wrap: wrap; margin-bottom: 15px; }
-        .tab { flex: 1; text-align: center; padding: 10px; background-color: #2b2b2b; cursor: pointer; margin: 5px; border-radius: 5px; transition: all 0.3s; }
-        .tab:hover { background-color: #ff6666; }
-        .tab.active { background-color: #ff4444; color: #000; box-shadow: 0 0 10px #ff4444; }
-        .tab-content { display: none; }
-        .product-card { background-color: #333; border-radius: 5px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(255, 68, 68, 0.3); transition: transform 0.2s; }
-        .product-card:hover { transform: scale(1.02); }
-        .product-card h3 { margin-top: 0; color: #ff6666; cursor: pointer; }
-        .product-card p { margin: 5px 0; }
-        .product-image { width: 100%; max-height: 150px; object-fit: cover; border-radius: 5px; margin-bottom: 10px; }
-        .price { font-weight: bold; color: #ff9999; }
-        .crypto-price { font-size: 12px; color: #ff6666; }
-        .buy-button, .preorder-button { background-color: #ff4444; color: #000; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 5px 0; width: 100%; transition: all 0.3s; }
-        .preorder-button { background-color: #ff6666; }
-        .buy-button:hover, .preorder-button:hover { background-color: #ff8888; }
-        .payment-modal, .product-modal, .deposit-modal, .preorder-modal, .registration-modal, .custom-modal, .confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; }
-        .payment-content, .product-content, .deposit-content, .preorder-content, .registration-content, .custom-content, .confirm-content { background: #333; padding: 20px; border-radius: 5px; text-align: center; color: #ff4444; max-width: 500px; max-height: 80vh; overflow-y: auto; border: 2px solid #ff4444; box-shadow: 0 0 15px rgba(255, 68, 68, 0.5); }
-        .review { background-color: #2b2b2b; border-left: 4px solid #ff6666; padding: 10px; margin: 10px 0; font-size: 12px; color: #ff9999; text-align: left; display: flex; justify-content: space-between; }
-        .review-text { flex-grow: 1; }
-        .review-date { flex-shrink: 0; margin-left: 10px; color: #ff6666; }
-        .moderator-response { background-color: #2b2b2b; border-left: 4px solid #ff4444; padding: 10px; margin: 5px 0 10px 20px; font-size: 12px; color: #ff6666; text-align: left; }
-        .position { margin: 10px 0; text-align: left; }
-        .promo-banner { background-color: #ff4444; color: #000; padding: 10px; text-align: center; margin-bottom: 20px; border-radius: 5px; font-weight: bold; }
-        .vacancy { margin-bottom: 15px; }
-        .vacancy h3 { color: #ff6666; }
-        input[type="text"], textarea, input[type="number"], select { width: 100%; padding: 10px; margin: 10px 0; background-color: #2b2b2b; color: #ff4444; border: 1px solid #ff4444; border-radius: 5px; }
-        textarea { height: 100px; resize: none; }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .promo {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .menu {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+        .menu button {
+            padding: 10px;
+            background: #ff4444;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            flex-grow: 1;
+            margin: 0 5px;
+        }
+        .menu button:hover {
+            background: #cc3333;
+        }
+        #catalogMenu, #profileMenu, #vacancyMenu, #mailMenu {
+            display: none;
+            flex-grow: 1;
+            flex-direction: column;
+        }
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            background: #333;
+            color: white;
+            border: none;
+        }
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 10px;
+            white-space: nowrap;
+        }
+        .tab {
+            padding: 10px;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        .tab.active {
+            background: #ff4444;
+        }
+        .tab-content {
+            display: none;
+        }
+        .product-card {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .product-card img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .profile-info, .vacancy-list, .mail-list {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #333;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            color: white;
+            text-align: center;
+        }
+        .modal-content img.product-image {
+            max-width: 100%;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .buy-button, .preorder-button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #ff4444;
+            color: white;
+        }
+        .preorder-button {
+            background: #666;
+        }
+        .review {
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            text-align: left;
+        }
+        .review-date {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+        .moderator-response {
+            background: #555;
+            padding: 5px;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            background: #444;
+            color: white;
+            border: none;
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="promo-banner" id="promoBanner"></div>
         <div class="header">
-            <div class="logo">Dark Thailand</div>
-            <div class="header-text" id="headerText"></div>
+            <h1 id="headerText">Reliable shop in your pocket</h1>
+            <div class="promo" id="promoBanner">Invite friends and get bonuses! 5 friends = 0.5g amphetamine, 10 friends = 0.5g cocaine (MQ), 25 friends = 1g cocaine (VHQ)!</div>
         </div>
-        <div class="nav">
-            <button class="nav-button" id="catalogButton" onclick="toggleCatalog()"></button>
-            <button class="nav-button" id="vacanciesButton" onclick="toggleVacancies()"></button>
-            <button class="nav-button" id="mailButton" onclick="toggleMail()"></button>
-            <button class="profile-button" onclick="toggleProfile()">☠️</button>
+        <div class="menu">
+            <button id="catalogButton" onclick="toggleCatalog()">Catalog</button>
+            <button id="profileButton" onclick="toggleProfile()">Profile</button>
+            <button id="vacanciesButton" onclick="toggleVacancies()">Vacancies</button>
+            <button id="mailButton" onclick="toggleMail()">Mail</button>
         </div>
-        
-        <div class="catalog-menu" id="catalogMenu">
-            <div class="city-filter">
+        <div id="catalogMenu">
+            <div class="filters">
                 <select id="citySelect" onchange="filterByCity()">
-                    <option value="all" id="allCitiesOption"></option>
-                    <option value="phuket" id="phuketOption"></option>
-                    <option value="pattaya" id="pattayaOption"></option>
-                    <option value="bangkok" id="bangkokOption"></option>
-                    <option value="samui" id="samuiOption"></option>
+                    <option value="all" id="allCitiesOption">All cities</option>
+                    <option value="phuket" id="phuketOption">Phuket</option>
+                    <option value="pattaya" id="pattayaOption">Pattaya</option>
+                    <option value="bangkok" id="bangkokOption">Bangkok</option>
+                    <option value="samui" id="samuiOption">Koh Samui</option>
                 </select>
                 <select id="districtSelect" onchange="filterByDistrict()">
-                    <option value="all" id="allDistrictsOption"></option>
+                    <option value="all" id="allDistrictsOption">All districts</option>
                 </select>
             </div>
             <div class="tabs">
-                <div class="tab" data-tab="weed" id="weedTab">Марихуана</div>
-                <div class="tab" data-tab="hash" id="hashTab">Гашиш</div>
-                <div class="tab" data-tab="coke" id="cokeTab">Кокаин</div>
-                <div class="tab" data-tab="amph" id="amphTab">Амфетамин</div>
-                <div class="tab" data-tab="meth" id="methTab">Метамфетамин</div>
-                <div class="tab" data-tab="meph" id="mephTab">Мефедрон</div>
-                <div class="tab" data-tab="alpha" id="alphaTab">Альфа-PVP</div>
-                <div class="tab" data-tab="lsd" id="lsdTab">ЛСД</div>
-                <div class="tab" data-tab="mdma" id="mdmaTab">МДМА</div>
-                <div class="tab" data-tab="heroin" id="heroinTab">Героин</div>
+                <div class="tab" data-tab="weed" id="weedTab">Marijuana</div>
+                <div class="tab" data-tab="hash" id="hashTab">Hashish</div>
+                <div class="tab" data-tab="coke" id="cokeTab">Cocaine</div>
+                <div class="tab" data-tab="amph" id="amphTab">Amphetamine</div>
+                <div class="tab" data-tab="meth" id="methTab">Methamphetamine</div>
+                <div class="tab" data-tab="meph" id="mephTab">Mephedrone</div>
+                <div class="tab" data-tab="alpha" id="alphaTab">Alpha-PVP</div>
+                <div class="tab" data-tab="lsd" id="lsdTab">LSD</div>
+                <div class="tab" data-tab="mdma" id="mdmaTab">MDMA</div>
+                <div class="tab" data-tab="heroin" id="heroinTab">Heroin</div>
             </div>
             <div id="weed" class="tab-content">
-                <div class="product-card" data-product="weed-1">
-                    <img src="https://i.postimg.cc/nMGvf409/jamaican-haze.jpg" class="product-image" alt="OG Kush">
-                    <h3 onclick="showProductModal('weed', 1)">OG Kush 70% (VHQ)</h3>
-                    <p id="weedDesc"></p>
+                <div class="product-card" data-product="weed-1" data-city="phuket" data-district="Patong" onclick="showProductModal('weed', 1)">
+                    <h3>Jamaican Haze</h3>
+                    <p id="weedDesc">Exclusive Jamaican sativa, pure bliss</p>
+                    <img src="https://i.postimg.cc/nMGvf409/jamaican-haze.jpg" alt="Jamaican Haze">
                 </div>
             </div>
             <div id="hash" class="tab-content">
-                <div class="product-card" data-product="hash-1">
-                    <img src="https://i.postimg.cc/sD11WBq4/image.jpg" class="product-image" alt="Ice-o-lator">
-                    <h3 onclick="showProductModal('hash', 1)">Ice-o-lator (VHQ)</h3>
-                    <p>Премиум гашиш, бархатный эффект</p>
-                </div>
-                <div class="product-card" data-product="hash-2">
-                    <img src="https://i.postimg.cc/KjjctVq8/image.png" class="product-image" alt="Moroccan Spice">
-                    <h3 onclick="showProductModal('hash', 2)">Moroccan Spice (HQ)</h3>
-                    <p>Марокканский гашиш с пряным ароматом</p>
-                </div>
-                <div class="product-card" data-product="hash-3">
-                    <img src="https://i.postimg.cc/2ygYh5L0/image.jpg" class="product-image" alt="Euro">
-                    <h3 onclick="showProductModal('hash', 3)">Euro (MQ)</h3>
-                    <p>Европейский, сбалансированный приход</p>
+                <div class="product-card" data-product="hash-1" data-city="phuket" data-district="Karon" onclick="showProductModal('hash', 1)">
+                    <h3>Hash #1</h3>
+                    <p>Premium Moroccan hash</p>
+                    <img src="https://i.postimg.cc/sD11WBq4/image.jpg" alt="Hash #1">
                 </div>
             </div>
             <div id="coke" class="tab-content">
-                <div class="product-card" data-product="coke-1">
-                    <img src="https://i.postimg.cc/3W512jLd/image.jpg" class="product-image" alt="Bolivian Fishscale">
-                    <h3 onclick="showProductModal('coke', 1)">Bolivian Fishscale (VHQ)</h3>
-                    <p>Боливийский кокаин, топовый 95%+</p>
-                </div>
-                <div class="product-card" data-product="coke-2">
-                    <img src="https://i.postimg.cc/xTLDh6Vp/2.jpg" class="product-image" alt="Colombian Snow">
-                    <h3 onclick="showProductModal('coke', 2)">Colombian Snow (HQ)</h3>
-                    <p>Колумбийский снег, чистый и мощный</p>
+                <div class="product-card" data-product="coke-1" data-city="phuket" data-district="Patong" onclick="showProductModal('coke', 1)">
+                    <h3>Cocaine VHQ</h3>
+                    <p>High purity cocaine</p>
+                    <img src="https://i.postimg.cc/3W512jLd/image.jpg" alt="Cocaine VHQ">
                 </div>
             </div>
             <div id="amph" class="tab-content">
-                <div class="product-card" data-product="amph-1">
-                    <img src="https://i.postimg.cc/3Jgrmg9p/image.jpg" class="product-image" alt="White Rabbit">
-                    <h3 onclick="showProductModal('amph', 1)">White Rabbit (VHQ)</h3>
-                    <p>Чистейший амфетамин, чистая энергия</p>
-                </div>
-                <div class="product-card" data-product="amph-2">
-                    <img src="https://i.postimg.cc/90y2PhPV/image.jpg" class="product-image" alt="Red Rush">
-                    <h3 onclick="showProductModal('amph', 2)">Red Rush (HQ)</h3>
-                    <p>Красный заряд, стабильный драйв</p>
-                </div>
-                <div class="product-card" data-product="amph-3">
-                    <img src="https://i.postimg.cc/BvtGYD5m/image.jpg" class="product-image" alt="Yellow Spark">
-                    <h3 onclick="showProductModal('amph', 3)">Yellow Spark (MQ)</h3>
-                    <p>Жёлтая искра, средний подъём</p>
-                </div>
-                <div class="product-card" data-product="amph-4">
-                    <img src="https://i.postimg.cc/qMX0zpMx/image.jpg" class="product-image" alt="Grey Haze">
-                    <h3 onclick="showProductModal('amph', 4)">Grey Haze (LQ)</h3>
-                    <p>Серая дымка, базовый вариант</p>
+                <div class="product-card" data-product="amph-1" data-city="pattaya" data-district="Central Pattaya" onclick="showProductModal('amph', 1)">
+                    <h3>Amphetamine</h3>
+                    <p>Pure energy boost</p>
+                    <img src="https://i.postimg.cc/3Jgrmg9p/image.jpg" alt="Amphetamine">
                 </div>
             </div>
             <div id="meth" class="tab-content">
-                <div class="product-card" data-product="meth-1">
-                    <img src="https://i.postimg.cc/dVPkKsNR/image.jpg" class="product-image" alt="Mountain Ice">
-                    <h3 onclick="showProductModal('meth', 1)">Mountain Ice (VHQ)</h3>
-                    <p>Горный лёд, кристальная чистота</p>
-                </div>
-                <div class="product-card" data-product="meth-2">
-                    <img src="https://i.postimg.cc/765jVVNV/image.jpg" class="product-image" alt="Blue Flame">
-                    <h3 onclick="showProductModal('meth', 2)">Blue Flame (HQ)</h3>
-                    <p>Синее пламя, долгий эффект</p>
+                <div class="product-card" data-product="meth-1" data-city="phuket" data-district="Phuket Town" onclick="showProductModal('meth', 1)">
+                    <h3>Methamphetamine</h3>
+                    <p>Crystal clear high</p>
+                    <img src="https://i.postimg.cc/dVPkKsNR/image.jpg" alt="Methamphetamine">
                 </div>
             </div>
             <div id="meph" class="tab-content">
-                <div class="product-card" data-product="meph-1">
-                    <img src="https://i.postimg.cc/4NMvHRLn/image.jpg" class="product-image" alt="Meph Crystal">
-                    <h3 onclick="showProductModal('meph', 1)">Meph Crystal (VHQ)</h3>
-                    <p>Меф кристалл, чистейший кайф</p>
-                </div>
-                <div class="product-card" data-product="meph-2">
-                    <img src="https://i.postimg.cc/prxYTVyF/image.jpg" class="product-image" alt="White Surge">
-                    <h3 onclick="showProductModal('meph', 2)">White Surge (HQ)</h3>
-                    <p>Белый всплеск, стабильный эффект</p>
-                </div>
-                <div class="product-card" data-product="meph-3">
-                    <img src="https://i.postimg.cc/ZqLycGc8/vava.jpg" class="product-image" alt="Grey Mist">
-                    <h3 onclick="showProductModal('meph', 3)">Grey Mist (MQ)</h3>
-                    <p>Меф, средний уровень</p>
+                <div class="product-card" data-product="meph-1" data-city="phuket" data-district="Patong" onclick="showProductModal('meph', 1)">
+                    <h3>Mephedrone</h3>
+                    <p>Intense euphoria</p>
+                    <img src="https://i.postimg.cc/4NMvHRLn/image.jpg" alt="Mephedrone">
                 </div>
             </div>
             <div id="alpha" class="tab-content">
-                <div class="product-card" data-product="alpha-1">
-                    <img src="https://i.postimg.cc/hjmpv3rH/image.jpg" class="product-image" alt="Flakka Fire">
-                    <h3 onclick="showProductModal('alpha', 1)">Flakka Fire (VHQ)</h3>
-                    <p>Огненная флакка, чистый Альфа-PVP</p>
-                </div>
-                <div class="product-card" data-product="alpha-2">
-                    <img src="https://i.postimg.cc/4x3PV3Pv/image.jpg" class="product-image" alt="Blue Haze">
-                    <h3 onclick="showProductModal('alpha', 2)">Blue Haze (HQ)</h3>
-                    <p>Синяя дымка, мощный заряд</p>
-                </div>
-                <div class="product-card" data-product="alpha-3">
-                    <img src="https://i.postimg.cc/TwHC3LBH/image.jpg" class="product-image" alt="Green Dust">
-                    <h3 onclick="showProductModal('alpha', 3)">Green Dust (MQ)</h3>
-                    <p>Зелёная пыль, средний эффект</p>
-                </div>
-                <div class="product-card" data-product="alpha-4">
-                    <img src="https://i.postimg.cc/yNLw0Nw0/image.jpg" class="product-image" alt="Crystal Fury">
-                    <h3 onclick="showProductModal('alpha', 4)">Crystal Fury (VHQ)</h3>
-                    <p>Кристальная ярость, топовый PVP</p>
+                <div class="product-card" data-product="alpha-1" data-city="pattaya" data-district="Jomtien" onclick="showProductModal('alpha', 1)">
+                    <h3>Alpha-PVP</h3>
+                    <p>Powerful stimulant</p>
+                    <img src="https://i.postimg.cc/hjmpv3rH/image.jpg" alt="Alpha-PVP">
                 </div>
             </div>
             <div id="lsd" class="tab-content">
-                <div class="product-card" data-product="lsd-1">
-                    <img src="https://i.postimg.cc/yNHGMRzm/250.jpg" class="product-image" alt="Cosmic Tabs">
-                    <h3 onclick="showProductModal('lsd', 1)">Cosmic Tabs (VHQ)</h3>
-                    <p>LSD250, чистый трип</p>
-                </div>
-                <div class="product-card" data-product="lsd-2">
-                    <img src="https://i.postimg.cc/Xqp1fcwb/image.jpg" class="product-image" alt="Neon Drops">
-                    <h3 onclick="showProductModal('lsd', 2)">Neon Drops (HQ)</h3>
-                    <p>LSD190, яркий опыт</p>
+                <div class="product-card" data-product="lsd-1" data-city="phuket" data-district="Karon" onclick="showProductModal('lsd', 1)">
+                    <h3>LSD 250µg</h3>
+                    <p>Pure psychedelic trip</p>
+                    <img src="https://i.postimg.cc/yNHGMRzm/250.jpg" alt="LSD 250µg">
                 </div>
             </div>
             <div id="mdma" class="tab-content">
-                <div class="product-card" data-product="mdma-1">
-                    <img src="https://i.postimg.cc/521GGvJw/image.jpg" class="product-image" alt="Crystal Love">
-                    <h3 onclick="showProductModal('mdma', 1)">Crystal Love (VHQ)</h3>
-                    <p>Кристальная любовь, чистый МДМА</p>
-                </div>
-                <div class="product-card" data-product="mdma-2">
-                    <img src="https://i.postimg.cc/Z5y9Gt5t/image.jpg" class="product-image" alt="Pink Hearts">
-                    <h3 onclick="showProductModal('mdma', 2)">Pink Hearts (HQ)</h3>
-                    <p>Розовые сердца, стабильный кайф</p>
-                </div>
-                <div class="product-card" data-product="mdma-3">
-                    <img src="https://i.postimg.cc/SRCT1QtT/image.jpg" class="product-image" alt="Ecstasy Givenchy">
-                    <h3 onclick="showProductModal('mdma', 3)">Ecstasy Givenchy (VHQ Tabs)</h3>
-                    <p>Givenchy, топовые пилсы</p>
-                </div>
-                <div class="product-card" data-product="mdma-4">
-                    <img src="https://i.postimg.cc/52j5jR9n/image.jpg" class="product-image" alt="Street Pills">
-                    <h3 onclick="showProductModal('mdma', 4)">Street Pills</h3>
-                    <p>Уличные пилсы, бюджетный экстази</p>
+                <div class="product-card" data-product="mdma-1" data-city="phuket" data-district="Patong" onclick="showProductModal('mdma', 1)">
+                    <h3>MDMA Crystals</h3>
+                    <p>Love in crystal form</p>
+                    <img src="https://i.postimg.cc/521GGvJw/image.jpg" alt="MDMA Crystals">
                 </div>
             </div>
             <div id="heroin" class="tab-content">
-                <div class="product-card" data-product="heroin-1">
-                    <img src="https://i.postimg.cc/gkX1RN0k/image.jpg" class="product-image" alt="Afghan Silk">
-                    <h3 onclick="showProductModal('heroin', 1)">Afghan Silk (VHQ)</h3>
-                    <p>Афганский шёлк, глубокий приход</p>
-                </div>
-                <div class="product-card" data-product="heroin-2">
-                    <img src="https://i.postimg.cc/Nj8J7VvY/image.jpg" class="product-image" alt="White Lotus">
-                    <h3 onclick="showProductModal('heroin', 2)">White Lotus (HQ)</h3>
-                    <p>Белый лотос, чистый эффект</p>
+                <div class="product-card" data-product="heroin-1" data-city="pattaya" data-district="Central Pattaya" onclick="showProductModal('heroin', 1)">
+                    <h3>Heroin</h3>
+                    <p>Deep relaxation</p>
+                    <img src="https://i.postimg.cc/gkX1RN0k/image.jpg" alt="Heroin">
                 </div>
             </div>
         </div>
-        <div class="profile-menu" id="profileMenu">
+        <div id="profileMenu">
             <div class="profile-info">
-                <h3>☠️</h3>
-                <p id="profileNameLabel"></p>
-                <p>Баланс: <span id="balance">0 ฿</span></p>
-                <p id="ordersLabel"></p>
-                <p id="referralsLabel"></p>
+                <p id="profileNameLabel">Name: Guest</p>
+                <p>Balance: <span id="balance">0 ฿</span></p>
+                <p id="ordersLabel">Orders: 0</p>
+                <p id="referralsLabel">Friends invited: 0</p>
+                <button class="buy-button" id="depositTitle" onclick="showDepositModal('USDT')">Top up balance</button>
+                <button class="buy-button" id="promoInfo" onclick="showPromoDetails()">Invite friends</button>
             </div>
-            <div class="deposit-options">
-                <h3 id="depositTitle"></h3>
-                <button class="nav-button" onclick="showDepositModal('BTC')">Bitcoin (BTC)</button>
-                <button class="nav-button" onclick="showDepositModal('ETH')">Ethereum (ETH)</button>
-                <button class="nav-button" onclick="showDepositModal('USDT')">Tether (USDT)</button>
-                <button class="nav-button" onclick="showDepositModal('SOL')">Solana (SOL)</button>
-                <button class="nav-button" onclick="showDepositModal('TON')">Toncoin (TON)</button>
-            </div>
-            <div class="order-history">
-                <h3 id="orderHistoryTitle"></h3>
-                <div id="orderList"></div>
-            </div>
-            <div class="promo-info">
-                <p id="promoInfo"></p>
-                <button class="nav-button" onclick="showPromoDetails()">Подробнее</button>
-            </div>
+            <h3 id="orderHistoryTitle">Recent orders</h3>
+            <div id="orderList" class="profile-info"></div>
         </div>
-        <div class="vacancy-menu" id="vacancyMenu">
-            <h2 id="vacanciesTitle">Вакансии</h2>
-            <div class="vacancy">
-                <h3 id="courierTitle">Кладмен</h3>
-                <p id="courierDuties">Обязанности: Делать клады.</p>
-                <p id="courierPay">Оплата: от 100000 батт/месяц</p>
-                <button class="buy-button" onclick="applyForJob('Кладмен')" id="applyButton1">Откликнуться</button>
+        <div id="vacancyMenu">
+            <h2 id="vacanciesTitle">Vacancies at Dark Thailand</h2>
+            <div class="vacancy-list">
+                <h3 id="courierTitle">Courier</h3>
+                <p id="courierDuties">Duties: Delivery and stashing goods at coordinates.</p>
+                <p id="courierPay">Pay: 500-1000 ฿ per stash (depends on volume).</p>
+                <button class="buy-button" id="applyButton1" onclick="applyForJob('Courier')">Apply</button>
             </div>
-            <div class="vacancy">
-                <h3 id="warehousemanTitle">Складмен</h3>
-                <p id="warehousemanDuties">Обязанности: Приём больших партий, делать мастер-клады для кладменов.</p>
-                <p id="warehousemanPay">Оплата: от 200000 батт/месяц</p>
-                <button class="buy-button" onclick="applyForJob('Складмен')" id="applyButton2">Откликнуться</button>
+            <div class="vacancy-list">
+                <h3 id="warehousemanTitle">Warehouseman</h3>
+                <p id="warehousemanDuties">Duties: Packing and preparing goods for shipment.</p>
+                <p id="warehousemanPay">Pay: 2000-3000 ฿ per shift.</p>
+                <button class="buy-button" id="applyButton2" onclick="applyForJob('Warehouseman')">Apply</button>
             </div>
-            <div class="vacancy">
-                <h3 id="transporterTitle">Перевозчик</h3>
-                <p id="transporterDuties">Обязанности: перевозка товара по всему Тайланду.</p>
-                <p id="transporterPay">Оплата: от 350000 батт/месяц</p>
-                <button class="buy-button" onclick="applyForJob('Перевозчик')" id="applyButton3">Откликнуться</button>
+            <div class="vacancy-list">
+                <h3 id="transporterTitle">Transporter</h3>
+                <p id="transporterDuties">Duties: Transporting goods between Thai cities.</p>
+                <p id="transporterPay">Pay: 5000-10000 ฿ per trip.</p>
+                <button class="buy-button" id="applyButton3" onclick="applyForJob('Transporter')">Apply</button>
             </div>
-            <div class="vacancy">
-                <h3 id="smmTitle">SMMщик</h3>
-                <p id="smmDuties">Обязанности: Рекламировать магазин</p>
-                <p id="smmPay">Оплата: от 70000 батт/неделя</p>
-                <button class="buy-button" onclick="applyForJob('SMMщик')" id="applyButton4">Откликнуться</button>
+            <div class="vacancy-list">
+                <h3 id="smmTitle">SMM Manager</h3>
+                <p id="smmDuties">Duties: Promoting the shop on social media and forums.</p>
+                <p id="smmPay">Pay: 3000-5000 ฿ per week + activity bonuses.</p>
+                <button class="buy-button" id="applyButton4" onclick="applyForJob('SMM Manager')">Apply</button>
             </div>
         </div>
-        <div class="mail-menu" id="mailMenu">
-            <h2 id="mailTitle"></h2>
-            <div id="mailList"></div>
-        </div>
-        <div class="product-modal" id="productModal">
-            <div class="product-content" id="productContent"></div>
-        </div>
-        <div class="payment-modal" id="paymentModal">
-            <div class="payment-content" id="paymentContent"></div>
-        </div>
-        <div class="deposit-modal" id="depositModal">
-            <div class="deposit-content" id="depositContent"></div>
-        </div>
-        <div class="preorder-modal" id="preorderModal">
-            <div class="preorder-content" id="preorderContent"></div>
-        </div>
-        <div class="registration-modal" id="registrationModal">
-            <div class="registration-content" id="registrationContent">
-                <h2>Регистрация</h2>
-                <p>Введите желаемый никнейм:</p>
-                <input type="text" id="regNickname" placeholder="Ваш никнейм">
-                <p>Выберите язык:</p>
-                <select id="regLanguage">
-                    <option value="en">English</option>
-                    <option value="th">ไทย (Thai)</option>
-                    <option value="ru">Русский</option>
-                </select>
-                <button class="buy-button" onclick="registerUser()">Зарегистрироваться</button>
-                <p id="regError" style="color: #ff9999;"></p>
-            </div>
-        </div>
-        <div class="custom-modal" id="customModal">
-            <div class="custom-content" id="customContent"></div>
-        </div>
-        <div class="confirm-modal" id="confirmModal">
-            <div class="confirm-content" id="confirmContent"></div>
+        <div id="mailMenu">
+            <h2 id="mailTitle">Mail</h2>
+            <div id="mailList" class="mail-list"></div>
         </div>
     </div>
+
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <h2 id="regTitle">Registration</h2>
+            <label id="regNicknameLabel">Enter your desired nickname:</label>
+            <input type="text" id="regNickname" placeholder="Your nickname">
+            <label id="regLanguageLabel">Choose language:</label>
+            <select id="regLanguage">
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+                <option value="th">ไทย</option>
+            </select>
+            <button class="buy-button" onclick="registerUser()">Register</button>
+            <p id="regError" style="color: #ff9999;"></p>
+        </div>
+    </div>
+    <div id="productModal" class="modal">
+        <div class="modal-content" id="productContent"></div>
+    </div>
+    <div id="paymentModal" class="modal">
+        <div class="modal-content" id="paymentContent"></div>
+    </div>
+    <div id="preorderModal" class="modal">
+        <div class="modal-content" id="preorderContent"></div>
+    </div>
+    <div id="depositModal" class="modal">
+        <div class="modal-content" id="depositContent"></div>
+    </div>
+    <div id="customModal" class="modal">
+        <div class="modal-content" id="customContent"></div>
+    </div>
+    <div id="confirmModal" class="modal">
+        <div class="modal-content" id="confirmContent"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="app.js"></script>
 </body>
