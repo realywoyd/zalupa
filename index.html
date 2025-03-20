@@ -358,20 +358,23 @@
     </div>
 
     <!-- Подключение Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js"></script>
     <script>
-        // Конфигурация Firebase (замени на свои данные после настройки)
+        // Конфигурация Firebase
         const firebaseConfig = {
-  apiKey: "AIzaSyDV-KMTFxBIEcSZlSBtf5tdw5dddQ_p_Cc",
-  authDomain: "dark-thailand.firebaseapp.com",
-  projectId: "dark-thailand",
-  storageBucket: "dark-thailand.firebasestorage.app",
-  messagingSenderId: "632514708868",
-  appId: "1:632514708868:web:0da8c14520745f4daa89d1",
-  measurementId: "G-BXBL6RDZXJ"
-};
+            apiKey: "AIzaSyDV-KMTFxBIEcSZlSBtf5tdw5dddQ_p_Cc",
+            authDomain: "dark-thailand.firebaseapp.com",
+            projectId: "dark-thailand",
+            storageBucket: "dark-thailand.firebasestorage.app",
+            messagingSenderId: "632514708868",
+            appId: "1:632514708868:web:0da8c14520745f4daa89d1",
+            measurementId: "G-BXBL6RDZXJ"
+        };
+        // Делаем firebaseConfig доступным глобально
+        window.firebaseConfig = firebaseConfig;
     </script>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
