@@ -1,8 +1,3 @@
-// Supabase инициализация
-const SUPABASE_URL = 'https://xtjijqrycwudjdsjngjb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8';
-const supabase = window.Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 // Глобальные переменные
 let balance = 0;
 let orderCount = 0;
@@ -14,6 +9,9 @@ let currentUser = null;
 let userLanguage = 'en';
 let mailMessages = [];
 const MIN_DEPOSIT = 1000;
+
+const SUPABASE_URL = 'https://xtjijqrycwudjdsjngjb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8';
 
 // Telegram настройки
 const BOT_B_TOKEN = '7589545725:AAHoedAqoGh_k0WWdUs1rcBN1yddUtBFhsk';
@@ -424,82 +422,148 @@ const reviews = {
     ]
 };
 
-// Telegram Web App
-if (window.Telegram && window.Telegram.WebApp) {
-    const WebApp = window.Telegram.WebApp;
-    WebApp.ready();
-    WebApp.expand();
-    WebApp.setHeaderColor({ color_key: 'bg_color' });
-    WebApp.setBottomBarColor({ color: '#ffffff' });
+// Инициализация после загрузки DOM
+document.addEventListener('DOMContentLoaded', async () => {
+    // Инициализация Supabase
+    if (!window.Supabase) {
+        console.error('Supabase не загружен! Проверь подключение скрипта.');
+        return;
+    }
+    const supabase = window.Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    WebApp.onEvent('themeChanged', () => {
+    // Telegram Web App
+    if (window.Telegram && window.Telegram.WebApp) {
+        const WebApp = window.Telegram.WebApp;
+        WebApp.ready();
+        WebApp.expand();
+        WebApp.setHeaderColor({ color_key: 'bg_color' });
+        WebApp.setBottomBarColor({ color: '#ffffff' });
+
+        WebApp.onEvent('themeChanged', () => {
+            document.body.style.background = WebApp.themeParams.bg_color || '#1a1a1a';
+            document.body.style.color = WebApp.themeParams.text_color || '#ff4444';
+        });
+
         document.body.style.background = WebApp.themeParams.bg_color || '#1a1a1a';
         document.body.style.color = WebApp.themeParams.text_color || '#ff4444';
-    });
-
-    document.body.style.background = WebApp.themeParams.bg_color || '#1a1a1a';
-    document.body.style.color = WebApp.themeParams.text_color || '#ff4444';
-} else {
-    console.warn('Telegram Web App не доступен, работаем в оффлайн-режиме');
-}
-
-// Функции
-async function manualAddBalance(nickname, amount) {
-    const { data: user, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('nickname', nickname)
-        .single();
-
-    if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error('Юзер не найден:', fetchError);
-        return;
+    } else {
+        console.warn('Telegram Web App не доступен, работаем в оффлайн-режиме');
     }
 
-    if (user && user.received_bonus) {
-        console.log(`${nickname} уже получил бонус!`);
-        return;
-    }
-
-    const newBalance = (user?.balance || 0) + amount;
-    const { error } = await supabase
-        .from('users')
-        .upsert({
-            nickname,
-            language: user?.language || 'ru',
-            balance: newBalance,
-            order_count: user?.order_count || 0,
-            referral_count: user?.referral_count || 0,
-            order_history: user?.order_history || [],
-            received_bonus: true
-        }, { onConflict: 'nickname' });
-
-    if (error) {
-        console.error('Начисление пошло по пизде:', error);
-        return;
-    }
-
-    console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${newBalance}`);
-    sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${newBalance}`);
-
-    if (currentUser === nickname) {
-        balance = newBalance;
-        document.getElementById('balance').innerText = `${balance} ฿`;
-    }
-}
-
-async function loadCurrentUser() {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-        const { data, error } = await supabase
+    // Функции
+    async function manualAddBalance(nickname, amount) {
+        const { data: user, error: fetchError } = await supabase
             .from('users')
             .select('*')
-            .eq('nickname', savedUser)
+            .eq('nickname', nickname)
             .single();
 
-        if (error || !data) {
-            console.error('Юзер наебнулся при загрузке:', error);
-            localStorage.removeItem('currentUser');
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error('Юзер не найден:', fetchError);
+            return;
+        }
+
+        if (user && user.received_bonus) {
+            console.log(`${nickname} уже получил бонус!`);
+            return;
+        }
+
+        const newBalance = (user?.balance || 0) + amount;
+        const { error } = await supabase
+            .from('users')
+            .upsert({
+                nickname,
+                language: user?.language || 'ru',
+                balance: newBalance,
+                order_count: user?.order_count || 0,
+                referral_count: user?.referral_count || 0,
+                order_history: user?.order_history || [],
+                received_bonus: true
+            }, { onConflict: 'nickname' });
+
+        if (error) {
+            console.error('Начисление пошло по пизде:', error);
+            return;
+        }
+
+        console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${newBalance}`);
+        sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${newBalance}`);
+
+        if (currentUser === nickname) {
+            balance = newBalance;
+            document.getElementById('balance').innerText = `${balance} ฿`;
+        }
+    }
+
+    async function loadCurrentUser() {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('nickname', savedUser)
+                .single();
+
+            if (error || !data) {
+                console.error('Юзер наебнулся при загрузке:', error);
+                localStorage.removeItem('currentUser');
+                return;
+            }
+
+            currentUser = data.nickname;
+            userLanguage = data.language;
+            balance = data.balance;
+            orderCount = data.order_count;
+            referralCount = data.referral_count;
+            orderHistory = data.order_history || [];
+
+            document.getElementById('balance').innerText = `${balance} ฿`;
+            document.getElementById('ordersLabel').innerText = translations[userLanguage].ordersLabel + orderCount;
+            document.getElementById('referralsLabel').innerText = translations[userLanguage].referralsLabel + referralCount;
+            updateOrderHistory();
+        }
+    }
+
+    async function registerUser() {
+        const lang = translations[userLanguage];
+        const nickname = document.getElementById('regNickname').value.trim();
+        const language = document.getElementById('regLanguage').value;
+
+        if (!nickname) {
+            document.getElementById('regError').innerText = lang.regErrorEmpty;
+            return;
+        }
+
+        const { data: existingUser, error: checkError } = await supabase
+            .from('users')
+            .select('nickname')
+            .eq('nickname', nickname)
+            .single();
+
+        if (existingUser) {
+            document.getElementById('regError').innerText = lang.regErrorTaken;
+            return;
+        }
+        if (checkError && checkError.code !== 'PGRST116') {
+            console.error('Ошибка проверки юзера:', checkError);
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from('users')
+            .insert({
+                nickname,
+                language,
+                balance: 1000,
+                order_count: 0,
+                referral_count: 0,
+                order_history: []
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Регистрация пошла по пизде:', error);
             return;
         }
 
@@ -508,550 +572,490 @@ async function loadCurrentUser() {
         balance = data.balance;
         orderCount = data.order_count;
         referralCount = data.referral_count;
-        orderHistory = data.order_history || [];
+        orderHistory = data.order_history;
 
+        document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
         document.getElementById('balance').innerText = `${balance} ฿`;
-        document.getElementById('ordersLabel').innerText = translations[userLanguage].ordersLabel + orderCount;
-        document.getElementById('referralsLabel').innerText = translations[userLanguage].referralsLabel + referralCount;
-        updateOrderHistory();
-    }
-}
-
-async function registerUser() {
-    const lang = translations[userLanguage];
-    const nickname = document.getElementById('regNickname').value.trim();
-    const language = document.getElementById('regLanguage').value;
-
-    if (!nickname) {
-        document.getElementById('regError').innerText = lang.regErrorEmpty;
-        return;
+        closeModal('registrationModal');
+        showAlert(lang.welcomeMessage.replace('{user}', currentUser));
+        loadLanguage();
+        sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}, баланс: 1000 ฿`);
     }
 
-    const { data: existingUser, error: checkError } = await supabase
-        .from('users')
-        .select('nickname')
-        .eq('nickname', nickname)
-        .single();
+    async function updateUserData() {
+        if (!currentUser) return;
 
-    if (existingUser) {
-        document.getElementById('regError').innerText = lang.regErrorTaken;
-        return;
-    }
-    if (checkError && checkError.code !== 'PGRST116') {
-        console.error('Ошибка проверки юзера:', checkError);
-        return;
-    }
+        const { error } = await supabase
+            .from('users')
+            .update({
+                balance,
+                order_count: orderCount,
+                referral_count: referralCount,
+                order_history: orderHistory
+            })
+            .eq('nickname', currentUser);
 
-    const { data, error } = await supabase
-        .from('users')
-        .insert({
-            nickname,
-            language,
-            balance: 1000,
-            order_count: 0,
-            referral_count: 0,
-            order_history: []
-        })
-        .select()
-        .single();
+        if (error) {
+            console.error('Обновление юзера пошло по пизде:', error);
+            return;
+        }
 
-    if (error) {
-        console.error('Регистрация пошла по пизде:', error);
-        return;
+        localStorage.setItem('currentUser', currentUser);
     }
 
-    currentUser = data.nickname;
-    userLanguage = data.language;
-    balance = data.balance;
-    orderCount = data.order_count;
-    referralCount = data.referral_count;
-    orderHistory = data.order_history;
+    async function buyProduct(category, id, city, district, weight, price) {
+        const lang = translations[userLanguage];
+        if (balance >= price) {
+            balance -= price;
+            orderCount += 1;
+            const order = {
+                id: orderCount,
+                product: `${category}-${id}`,
+                weight: weight,
+                price: price,
+                date: new Date().toLocaleString(),
+                city: city,
+                district: district
+            };
+            orderHistory.push(order);
 
-    document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
-    document.getElementById('balance').innerText = `${balance} ฿`;
-    closeModal('registrationModal');
-    showAlert(lang.welcomeMessage.replace('{user}', currentUser));
-    loadLanguage();
-    sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}, баланс: 1000 ฿`);
-}
+            await updateUserData();
 
-async function updateUserData() {
-    if (!currentUser) return;
-
-    const { error } = await supabase
-        .from('users')
-        .update({
-            balance,
-            order_count: orderCount,
-            referral_count: referralCount,
-            order_history: orderHistory
-        })
-        .eq('nickname', currentUser);
-
-    if (error) {
-        console.error('Обновление юзера пошло по пизде:', error);
-        return;
+            document.getElementById('balance').innerText = `${balance} ฿`;
+            document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+            updateOrderHistory();
+            showPaymentModal(order);
+            sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
+        } else {
+            showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
+        }
+        closeModal('productModal');
     }
 
-    localStorage.setItem('currentUser', currentUser);
-}
+    async function preorderProduct(category, id, city, district, weight, price) {
+        const lang = translations[userLanguage];
+        if (balance >= price) {
+            balance -= price;
+            orderCount += 1;
+            const order = {
+                id: orderCount,
+                product: `${category}-${id}`,
+                weight: weight,
+                price: price,
+                date: new Date().toLocaleString(),
+                city: city,
+                district: district,
+                isPreorder: true
+            };
+            orderHistory.push(order);
 
-async function buyProduct(category, id, city, district, weight, price) {
-    const lang = translations[userLanguage];
-    if (balance >= price) {
-        balance -= price;
-        orderCount += 1;
-        const order = {
-            id: orderCount,
-            product: `${category}-${id}`,
-            weight: weight,
-            price: price,
-            date: new Date().toLocaleString(),
-            city: city,
-            district: district
-        };
-        orderHistory.push(order);
+            await updateUserData();
 
-        await updateUserData();
+            document.getElementById('balance').innerText = `${balance} ฿`;
+            document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+            updateOrderHistory();
+            showPreorderModal(order);
+            sendToTelegram(`Preorder #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
+        } else {
+            showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
+        }
+        closeModal('productModal');
+    }
 
-        document.getElementById('balance').innerText = `${balance} ฿`;
+    function loadLanguage() {
+        const lang = translations[userLanguage];
+        document.getElementById('promoBanner').innerText = lang.promoBanner;
+        document.getElementById('headerText').innerText = lang.headerText;
+        document.getElementById('catalogButton').innerText = lang.catalogButton;
+        document.getElementById('vacanciesButton').innerText = lang.vacanciesButton;
+        document.getElementById('mailButton').innerText = lang.mailButton;
+        document.getElementById('allCitiesOption').innerText = lang.allCitiesOption;
+        document.getElementById('phuketOption').innerText = lang.phuketOption;
+        document.getElementById('pattayaOption').innerText = lang.pattayaOption;
+        document.getElementById('bangkokOption').innerText = lang.bangkokOption;
+        document.getElementById('samuiOption').innerText = lang.samuiOption;
+        document.getElementById('allDistrictsOption').innerText = lang.allDistrictsOption;
+        document.getElementById('weedDesc').innerText = lang.weedDesc;
+        document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + (currentUser || 'Гость');
         document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+        document.getElementById('referralsLabel').innerText = lang.referralsLabel + referralCount;
+        document.getElementById('depositTitle').innerText = lang.depositTitle;
+        document.getElementById('orderHistoryTitle').innerText = lang.orderHistoryTitle;
+        document.getElementById('vacanciesTitle').innerText = lang.vacanciesTitle;
+        document.getElementById('courierTitle').innerText = lang.courierTitle;
+        document.getElementById('courierDuties').innerText = lang.courierDuties;
+        document.getElementById('courierPay').innerText = lang.courierPay;
+        document.getElementById('warehousemanTitle').innerText = lang.warehousemanTitle;
+        document.getElementById('warehousemanDuties').innerText = lang.warehousemanDuties;
+        document.getElementById('warehousemanPay').innerText = lang.warehousemanPay;
+        document.getElementById('transporterTitle').innerText = lang.transporterTitle;
+        document.getElementById('transporterDuties').innerText = lang.transporterDuties;
+        document.getElementById('transporterPay').innerText = lang.transporterPay;
+        document.getElementById('smmTitle').innerText = lang.smmTitle;
+        document.getElementById('smmDuties').innerText = lang.smmDuties;
+        document.getElementById('smmPay').innerText = lang.smmPay;
+        document.getElementById('applyButton1').innerText = lang.applyButton;
+        document.getElementById('applyButton2').innerText = lang.applyButton;
+        document.getElementById('applyButton3').innerText = lang.applyButton;
+        document.getElementById('applyButton4').innerText = lang.applyButton;
+        document.getElementById('mailTitle').innerText = lang.mailTitle;
+        document.getElementById('weedTab').innerText = lang.weedTab;
+        document.getElementById('hashTab').innerText = lang.hashTab;
+        document.getElementById('cokeTab').innerText = lang.cokeTab;
+        document.getElementById('amphTab').innerText = lang.amphTab;
+        document.getElementById('methTab').innerText = lang.methTab;
+        document.getElementById('mephTab').innerText = lang.mephTab;
+        document.getElementById('alphaTab').innerText = lang.alphaTab;
+        document.getElementById('lsdTab').innerText = lang.lsdTab;
+        document.getElementById('mdmaTab').innerText = lang.mdmaTab;
+        document.getElementById('heroinTab').innerText = lang.heroinTab;
+        document.getElementById('promoInfo').innerText = lang.promoInfo;
+        updateDistrictOptions();
         updateOrderHistory();
-        showPaymentModal(order);
-        sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-    } else {
-        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
+        updateMailList();
     }
-    closeModal('productModal');
-}
 
-async function preorderProduct(category, id, city, district, weight, price) {
-    const lang = translations[userLanguage];
-    if (balance >= price) {
-        balance -= price;
-        orderCount += 1;
-        const order = {
-            id: orderCount,
-            product: `${category}-${id}`,
-            weight: weight,
-            price: price,
-            date: new Date().toLocaleString(),
-            city: city,
-            district: district,
-            isPreorder: true
-        };
-        orderHistory.push(order);
-
-        await updateUserData();
-
-        document.getElementById('balance').innerText = `${balance} ฿`;
-        document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-        updateOrderHistory();
-        showPreorderModal(order);
-        sendToTelegram(`Preorder #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
-    } else {
-        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
-    }
-    closeModal('productModal');
-}
-
-function loadLanguage() {
-    const lang = translations[userLanguage];
-    document.getElementById('promoBanner').innerText = lang.promoBanner;
-    document.getElementById('headerText').innerText = lang.headerText;
-    document.getElementById('catalogButton').innerText = lang.catalogButton;
-    document.getElementById('vacanciesButton').innerText = lang.vacanciesButton;
-    document.getElementById('mailButton').innerText = lang.mailButton;
-    document.getElementById('allCitiesOption').innerText = lang.allCitiesOption;
-    document.getElementById('phuketOption').innerText = lang.phuketOption;
-    document.getElementById('pattayaOption').innerText = lang.pattayaOption;
-    document.getElementById('bangkokOption').innerText = lang.bangkokOption;
-    document.getElementById('samuiOption').innerText = lang.samuiOption;
-    document.getElementById('allDistrictsOption').innerText = lang.allDistrictsOption;
-    document.getElementById('weedDesc').innerText = lang.weedDesc;
-    document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + (currentUser || 'Гость');
-    document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-    document.getElementById('referralsLabel').innerText = lang.referralsLabel + referralCount;
-    document.getElementById('depositTitle').innerText = lang.depositTitle;
-    document.getElementById('orderHistoryTitle').innerText = lang.orderHistoryTitle;
-    document.getElementById('vacanciesTitle').innerText = lang.vacanciesTitle;
-    document.getElementById('courierTitle').innerText = lang.courierTitle;
-    document.getElementById('courierDuties').innerText = lang.courierDuties;
-    document.getElementById('courierPay').innerText = lang.courierPay;
-    document.getElementById('warehousemanTitle').innerText = lang.warehousemanTitle;
-    document.getElementById('warehousemanDuties').innerText = lang.warehousemanDuties;
-    document.getElementById('warehousemanPay').innerText = lang.warehousemanPay;
-    document.getElementById('transporterTitle').innerText = lang.transporterTitle;
-    document.getElementById('transporterDuties').innerText = lang.transporterDuties;
-    document.getElementById('transporterPay').innerText = lang.transporterPay;
-    document.getElementById('smmTitle').innerText = lang.smmTitle;
-    document.getElementById('smmDuties').innerText = lang.smmDuties;
-    document.getElementById('smmPay').innerText = lang.smmPay;
-    document.getElementById('applyButton1').innerText = lang.applyButton;
-    document.getElementById('applyButton2').innerText = lang.applyButton;
-    document.getElementById('applyButton3').innerText = lang.applyButton;
-    document.getElementById('applyButton4').innerText = lang.applyButton;
-    document.getElementById('mailTitle').innerText = lang.mailTitle;
-    document.getElementById('weedTab').innerText = lang.weedTab;
-    document.getElementById('hashTab').innerText = lang.hashTab;
-    document.getElementById('cokeTab').innerText = lang.cokeTab;
-    document.getElementById('amphTab').innerText = lang.amphTab;
-    document.getElementById('methTab').innerText = lang.methTab;
-    document.getElementById('mephTab').innerText = lang.mephTab;
-    document.getElementById('alphaTab').innerText = lang.alphaTab;
-    document.getElementById('lsdTab').innerText = lang.lsdTab;
-    document.getElementById('mdmaTab').innerText = lang.mdmaTab;
-    document.getElementById('heroinTab').innerText = lang.heroinTab;
-    document.getElementById('promoInfo').innerText = lang.promoInfo;
-    updateDistrictOptions();
-    updateOrderHistory();
-    updateMailList();
-}
-
-function toggleCatalog() {
-    const catalog = document.getElementById('catalogMenu');
-    const profile = document.getElementById('profileMenu');
-    const vacancies = document.getElementById('vacancyMenu');
-    const mail = document.getElementById('mailMenu');
-    if (catalog.style.display === 'block') {
-        catalog.style.display = 'none';
-    } else {
-        catalog.style.display = 'block';
-        profile.style.display = 'none';
-        vacancies.style.display = 'none';
-        mail.style.display = 'none';
-        activateTab('weed');
-    }
-}
-
-// ... (весь предыдущий код до toggleProfile остается без изменений) ...
-
-function toggleProfile() {
-    const profile = document.getElementById('profileMenu');
-    const catalog = document.getElementById('catalogMenu');
-    const vacancies = document.getElementById('vacancyMenu');
-    const mail = document.getElementById('mailMenu');
-    if (!currentUser) {
-        showModal('registrationModal');
-    } else if (profile.style.display === 'block') {
-        profile.style.display = 'none';
-    } else {
-        profile.style.display = 'block';
-        catalog.style.display = 'none';
-        vacancies.style.display = 'none';
-        mail.style.display = 'none';
-    }
-}
-
-function toggleVacancies() {
-    const vacancies = document.getElementById('vacancyMenu');
-    const catalog = document.getElementById('catalogMenu');
-    const profile = document.getElementById('profileMenu');
-    const mail = document.getElementById('mailMenu');
-    if (vacancies.style.display === 'block') {
-        vacancies.style.display = 'none';
-    } else {
-        vacancies.style.display = 'block';
-        catalog.style.display = 'none';
-        profile.style.display = 'none';
-        mail.style.display = 'none';
-    }
-}
-
-function toggleMail() {
-    const mail = document.getElementById('mailMenu');
-    const catalog = document.getElementById('catalogMenu');
-    const profile = document.getElementById('profileMenu');
-    const vacancies = document.getElementById('vacancyMenu');
-    if (mail.style.display === 'block') {
-        mail.style.display = 'none';
-    } else {
-        mail.style.display = 'block';
-        catalog.style.display = 'none';
-        profile.style.display = 'none';
-        vacancies.style.display = 'none';
-    }
-}
-
-function activateTab(tabName) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
-    document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
-    document.getElementById(tabName).style.display = 'block';
-    filterProducts();
-}
-
-function filterByCity() {
-    selectedCity = document.getElementById('citySelect').value;
-    updateDistrictOptions();
-    filterProducts();
-}
-
-function filterByDistrict() {
-    selectedDistrict = document.getElementById('districtSelect').value;
-    filterProducts();
-}
-
-function updateDistrictOptions() {
-    const lang = translations[userLanguage];
-    const districtSelect = document.getElementById('districtSelect');
-    districtSelect.innerHTML = `<option value="all">${lang.allDistrictsOption}</option>`;
-    if (selectedCity !== 'all' && translations[userLanguage][`${selectedCity}Districts`]) {
-        const districts = translations[userLanguage][`${selectedCity}Districts`];
-        for (const [key, value] of Object.entries(districts)) {
-            districtSelect.innerHTML += `<option value="${key}">${value}</option>`;
+    function toggleCatalog() {
+        const catalog = document.getElementById('catalogMenu');
+        const profile = document.getElementById('profileMenu');
+        const vacancies = document.getElementById('vacancyMenu');
+        const mail = document.getElementById('mailMenu');
+        if (catalog.style.display === 'block') {
+            catalog.style.display = 'none';
+        } else {
+            catalog.style.display = 'block';
+            profile.style.display = 'none';
+            vacancies.style.display = 'none';
+            mail.style.display = 'none';
+            activateTab('weed');
         }
     }
-}
 
-function filterProducts() {
-    const products = document.querySelectorAll('.product-card');
-    products.forEach(product => {
-        const productCity = product.dataset.city || 'all';
-        const productDistrict = product.dataset.district || 'all';
-        const cityMatch = selectedCity === 'all' || productCity === selectedCity;
-        const districtMatch = selectedDistrict === 'all' || productDistrict === selectedDistrict;
-        product.style.display = cityMatch && districtMatch ? 'block' : 'none';
-    });
-}
+    function toggleProfile() {
+        const profile = document.getElementById('profileMenu');
+        const catalog = document.getElementById('catalogMenu');
+        const vacancies = document.getElementById('vacancyMenu');
+        const mail = document.getElementById('mailMenu');
+        if (!currentUser) {
+            showModal('registrationModal');
+        } else if (profile.style.display === 'block') {
+            profile.style.display = 'none';
+        } else {
+            profile.style.display = 'block';
+            catalog.style.display = 'none';
+            vacancies.style.display = 'none';
+            mail.style.display = 'none';
+        }
+    }
 
-function showProductModal(category, id) {
-    const lang = translations[userLanguage];
-    const productKey = `${category}-${id}`;
-    const basePrice = basePrices[category][id];
-    const productWeightOptions = (category === 'lsd' || (category === 'mdma' && id === 3)) ? weights.lsd : (category === 'coke') ? weights.coke : weights.default;
-    let modalContent = `
-        <h2>${document.querySelector(`[data-product="${productKey}"] h3`).innerText}</h2>
-        <img src="${productImages[category][id]}" class="product-image" alt="${category}-${id}">
-        <p>${document.querySelector(`[data-product="${productKey}"] p`).innerText}</p>
-        <label>${lang.positionWeight}</label>
-        <select id="weightSelect">
-    `;
-    productWeightOptions.forEach(weight => {
-        const price = category === 'lsd' || (category === 'mdma' && id >= 3) ? basePrice : basePrice * weight;
-        const preorderPrice = Math.round(price * 1.3);
-        modalContent += `<option value="${weight}" data-price="${price}" data-preorder-price="${preorderPrice}">${weight} г - ${price} ฿ (Предзаказ: ${preorderPrice} ฿)</option>`;
-    });
-    modalContent += `
-        </select>
-        <label>${lang.positionCity}</label>
-        <select id="citySelectModal">
-            <option value="phuket">${lang.phuketOption}</option>
-            <option value="pattaya">${lang.pattayaOption}</option>
-        </select>
-        <label>${lang.positionAvailability}</label>
-        <p id="availability">${lang.inStock}</p>
-        <button class="buy-button" onclick="buyProduct('${category}', ${id}, document.getElementById('citySelectModal').value, 'Patong', document.getElementById('weightSelect').value, document.getElementById('weightSelect').selectedOptions[0].dataset.price)">${lang.buyButton}</button>
-        <button class="preorder-button" onclick="preorderProduct('${category}', ${id}, document.getElementById('citySelectModal').value, 'Patong', document.getElementById('weightSelect').value, document.getElementById('weightSelect').selectedOptions[0].dataset.preorderPrice)">${lang.preorderButton}</button>
-        <h3>${lang.reviewsTitle}</h3>
-        <div id="reviewList">
-    `;
-    const productReviews = reviews[productKey] || [];
-    if (productReviews.length > 0) {
-        productReviews.forEach(review => {
-            modalContent += `
-                <div class="review">
-                    <span class="review-text">${review.text}</span>
-                    <span class="review-date">${review.date}</span>
-                </div>
-            `;
-            if (review.response) {
-                modalContent += `
-                    <div class="moderator-response">${review.response}</div>
-                `;
+    function toggleVacancies() {
+        const vacancies = document.getElementById('vacancyMenu');
+        const catalog = document.getElementById('catalogMenu');
+        const profile = document.getElementById('profileMenu');
+        const mail = document.getElementById('mailMenu');
+        if (vacancies.style.display === 'block') {
+            vacancies.style.display = 'none';
+        } else {
+            vacancies.style.display = 'block';
+            catalog.style.display = 'none';
+            profile.style.display = 'none';
+            mail.style.display = 'none';
+        }
+    }
+
+    function toggleMail() {
+        const mail = document.getElementById('mailMenu');
+        const catalog = document.getElementById('catalogMenu');
+        const profile = document.getElementById('profileMenu');
+        const vacancies = document.getElementById('vacancyMenu');
+        if (mail.style.display === 'block') {
+            mail.style.display = 'none';
+        } else {
+            mail.style.display = 'block';
+            catalog.style.display = 'none';
+            profile.style.display = 'none';
+            vacancies.style.display = 'none';
+        }
+    }
+
+    function activateTab(tabName) {
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+        document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById(tabName).style.display = 'block';
+        filterProducts();
+    }
+
+    function filterByCity() {
+        selectedCity = document.getElementById('citySelect').value;
+        updateDistrictOptions();
+        filterProducts();
+    }
+
+    function filterByDistrict() {
+        selectedDistrict = document.getElementById('districtSelect').value;
+        filterProducts();
+    }
+
+    function updateDistrictOptions() {
+        const lang = translations[userLanguage];
+        const districtSelect = document.getElementById('districtSelect');
+        districtSelect.innerHTML = `<option value="all">${lang.allDistrictsOption}</option>`;
+        if (selectedCity !== 'all' && translations[userLanguage][`${selectedCity}Districts`]) {
+            const districts = translations[userLanguage][`${selectedCity}Districts`];
+            for (const [key, value] of Object.entries(districts)) {
+                districtSelect.innerHTML += `<option value="${key}">${value}</option>`;
             }
-        });
-    } else {
-        modalContent += `<p>${lang.noReviews}</p>`;
+        }
     }
-    modalContent += `
-        </div>
-        <button class="buy-button" onclick="closeModal('productModal')">${lang.close}</button>
-    `;
-    document.getElementById('productContent').innerHTML = modalContent;
-    showModal('productModal');
-}
 
-function showPaymentModal(order) {
-    const lang = translations[userLanguage];
-    const cityData = cities[order.city][order.district];
-    const content = `
-        <h2>${lang.paymentSuccess}</h2>
-        <p>Заказ #${order.id}: ${order.product} (${order.weight} г)</p>
-        <p>${lang.positionPrice} ${order.price} ฿</p>
-        <p>${lang.positionCity} ${order.city} / ${order.district}</p>
-        <p>Координаты: ${cityData.lat}, ${cityData.lon}</p>
-        <p>Описание клада: ${cityData.desc}</p>
-        <button class="buy-button" onclick="closeModal('paymentModal')">${lang.close}</button>
-    `;
-    document.getElementById('paymentContent').innerHTML = content;
-    showModal('paymentModal');
-}
-
-function showPreorderModal(order) {
-    const lang = translations[userLanguage];
-    const content = `
-        <h2>${lang.preorderTitle}</h2>
-        <p>${lang.preorderPlaced}</p>
-        <p>Заказ #${order.id}: ${order.product} (${order.weight} г)</p>
-        <p>${lang.positionPrice} ${order.price} ฿</p>
-        <p>${lang.positionCity} ${order.city} / ${order.district}</p>
-        <p>Ожидайте уведомления о готовности!</p>
-        <button class="buy-button" onclick="closeModal('preorderModal')">${lang.close}</button>
-    `;
-    document.getElementById('preorderContent').innerHTML = content;
-    showModal('preorderModal');
-}
-
-function showDepositModal(crypto) {
-    const lang = translations[userLanguage];
-    const content = `
-        <h2>${lang.depositFunds}</h2>
-        <p>${lang.selectCrypto} ${crypto}</p>
-        <p>${lang.networkLabel} ${cryptoNetworks[crypto]}</p>
-        <label>${lang.enterAmount}</label>
-        <input type="number" id="depositAmount" min="${MIN_DEPOSIT}" placeholder="฿">
-        <button class="buy-button" onclick="generateDepositAddress('${crypto}')">${lang.generateAddress}</button>
-        <p id="depositError" style="color: #ff9999;"></p>
-        <button class="buy-button" onclick="closeModal('depositModal')">${lang.close}</button>
-    `;
-    document.getElementById('depositContent').innerHTML = content;
-    showModal('depositModal');
-}
-
-function generateDepositAddress(crypto) {
-    const lang = translations[userLanguage];
-    const amount = parseInt(document.getElementById('depositAmount').value);
-    if (isNaN(amount) || amount < MIN_DEPOSIT) {
-        document.getElementById('depositError').innerText = lang.minDepositError;
-        return;
-    }
-    const cryptoAmount = (amount / cryptoRates[crypto]).toFixed(6);
-    const content = `
-        <h2>${lang.depositFunds}</h2>
-        <p>${lang.depositInstruction.replace('{amount}', amount).replace('{cryptoAmount}', cryptoAmount).replace('{crypto}', crypto)}</p>
-        <p><strong>${testAddresses[crypto]}</strong></p>
-        <p>${lang.depositFinal}</p>
-        <p>${lang.depositExpiry}</p>
-        <button class="buy-button" onclick="confirmDeposit(${amount}, '${crypto}', ${cryptoAmount})">${lang.confirmPayment}</button>
-        <button class="buy-button" onclick="closeModal('depositModal')">${lang.close}</button>
-    `;
-    document.getElementById('depositContent').innerHTML = content;
-}
-
-async function confirmDeposit(amount, crypto, cryptoAmount) {
-    const lang = translations[userLanguage];
-    balance += amount;
-    await updateUserData();
-    document.getElementById('balance').innerText = `${balance} ฿`;
-    closeModal('depositModal');
-    showAlert(lang.paymentPending);
-    sendToTelegram(`Юзер ${currentUser} запросил пополнение: ${amount} ฿ (${cryptoAmount} ${crypto}) на адрес ${testAddresses[crypto]}`);
-}
-
-function updateOrderHistory() {
-    const lang = translations[userLanguage];
-    const orderList = document.getElementById('orderList');
-    orderList.innerHTML = '';
-    if (orderHistory.length === 0) {
-        orderList.innerHTML = `<p>${lang.orderListEmpty}</p>`;
-    } else {
-        orderHistory.slice(-5).reverse().forEach(order => {
-            orderList.innerHTML += `
-                <div class="review">
-                    <span class="review-text">Заказ #${order.id}: ${order.product} (${order.weight} г) - ${order.price} ฿</span>
-                    <span class="review-date">${order.date}</span>
-                </div>
-            `;
+    function filterProducts() {
+        const products = document.querySelectorAll('.product-card');
+        products.forEach(product => {
+            const productCity = product.dataset.city || 'all';
+            const productDistrict = product.dataset.district || 'all';
+            const cityMatch = selectedCity === 'all' || productCity === selectedCity;
+            const districtMatch = selectedDistrict === 'all' || productDistrict === selectedDistrict;
+            product.style.display = cityMatch && districtMatch ? 'block' : 'none';
         });
     }
-}
 
-function updateMailList() {
-    const lang = translations[userLanguage];
-    const mailList = document.getElementById('mailList');
-    mailList.innerHTML = mailMessages.length > 0
-        ? mailMessages.map(msg => `<div class="review"><p>${msg}</p></div>`).join('')
-        : `<p>${lang.mailListEmpty}</p>`;
-}
+    function showProductModal(category, id) {
+        const lang = translations[userLanguage];
+        const productKey = `${category}-${id}`;
+        const basePrice = basePrices[category][id];
+        const productWeightOptions = (category === 'lsd' || (category === 'mdma' && id === 3)) ? weights.lsd : (category === 'coke') ? weights.coke : weights.default;
+        let modalContent = `
+            <h2>${document.querySelector(`[data-product="${productKey}"] h3`).innerText}</h2>
+            <img src="${productImages[category][id]}" class="product-image" alt="${category}-${id}">
+            <p>${document.querySelector(`[data-product="${productKey}"] p`).innerText}</p>
+            <label>${lang.positionWeight}</label>
+            <select id="weightSelect">
+        `;
+        productWeightOptions.forEach(weight => {
+            const price = category === 'lsd' || (category === 'mdma' && id >= 3) ? basePrice : basePrice * weight;
+            const preorderPrice = Math.round(price * 1.3);
+            modalContent += `<option value="${weight}" data-price="${price}" data-preorder-price="${preorderPrice}">${weight} г - ${price} ฿ (Предзаказ: ${preorderPrice} ฿)</option>`;
+        });
+        modalContent += `
+            </select>
+            <label>${lang.positionCity}</label>
+            <select id="citySelectModal">
+                <option value="phuket">${lang.phuketOption}</option>
+                <option value="pattaya">${lang.pattayaOption}</option>
+            </select>
+            <label>${lang.positionAvailability}</label>
+            <p id="availability">${lang.inStock}</p>
+            <button class="buy-button" onclick="buyProduct('${category}', ${id}, document.getElementById('citySelectModal').value, 'Patong', document.getElementById('weightSelect').value, document.getElementById('weightSelect').selectedOptions[0].dataset.price)">${lang.buyButton}</button>
+            <button class="preorder-button" onclick="preorderProduct('${category}', ${id}, document.getElementById('citySelectModal').value, 'Patong', document.getElementById('weightSelect').value, document.getElementById('weightSelect').selectedOptions[0].dataset.preorderPrice)">${lang.preorderButton}</button>
+            <h3>${lang.reviewsTitle}</h3>
+            <div id="reviewList">
+        `;
+        const productReviews = reviews[productKey] || [];
+        if (productReviews.length > 0) {
+            productReviews.forEach(review => {
+                modalContent += `
+                    <div class="review">
+                        <span class="review-text">${review.text}</span>
+                        <span class="review-date">${review.date}</span>
+                    </div>
+                `;
+                if (review.response) {
+                    modalContent += `
+                        <div class="moderator-response">${review.response}</div>
+                    `;
+                }
+            });
+        } else {
+            modalContent += `<p>${lang.noReviews}</p>`;
+        }
+        modalContent += `
+            </div>
+            <button class="buy-button" onclick="closeModal('productModal')">${lang.close}</button>
+        `;
+        document.getElementById('productContent').innerHTML = modalContent;
+        showModal('productModal');
+    }
 
-function showModal(modalId) {
-    document.getElementById(modalId).style.display = 'flex';
-}
+    function showPaymentModal(order) {
+        const lang = translations[userLanguage];
+        const cityData = cities[order.city][order.district];
+        const content = `
+            <h2>${lang.paymentSuccess}</h2>
+            <p>Заказ #${order.id}: ${order.product} (${order.weight} г)</p>
+            <p>${lang.positionPrice} ${order.price} ฿</p>
+            <p>${lang.positionCity} ${order.city} / ${order.district}</p>
+            <p>Координаты: ${cityData.lat}, ${cityData.lon}</p>
+            <p>Описание клада: ${cityData.desc}</p>
+            <button class="buy-button" onclick="closeModal('paymentModal')">${lang.close}</button>
+        `;
+        document.getElementById('paymentContent').innerHTML = content;
+        showModal('paymentModal');
+    }
 
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
+    function showPreorderModal(order) {
+        const lang = translations[userLanguage];
+        const content = `
+            <h2>${lang.preorderTitle}</h2>
+            <p>${lang.preorderPlaced}</p>
+            <p>Заказ #${order.id}: ${order.product} (${order.weight} г)</p>
+            <p>${lang.positionPrice} ${order.price} ฿</p>
+            <p>${lang.positionCity} ${order.city} / ${order.district}</p>
+            <p>Ожидайте уведомления о готовности!</p>
+            <button class="buy-button" onclick="closeModal('preorderModal')">${lang.close}</button>
+        `;
+        document.getElementById('preorderContent').innerHTML = content;
+        showModal('preorderModal');
+    }
 
-function showAlert(message) {
-    const lang = translations[userLanguage];
-    document.getElementById('customContent').innerHTML = `
-        <h2>${lang.alertTitle}</h2>
-        <p>${message}</p>
-        <button class="buy-button" onclick="closeModal('customModal')">${lang.close}</button>
-    `;
-    showModal('customModal');
-}
+    function showDepositModal(crypto) {
+        const lang = translations[userLanguage];
+        const content = `
+            <h2>${lang.depositFunds}</h2>
+            <p>${lang.selectCrypto} ${crypto}</p>
+            <p>${lang.networkLabel} ${cryptoNetworks[crypto]}</p>
+            <label>${lang.enterAmount}</label>
+            <input type="number" id="depositAmount" min="${MIN_DEPOSIT}" placeholder="฿">
+            <button class="buy-button" onclick="generateDepositAddress('${crypto}')">${lang.generateAddress}</button>
+            <p id="depositError" style="color: #ff9999;"></p>
+            <button class="buy-button" onclick="closeModal('depositModal')">${lang.close}</button>
+        `;
+        document.getElementById('depositContent').innerHTML = content;
+        showModal('depositModal');
+    }
 
-function showConfirmModal(message, onConfirm, onCancel) {
-    const lang = translations[userLanguage];
-    document.getElementById('confirmContent').innerHTML = `
-        <h2>${lang.confirmTitle}</h2>
-        <p>${message}</p>
-        <button class="buy-button" onclick="onConfirm(); closeModal('confirmModal')">${lang.yes}</button>
-        <button class="buy-button" onclick="onCancel(); closeModal('confirmModal')">${lang.no}</button>
-    `;
-    showModal('confirmModal');
-}
+    function generateDepositAddress(crypto) {
+        const lang = translations[userLanguage];
+        const amount = parseInt(document.getElementById('depositAmount').value);
+        if (isNaN(amount) || amount < MIN_DEPOSIT) {
+            document.getElementById('depositError').innerText = lang.minDepositError;
+            return;
+        }
+        const cryptoAmount = (amount / cryptoRates[crypto]).toFixed(6);
+        const content = `
+            <h2>${lang.depositFunds}</h2>
+            <p>${lang.depositInstruction.replace('{amount}', amount).replace('{cryptoAmount}', cryptoAmount).replace('{crypto}', crypto)}</p>
+            <p><strong>${testAddresses[crypto]}</strong></p>
+            <p>${lang.depositFinal}</p>
+            <p>${lang.depositExpiry}</p>
+            <button class="buy-button" onclick="confirmDeposit(${amount}, '${crypto}', ${cryptoAmount})">${lang.confirmPayment}</button>
+            <button class="buy-button" onclick="closeModal('depositModal')">${lang.close}</button>
+        `;
+        document.getElementById('depositContent').innerHTML = content;
+    }
 
-function applyForJob(job) {
-    const lang = translations[userLanguage];
-    showInputModal(lang.applyJobPrompt.replace('{job}', job), async (resume) => {
-        sendToTelegram(`Заявка на вакансию "${job}" от ${currentUser}:\n${resume}`);
-        showAlert(lang.applyJobAlert.replace('{job}', job));
-    });
-}
+    async function confirmDeposit(amount, crypto, cryptoAmount) {
+        const lang = translations[userLanguage];
+        balance += amount;
+        await updateUserData();
+        document.getElementById('balance').innerText = `${balance} ฿`;
+        closeModal('depositModal');
+        showAlert(lang.paymentPending);
+        sendToTelegram(`Юзер ${currentUser} запросил пополнение: ${amount} ฿ (${cryptoAmount} ${crypto}) на адрес ${testAddresses[crypto]}`);
+    }
 
-function showInputModal(message, onConfirm) {
-    const lang = translations[userLanguage];
-    document.getElementById('customContent').innerHTML = `
-        <h2>${lang.inputTitle}</h2>
-        <p>${message}</p>
-        <textarea id="inputValue" placeholder="Введите текст"></textarea>
-        <button class="buy-button" onclick="onConfirm(document.getElementById('inputValue').value); closeModal('customModal')">${lang.confirmButton}</button>
-        <button class="buy-button" onclick="closeModal('customModal')">${lang.cancelButton}</button>
-    `;
-    showModal('customModal');
-}
+    function updateOrderHistory() {
+        const lang = translations[userLanguage];
+        const orderList = document.getElementById('orderList');
+        orderList.innerHTML = '';
+        if (orderHistory.length === 0) {
+            orderList.innerHTML = `<p>${lang.orderListEmpty}</p>`;
+        } else {
+            orderHistory.slice(-5).reverse().forEach(order => {
+                orderList.innerHTML += `
+                    <div class="review">
+                        <span class="review-text">Заказ #${order.id}: ${order.product} (${order.weight} г) - ${order.price} ฿</span>
+                        <span class="review-date">${order.date}</span>
+                    </div>
+                `;
+            });
+        }
+    }
 
-function sendToTelegram(message) {
-    const url = `https://api.telegram.org/bot${BOT_B_TOKEN}/sendMessage`;
-    fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: ADMIN_CHAT_ID,
-            text: message,
-            parse_mode: 'HTML'
-        })
-    }).catch(error => console.error('Ошибка отправки в Telegram:', error));
-}
+    function updateMailList() {
+        const lang = translations[userLanguage];
+        const mailList = document.getElementById('mailList');
+        mailList.innerHTML = mailMessages.length > 0
+            ? mailMessages.map(msg => `<div class="review"><p>${msg}</p></div>`).join('')
+            : `<p>${lang.mailListEmpty}</p>`;
+    }
 
-function showPromoDetails() {
-    const lang = translations[userLanguage];
-    const refLink = currentUser ? `https://t.me/DarkThailandBot?start=${currentUser}` : 'Зарегистрируйтесь для получения ссылки';
-    const content = `
-        <h2>${lang.promoInfo}</h2>
-        <p>${lang.promoBanner}</p>
-        <p>${lang.refLinkLabel} <strong>${refLink}</strong></p>
-        <button class="buy-button" onclick="closeModal('customModal')">${lang.close}</button>
-    `;
-    document.getElementById('customContent').innerHTML = content;
-    showModal('customModal');
-}
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+    }
 
-// Инициализация
-document.addEventListener('DOMContentLoaded', async () => {
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showAlert(message) {
+        const lang = translations[userLanguage];
+        document.getElementById('customContent').innerHTML = `
+            <h2>${lang.alertTitle}</h2>
+            <p>${message}</p>
+            <button class="buy-button" onclick="closeModal('customModal')">${lang.close}</button>
+        `;
+        showModal('customModal');
+    }
+
+    function showConfirmModal(message, onConfirm, onCancel) {
+        const lang = translations[userLanguage];
+        document.getElementById('confirmContent').innerHTML = `
+            <h2>${lang.confirmTitle}</h2>
+            <p>${message}</p>
+            <button class="buy-button" onclick="onConfirm(); closeModal('confirmModal')">${lang.yes}</button>
+            <button class="buy-button" onclick="onCancel(); closeModal('confirmModal')">${lang.no}</button>
+        `;
+        showModal('confirmModal');
+    }
+
+    function applyForJob(job) {
+        const lang = translations[userLanguage];
+        showInputModal(lang.applyJobPrompt.replace('{job}', job), async (resume) => {
+            sendToTelegram(`Заявка на вакансию "${job}" от ${currentUser}:\n${resume}`);
+            showAlert(lang.applyJobAlert.replace('{job}', job));
+        });
+    }
+
+    function showInputModal(message, onConfirm) {
+        const lang = translations[userLanguage];
+        document.getElementById('customContent').innerHTML = `
+            <h2>${lang.inputTitle}</h2>
+            <p>${message}</p>
+            <textarea id="inputValue" placeholder="Введите текст"></textarea>
+            <button class="buy-button" onclick="onConfirm(document.getElementById('inputValue').value); closeModal('customModal')">${lang.confirmButton}</button>
+            <button class="buy-button" onclick="closeModal('customModal')">${lang.cancelButton}</button>
+        `;
+        showModal('customModal');
+    }
+
+    function sendToTelegram(message) {
+        const url = `https://api.telegram.org/bot${BOT_B_TOKEN}/sendMessage`;
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: ADMIN_CHAT_ID,
+                text: message,
+                parse_mode: 'HTML'
+            })
+        }).catch(error => console.error('Ошибка отправки в Telegram:', error));
+    }
+
+    function showPromoDetails() {
+        const lang = translations[userLanguage];
+        const refLink = currentUser ? `https://t.me/DarkThailandBot?start=${currentUser}` : 'Зарегистрируйтесь для получения ссылки';
+        const content = `
+            <h2>${lang.promoInfo}</h2>
+            <p>${lang.promoBanner}</p>
+            <p>${lang.refLinkLabel} <strong>${refLink}</strong></p>
+            <button class="buy-button" onclick="closeModal('customModal')">${lang.close}</button>
+        `;
+        document.getElementById('customContent').innerHTML = content;
+        showModal('customModal');
+    }
+
+    // Инициализация приложения
     await loadCurrentUser();
     if (!currentUser) {
         showModal('registrationModal');
