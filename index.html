@@ -891,19 +891,30 @@ const productImages = {
         // Инициализация
         document.addEventListener('DOMContentLoaded', async () => {
     console.log('Страница загружена');
-    while (typeof window.Supabase === 'undefined') {
+
+    // Ждём Supabase максимум 5 секунд
+    let attempts = 50;
+    while (typeof window.Supabase === 'undefined' && attempts > 0) {
         console.log('Supabase ещё не готов, ждём инициализации...');
         await new Promise(resolve => setTimeout(resolve, 100));
+        attempts--;
     }
-    console.log('Supabase SDK загружен:', window.Supabase);
 
-    window.supabase = Supabase.createClient(
+    if (typeof window.Supabase === 'undefined') {
+        console.error('Supabase SDK не загрузился даже после ожидания!');
+        alert('Ошибка: Supabase не доступен. Проверьте подключение.');
+        return;
+    }
+
+    console.log('Supabase SDK загружен:', window.Supabase);
+    window.supabase = window.Supabase.createClient(
         'https://xtjijqrycwudjdsjngjb.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8'
     );
     console.log('Supabase клиент создан:', window.supabase);
+    console.log('Метод from доступен:', typeof window.supabase.from === 'function');
 
-    // Запуск остальной логики
+    // Запускаем остальную логику
     loadCurrentUser();
     updateProductCards();
 });
@@ -1505,7 +1516,9 @@ function preorderProduct(productId, weight, price, city, district) {
 async function loadCurrentUser() {
     const lang = translations[userLanguage] || translations['ru'];
     try {
-        if (!window.supabase) throw new Error('Supabase не инициализирован');
+        if (!window.supabase || typeof window.supabase.from !== 'function') {
+            throw new Error('Supabase не инициализирован');
+        }
 
         const nickname = currentUser || Telegram.WebApp.initDataUnsafe.user?.username || 'Гость';
         const { data: user, error } = await window.supabase
@@ -1514,12 +1527,11 @@ async function loadCurrentUser() {
             .eq('nickname', nickname)
             .single();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 — нет записей
+        if (error && error.code !== 'PGRST116') {
             throw new Error(`Ошибка загрузки пользователя: ${error.message}`);
         }
 
         if (!user) {
-            // Новый пользователь
             const { data: newUser, error: insertError } = await window.supabase
                 .from('users')
                 .insert({ nickname, language: userLanguage, balance: 0, order_count: 0, referral_count: 0 })
@@ -1542,9 +1554,9 @@ async function loadCurrentUser() {
     } catch (error) {
         console.error('Ошибка при загрузке пользователя:', error);
         document.getElementById('balance').innerText = 'Ошибка';
+        showAlertModal(`Ошибка загрузки профиля: ${error.message}`);
     }
 }
-
         function updateOrderHistory() {
             const lang = translations[userLanguage];
             const orderList = document.getElementById('orderList');
