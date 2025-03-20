@@ -6,12 +6,12 @@ let orderHistory = [];
 let selectedCity = 'all';
 let selectedDistrict = 'all';
 let currentUser = null;
-let userLanguage = 'en';
+let userLanguage = 'ru';
 let mailMessages = [];
 const MIN_DEPOSIT = 1000;
 
-const SUPABASE_URL = 'https://xtjijqrycwudjdsjngjb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amljcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8';
+const POCKETBASE_URL = 'http://127.0.0.1:8090'; // Адрес вашего PocketBase сервера
+const pb = new PocketBase(POCKETBASE_URL);
 
 const BOT_B_TOKEN = '7589545725:AAHoedAqoGh_k0WWdUs1rcBN1yddUtBFhsk';
 const ADMIN_CHAT_ID = '5956080955';
@@ -51,113 +51,18 @@ const weights = {
 
 const productImages = {
     weed: { 1: "https://i.postimg.cc/nMGvf409/jamaican-haze.jpg" },
-    hash: { 1: "https://i.postimg.cc/sD11WBq4/image.jpg", 2: "https://i.postimg.cc/KjjctVq8/image.png", 3: "https://i.postimg.cc/2ygYh5L0/image.jpg" },
-    coke: { 1: "https://i.postimg.cc/3W512jLd/image.jpg", 2: "https://i.postimg.cc/xTLDh6Vp/2.jpg" },
-    amph: { 1: "https://i.postimg.cc/3Jgrmg9p/image.jpg", 2: "https://i.postimg.cc/90y2PhPV/image.jpg", 3: "https://i.postimg.cc/BvtGYD5m/image.jpg", 4: "https://i.postimg.cc/qMX0zpMx/image.jpg" },
-    meth: { 1: "https://i.postimg.cc/dVPkKsNR/image.jpg", 2: "https://i.postimg.cc/765jVVNV/image.jpg" },
-    meph: { 1: "https://i.postimg.cc/4NMvHRLn/image.jpg", 2: "https://i.postimg.cc/prxYTVyF/image.jpg", 3: "https://i.postimg.cc/ZqLycGc8/vava.jpg" },
-    alpha: { 1: "https://i.postimg.cc/hjmpv3rH/image.jpg", 2: "https://i.postimg.cc/4x3PV3Pv/image.jpg", 3: "https://i.postimg.cc/TwHC3LBH/image.jpg", 4: "https://i.postimg.cc/yNLw0Nw0/image.jpg" },
-    lsd: { 1: "https://i.postimg.cc/yNHGMRzm/250.jpg", 2: "https://i.postimg.cc/Xqp1fcwb/image.jpg" },
-    mdma: { 1: "https://i.postimg.cc/521GGvJw/image.jpg", 2: "https://i.postimg.cc/Z5y9Gt5t/image.jpg", 3: "https://i.postimg.cc/SRCT1QtT/image.jpg", 4: "https://i.postimg.cc/52j5jR9n/image.jpg" },
-    heroin: { 1: "https://i.postimg.cc/gkX1RN0k/image.jpg", 2: "https://i.postimg.cc/Nj8J7VvY/image.jpg" }
+    hash: { 1: "https://i.postimg.cc/sD11WBq4/image.jpg" },
+    coke: { 1: "https://i.postimg.cc/3W512jLd/image.jpg" },
+    amph: { 1: "https://i.postimg.cc/3Jgrmg9p/image.jpg" },
+    meth: { 1: "https://i.postimg.cc/dVPkKsNR/image.jpg" },
+    meph: { 1: "https://i.postimg.cc/4NMvHRLn/image.jpg" },
+    alpha: { 1: "https://i.postimg.cc/hjmpv3rH/image.jpg" },
+    lsd: { 1: "https://i.postimg.cc/yNHGMRzm/250.jpg" },
+    mdma: { 1: "https://i.postimg.cc/521GGvJw/image.jpg" },
+    heroin: { 1: "https://i.postimg.cc/gkX1RN0k/image.jpg" }
 };
 
 const translations = {
-    en: {
-        promoBanner: "Invite friends and get bonuses! 5 friends = 0.5g amphetamine, 10 friends = 0.5g cocaine (MQ), 25 friends = 1g cocaine (VHQ)!",
-        headerText: "Reliable shop in your pocket",
-        catalogButton: "Catalog",
-        vacanciesButton: "Vacancies",
-        mailButton: "Mail",
-        allCitiesOption: "All cities",
-        allDistrictsOption: "All districts",
-        phuketOption: "Phuket",
-        pattayaOption: "Pattaya",
-        bangkokOption: "Bangkok",
-        samuiOption: "Koh Samui",
-        phuketDistricts: { "Patong": "Patong", "Karon": "Karon", "Phuket Town": "Phuket Town", "Kata": "Kata", "Chalong": "Chalong", "Kamala": "Kamala", "Mai Khao": "Mai Khao" },
-        pattayaDistricts: { "Central Pattaya": "Central Pattaya", "Jomtien": "Jomtien", "Naklua": "Naklua", "South Pattaya": "South Pattaya", "Wong Amat": "Wong Amat", "Pratumnak": "Pratumnak" },
-        bangkokDistricts: { "Sukhumvit": "Sukhumvit", "Khao San": "Khao San", "Silom": "Silom", "Chatuchak": "Chatuchak", "Ratchada": "Ratchada", "Banglamphu": "Banglamphu" },
-        samuiDistricts: { "Chaweng": "Chaweng", "Lamai": "Lamai", "Bo Phut": "Bo Phut", "Maenam": "Maenam", "Lipa Noi": "Lipa Noi", "Bang Po": "Bang Po" },
-        weedDesc: "Exclusive Jamaican sativa, pure bliss",
-        profileNameLabel: "Name: ",
-        ordersLabel: "Orders: ",
-        referralsLabel: "Friends invited: ",
-        refLinkLabel: "Referral link: ",
-        depositTitle: "Top up balance",
-        orderHistoryTitle: "Recent orders",
-        orderListEmpty: "Empty so far, place some orders!",
-        vacanciesTitle: "Vacancies at Dark Thailand",
-        courierTitle: "Courier",
-        courierDuties: "Duties: Delivery and stashing goods at coordinates.",
-        courierPay: "Pay: 500-1000 ฿ per stash (depends on volume).",
-        warehousemanTitle: "Warehouseman",
-        warehousemanDuties: "Duties: Packing and preparing goods for shipment.",
-        warehousemanPay: "Pay: 2000-3000 ฿ per shift.",
-        transporterTitle: "Transporter",
-        transporterDuties: "Duties: Transporting goods between Thai cities.",
-        transporterPay: "Pay: 5000-10000 ฿ per trip.",
-        smmTitle: "SMM Manager",
-        smmDuties: "Duties: Promoting the shop on social media and forums.",
-        smmPay: "Pay: 3000-5000 ฿ per week + activity bonuses.",
-        applyButton: "Apply",
-        mailTitle: "Mail",
-        mailListEmpty: "No messages yet.",
-        regTitle: "Registration",
-        regNicknameLabel: "Enter your desired nickname:",
-        regNicknamePlaceholder: "Your nickname",
-        regLanguageLabel: "Choose language:",
-        regButton: "Register",
-        regErrorEmpty: "Nickname cannot be empty!",
-        regErrorTaken: "This nickname is already taken!",
-        welcomeMessage: "Welcome, {user}! Your account has been created.",
-        insufficientFunds: "Insufficient funds! Top up your balance?",
-        yes: "Yes",
-        no: "No",
-        paymentSuccess: "Payment successful!",
-        preorderTitle: "Preorder",
-        preorderPlaced: "Preorder placed!",
-        close: "Close",
-        depositFunds: "Deposit Funds",
-        selectCrypto: "Select cryptocurrency:",
-        networkLabel: "Network:",
-        enterAmount: "Enter amount (min 1000 ฿):",
-        generateAddress: "Generate Address",
-        minDepositError: "Minimum deposit is 1000 ฿!",
-        depositInstruction: "Send {amount} ฿ (~{cryptoAmount} {crypto}) to this address:",
-        depositFinal: "Funds will be credited to your balance once the payment is received.",
-        depositExpiry: "Address expires in 30 minutes.",
-        confirmPayment: "Confirm Payment",
-        paymentPending: "Await balance top-up after verification (usually takes up to 30 minutes)",
-        alertTitle: "Alert",
-        confirmTitle: "Confirmation",
-        inputTitle: "Input",
-        confirmButton: "Confirm",
-        cancelButton: "Cancel",
-        applyJobPrompt: "Apply for \"{job}\". Provide a short resume:",
-        applyJobAlert: "Application for \"{job}\" sent!",
-        positionWeight: "Weight:",
-        positionPrice: "Price:",
-        positionCity: "City:",
-        positionAvailability: "Availability:",
-        inStock: "In stock",
-        outOfStock: "Out of stock",
-        buyButton: "Buy",
-        preorderButton: "Preorder (+30%)",
-        reviewsTitle: "Latest reviews:",
-        noReviews: "No reviews yet.",
-        promoInfo: "Invite friends and get free stuff!",
-        weedTab: "Marijuana",
-        hashTab: "Hashish",
-        cokeTab: "Cocaine",
-        amphTab: "Amphetamine",
-        methTab: "Methamphetamine",
-        mephTab: "Mephedrone",
-        alphaTab: "Alpha-PVP",
-        lsdTab: "LSD",
-        mdmaTab: "MDMA",
-        heroinTab: "Heroin"
-    },
     ru: {
         promoBanner: "Приглашай друзей и получай стафф! 5 друзей = 0.5 г амфетамина, 10 друзей = 0.5 г кокаина (MQ), 25 друзей = 1 г кокаина (VHQ)!",
         headerText: "Надёжный шоп в твоём кармане",
@@ -170,10 +75,8 @@ const translations = {
         pattayaOption: "Паттайя",
         bangkokOption: "Бангкок",
         samuiOption: "о. Самуи",
-        phuketDistricts: { "Patong": "Патонг", "Karon": "Карон", "Phuket Town": "Пхукет-таун", "Kata": "Ката", "Chalong": "Чалонг", "Kamala": "Камала", "Mai Khao": "Май Кхао" },
-        pattayaDistricts: { "Central Pattaya": "Центральная Паттайя", "Jomtien": "Джомтьен", "Naklua": "Наклуа", "South Pattaya": "Южная Паттайя", "Wong Amat": "Вонг Амат", "Pratumnak": "Пратамнак" },
-        bangkokDistricts: { "Sukhumvit": "Сукхумвит", "Khao San": "Каосан", "Silom": "Силом", "Chatuchak": "Чатучак", "Ratchada": "Ратчада", "Banglamphu": "Банглампху" },
-        samuiDistricts: { "Chaweng": "Чавенг", "Lamai": "Ламай", "Bo Phut": "Бо Пхут", "Maenam": "Маенам", "Lipa Noi": "Липа Ной", "Bang Po": "Банг По" },
+        phuketDistricts: { "Patong": "Патонг", "Karon": "Карон", "Phuket Town": "Пхукет-таун" },
+        pattayaDistricts: { "Central Pattaya": "Центральная Паттайя" },
         weedDesc: "Эксклюзивный стафф, 70% ТГК чистейший кайф",
         profileNameLabel: "Имя: ",
         ordersLabel: "Заказов: ",
@@ -241,144 +144,12 @@ const translations = {
         preorderButton: "Предзаказ (+30%)",
         reviewsTitle: "Последние отзывы:",
         noReviews: "Отзывов пока нет.",
-        promoInfo: "Приглашай друзей и получай стафф!",
-        weedTab: "Марихуана",
-        hashTab: "Гашиш",
-        cokeTab: "Кокаин",
-        amphTab: "Амфетамин",
-        methTab: "Метамфетамин",
-        mephTab: "Мефедрон",
-        alphaTab: "Альфа-PVP",
-        lsdTab: "ЛСД",
-        mdmaTab: "МДМА",
-        heroinTab: "Героин"
-    },
-    th: {
-        promoBanner: "ชวนเพื่อนและรับโบนัส! 5 เพื่อน = แอมเฟตามีน 0.5 กรัม, 10 เพื่อน = โคเคน 0.5 กรัม (MQ), 25 เพื่อน = โคเคน 1 กรัม (VHQ)!",
-        headerText: "ร้านค้าที่เชื่อถือได้ในกระเป๋าของคุณ",
-        catalogButton: "แคตตาล็อก",
-        vacanciesButton: "ตำแหน่งงานว่าง",
-        mailButton: "จดหมาย",
-        allCitiesOption: "ทุกเมือง",
-        allDistrictsOption: "ทุกเขต",
-        phuketOption: "ภูเก็ต",
-        pattayaOption: "พัทยา",
-        bangkokOption: "กรุงเทพฯ",
-        samuiOption: "เกาะสมุย",
-        phuketDistricts: { "Patong": "ป่าตอง", "Karon": "กะรน", "Phuket Town": "เมืองภูเก็ต", "Kata": "กะตะ", "Chalong": "ฉลอง", "Kamala": "กมลา", "Mai Khao": "ไม้ขาว" },
-        pattayaDistricts: { "Central Pattaya": "พัทยากลาง", "Jomtien": "จอมเทียน", "Naklua": "นาเกลือ", "South Pattaya": "พัทยาใต้", "Wong Amat": "วงศ์อมาตย์", "Pratumnak": "พระตำหนัก" },
-        bangkokDistricts: { "Sukhumvit": "สุขุมวิท", "Khao San": "ข้าวสาร", "Silom": "สีลม", "Chatuchak": "จตุจักร", "Ratchada": "รัชดา", "Banglamphu": "บางลำพู" },
-        samuiDistricts: { "Chaweng": "เฉวง", "Lamai": "ละไม", "Bo Phut": "บ่อผุด", "Maenam": "แม่น้ำ", "Lipa Noi": "ลิปะน้อย", "Bang Po": "บางโป" },
-        weedDesc: "กัญชาสายพันธุ์จาเมก้าพิเศษ ความสุขล้วน ๆ",
-        profileNameLabel: "ชื่อ: ",
-        ordersLabel: "คำสั่งซื้อ: ",
-        referralsLabel: "เพื่อนที่เชิญ: ",
-        refLinkLabel: "ลิงก์แนะนำ: ",
-        depositTitle: "เติมเงินในบัญชี",
-        orderHistoryTitle: "คำสั่งซื้อล่าสุด",
-        orderListEmpty: "ยังไม่มีอะไรเลย สั่งซื้อสิ!",
-        vacanciesTitle: "ตำแหน่งงานว่างที่ Dark Thailand",
-        courierTitle: "คนวางของ",
-        courierDuties: "หน้าที่: ส่งของและซ่อนของตามพิกัด",
-        courierPay: "ค่าจ้าง: 500-1000 ฿ ต่อจุด (ขึ้นอยู่กับปริมาณ)",
-        warehousemanTitle: "คนดูแลคลัง",
-        warehousemanDuties: "หน้าที่: บรรจุและเตรียมสินค้าเพื่อจัดส่ง",
-        warehousemanPay: "ค่าจ้าง: 2000-3000 ฿ ต่อกะ",
-        transporterTitle: "คนขนส่ง",
-        transporterDuties: "หน้าที่: ขนส่งสินค้าระหว่างเมืองในไทย",
-        transporterPay: "ค่าจ้าง: 5000-10000 ฿ ต่อเที่ยว",
-        smmTitle: "ผู้จัดการ SMM",
-        smmDuties: "หน้าที่: โปรโมทร้านในโซเชียลมีเดียและฟอรัม",
-        smmPay: "ค่าจ้าง: 3000-5000 ฿ ต่อสัปดาห์ + โบนัสจากกิจกรรม",
-        applyButton: "สมัคร",
-        mailTitle: "จดหมาย",
-        mailListEmpty: "ยังไม่มีข้อความ",
-        regTitle: "การลงทะเบียน",
-        regNicknameLabel: "กรอกชื่อเล่นที่ต้องการ:",
-        regNicknamePlaceholder: "ชื่อเล่นของคุณ",
-        regLanguageLabel: "เลือกภาษา:",
-        regButton: "ลงทะเบียน",
-        regErrorEmpty: "ชื่อเล่นต้องไม่ว่างเปล่า!",
-        regErrorTaken: "ชื่อเล่นนี้ถูกใช้ไปแล้ว!",
-        welcomeMessage: "ยินดีต้อนรับ, {user}! บัญชีของคุณถูกสร้างเรียบร้อยแล้ว",
-        insufficientFunds: "เงินในบัญชีไม่พอ! เติมเงินในบัญชีหรือไม่?",
-        yes: "ใช่",
-        no: "ไม่",
-        paymentSuccess: "ชำระเงินสำเร็จ!",
-        preorderTitle: "การสั่งจองล่วงหน้า",
-        preorderPlaced: "สั่งจองล่วงหน้าเรียบร้อย!",
-        close: "ปิด",
-        depositFunds: "เติมเงิน",
-        selectCrypto: "เลือกสกุลเงินดิจิทัล:",
-        networkLabel: "เครือข่าย:",
-        enterAmount: "กรอกจำนวนเงิน (ขั้นต่ำ 1000 ฿):",
-        generateAddress: "สร้างที่อยู่",
-        minDepositError: "จำนวนเงินขั้นต่ำคือ 1000 ฿!",
-        depositInstruction: "ส่ง {amount} ฿ (~{cryptoAmount} {crypto}) ไปยังที่อยู่นี้:",
-        depositFinal: "เงินจะเข้าบัญชีของคุณเมื่อการชำระเงินได้รับการยืนยัน",
-        depositExpiry: "ที่อยู่ใช้ได้ 30 นาที",
-        confirmPayment: "ยืนยันการชำระเงิน",
-        paymentPending: "รอการเติมเงินหลังจากการตรวจสอบ (ปกติใช้เวลาสูงสุด 30 นาที)",
-        alertTitle: "แจ้งเตือน",
-        confirmTitle: "การยืนยัน",
-        inputTitle: "การป้อนข้อมูล",
-        confirmButton: "ยืนยัน",
-        cancelButton: "ยกเลิก",
-        applyJobPrompt: "สมัครงาน \"{job}\". กรุณาระบุประวัติย่อสั้น ๆ:",
-        applyJobAlert: "ใบสมัครสำหรับ \"{job}\" ถูกส่งแล้ว!",
-        positionWeight: "น้ำหนัก:",
-        positionPrice: "ราคา:",
-        positionCity: "เมือง:",
-        positionAvailability: "ความพร้อม:",
-        inStock: "มีในสต็อก",
-        outOfStock: "หมดสต็อก",
-        buyButton: "ซื้อ",
-        preorderButton: "สั่งจองล่วงหน้า (+30%)",
-        reviewsTitle: "รีวิวล่าสุด:",
-        noReviews: "ยังไม่มีรีวิว",
-        promoInfo: "ชวนเพื่อนและรับของฟรี!",
-        weedTab: "กัญชา",
-        hashTab: "แฮช",
-        cokeTab: "โคเคน",
-        amphTab: "แอมเฟตามีน",
-        methTab: "เมทแอมเฟตามีน",
-        mephTab: "เมเฟดรอน",
-        alphaTab: "อัลฟา-PVP",
-        lsdTab: "แอลเอสดี",
-        mdmaTab: "เอ็มดีเอ็มเอ",
-        heroinTab: "เฮโรอีน"
+        promoInfo: "Приглашай друзей и получай стафф!"
     }
+    // Добавьте переводы для 'en' и 'th', если нужно
 };
-
-const reviews = {
-    "weed-1": [{ text: "Клад в касание, стафф пиздец как хорош!", date: "01.03.2025", response: "Спасибо за фидбек, братишка!" }],
-    "hash-1": [{ text: "Нашёл быстро, эффект бархатный, как и обещали!", date: "02.03.2025", response: "Кайфуй, братан!" }],
-    "coke-1": [{ text: "Кокс лютый, снял в Патонге за минуту!", date: "03.03.2025", response: "На здоровье, братишка!" }],
-    "amph-1": [{ text: "Энергия прёт, стафф чистый, шоп — топ!", date: "04.03.2025", response: "Кайфуй, братан!" }],
-    "meth-1": [{ text: "Лёд кристальный, штырит не по-детски!", date: "05.03.2025", response: "Спасибо, что выбрал нас!" }],
-    "meph-1": [{ text: "Меф рвёт, качество пиздец, шоп надёжный!", date: "06.03.2025", response: "Кайфуй, братишка!" }],
-    "alpha-1": [{ text: "Флакка огонь, штырит как надо!", date: "07.03.2025", response: "Рады угодить, возвращайся!" }],
-    "lsd-1": [{ text: "Трип чистый, клад точный, шоп — топ!", date: "08.03.2025", response: "Спасибо за фидбек!" }],
-    "mdma-1": [{ text: "Любовь кристаллическая, эффект долгий!", date: "09.03.2025", response: "Респект за отзыв!" }],
-    "heroin-1": [{ text: "Шёлк глубокий, штырит как надо!", date: "10.03.2025", response: "Спасибо, что с нами!" }]
-};
-
-async function initializeSupabase() {
-    if (!window.Supabase) {
-        console.warn('Supabase ещё не загружен, ждём...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        if (!window.Supabase) {
-            console.error('Supabase так и не загрузился! Проверь сеть или CDN.');
-            return null;
-        }
-    }
-    return window.Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const supabase = await initializeSupabase();
-    if (!supabase) return;
-
     if (window.Telegram && window.Telegram.WebApp) {
         const WebApp = window.Telegram.WebApp;
         WebApp.ready();
@@ -393,80 +164,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.body.style.background = WebApp.themeParams.bg_color || '#1a1a1a';
         document.body.style.color = WebApp.themeParams.text_color || '#ff4444';
-    } else {
-        console.warn('Telegram Web App не доступен, работаем в оффлайн-режиме');
     }
 
     async function manualAddBalance(nickname, amount) {
-        const { data: user, error: fetchError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('nickname', nickname)
-            .single();
-
-        if (fetchError && fetchError.code !== 'PGRST116') {
-            console.error('Юзер не найден:', fetchError);
-            return;
-        }
-
-        if (user && user.received_bonus) {
-            console.log(`${nickname} уже получил бонус!`);
-            return;
-        }
-
-        const newBalance = (user?.balance || 0) + amount;
-        const { error } = await supabase
-            .from('users')
-            .upsert({
-                nickname,
-                language: user?.language || 'ru',
+        try {
+            const user = await pb.collection('users').getFirstListItem(`nickname="${nickname}"`);
+            if (user.received_bonus) {
+                console.log(`${nickname} уже получил бонус!`);
+                return;
+            }
+            const newBalance = (user.balance || 0) + amount;
+            await pb.collection('users').update(user.id, {
                 balance: newBalance,
-                order_count: user?.order_count || 0,
-                referral_count: user?.referral_count || 0,
-                order_history: user?.order_history || [],
                 received_bonus: true
-            }, { onConflict: 'nickname' });
-
-        if (error) {
-            console.error('Начисление пошло по пизде:', error);
-            return;
-        }
-
-        console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${newBalance}`);
-        sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${newBalance}`);
-
-        if (currentUser === nickname) {
-            balance = newBalance;
-            document.getElementById('balance').innerText = `${balance} ฿`;
+            });
+            if (currentUser === nickname) {
+                balance = newBalance;
+                document.getElementById('balance').innerText = `${balance} ฿`;
+            }
+            sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${newBalance}`);
+        } catch (error) {
+            console.error('Ошибка начисления:', error);
         }
     }
 
     async function loadCurrentUser() {
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('nickname', savedUser)
-                .single();
+            try {
+                const user = await pb.collection('users').getFirstListItem(`nickname="${savedUser}"`);
+                currentUser = user.nickname;
+                userLanguage = user.language;
+                balance = user.balance;
+                orderCount = user.order_count;
+                referralCount = user.referral_count;
+                orderHistory = user.order_history || [];
 
-            if (error || !data) {
-                console.error('Юзер наебнулся при загрузке:', error);
+                document.getElementById('balance').innerText = `${balance} ฿`;
+                document.getElementById('ordersLabel').innerText = translations[userLanguage].ordersLabel + orderCount;
+                document.getElementById('referralsLabel').innerText = translations[userLanguage].referralsLabel + referralCount;
+                updateOrderHistory();
+            } catch (error) {
+                console.error('Ошибка загрузки юзера:', error);
                 localStorage.removeItem('currentUser');
-                return;
             }
-
-            currentUser = data.nickname;
-            userLanguage = data.language;
-            balance = data.balance;
-            orderCount = data.order_count;
-            referralCount = data.referral_count;
-            orderHistory = data.order_history || [];
-
-            document.getElementById('balance').innerText = `${balance} ฿`;
-            document.getElementById('ordersLabel').innerText = translations[userLanguage].ordersLabel + orderCount;
-            document.getElementById('referralsLabel').innerText = translations[userLanguage].referralsLabel + referralCount;
-            updateOrderHistory();
         }
     }
 
@@ -480,73 +221,61 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const { data: existingUser, error: checkError } = await supabase
-            .from('users')
-            .select('nickname')
-            .eq('nickname', nickname)
-            .single();
-
-        if (existingUser) {
-            document.getElementById('regError').innerText = lang.regErrorTaken;
-            return;
-        }
-        if (checkError && checkError.code !== 'PGRST116') {
-            console.error('Ошибка проверки юзера:', checkError);
-            return;
+        try {
+            const existingUser = await pb.collection('users').getFirstListItem(`nickname="${nickname}"`);
+            if (existingUser) {
+                document.getElementById('regError').innerText = lang.regErrorTaken;
+                return;
+            }
+        } catch (error) {
+            if (error.status !== 404) {
+                console.error('Ошибка проверки юзера:', error);
+                return;
+            }
         }
 
-        const { data, error } = await supabase
-            .from('users')
-            .insert({
+        try {
+            const user = await pb.collection('users').create({
                 nickname,
                 language,
                 balance: 1000,
                 order_count: 0,
                 referral_count: 0,
                 order_history: []
-            })
-            .select()
-            .single();
+            });
 
-        if (error) {
-            console.error('Регистрация пошла по пизде:', error);
-            return;
+            currentUser = user.nickname;
+            userLanguage = user.language;
+            balance = user.balance;
+            orderCount = user.order_count;
+            referralCount = user.referral_count;
+            orderHistory = user.order_history;
+
+            document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
+            document.getElementById('balance').innerText = `${balance} ฿`;
+            closeModal('registrationModal');
+            showAlert(lang.welcomeMessage.replace('{user}', currentUser));
+            loadLanguage();
+            sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}, баланс: 1000 ฿`);
+            localStorage.setItem('currentUser', currentUser);
+        } catch (error) {
+            console.error('Ошибка регистрации:', error);
         }
-
-        currentUser = data.nickname;
-        userLanguage = data.language;
-        balance = data.balance;
-        orderCount = data.order_count;
-        referralCount = data.referral_count;
-        orderHistory = data.order_history;
-
-        document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
-        document.getElementById('balance').innerText = `${balance} ฿`;
-        closeModal('registrationModal');
-        showAlert(lang.welcomeMessage.replace('{user}', currentUser));
-        loadLanguage();
-        sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}, баланс: 1000 ฿`);
     }
 
     async function updateUserData() {
         if (!currentUser) return;
-
-        const { error } = await supabase
-            .from('users')
-            .update({
+        try {
+            const user = await pb.collection('users').getFirstListItem(`nickname="${currentUser}"`);
+            await pb.collection('users').update(user.id, {
                 balance,
                 order_count: orderCount,
                 referral_count: referralCount,
                 order_history: orderHistory
-            })
-            .eq('nickname', currentUser);
-
-        if (error) {
-            console.error('Обновление юзера пошло по пизде:', error);
-            return;
+            });
+        } catch (error) {
+            console.error('Ошибка обновления юзера:', error);
         }
-
-        localStorage.setItem('currentUser', currentUser);
     }
 
     async function buyProduct(category, id, city, district, weight, price) {
@@ -645,17 +374,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('applyButton3').innerText = lang.applyButton;
         document.getElementById('applyButton4').innerText = lang.applyButton;
         document.getElementById('mailTitle').innerText = lang.mailTitle;
-        document.getElementById('weedTab').innerText = lang.weedTab;
-        document.getElementById('hashTab').innerText = lang.hashTab;
-        document.getElementById('cokeTab').innerText = lang.cokeTab;
-        document.getElementById('amphTab').innerText = lang.amphTab;
-        document.getElementById('methTab').innerText = lang.methTab;
-        document.getElementById('mephTab').innerText = lang.mephTab;
-        document.getElementById('alphaTab').innerText = lang.alphaTab;
-        document.getElementById('lsdTab').innerText = lang.lsdTab;
-        document.getElementById('mdmaTab').innerText = lang.mdmaTab;
-        document.getElementById('heroinTab').innerText = lang.heroinTab;
-        document.getElementById('promoInfo').innerText = lang.promoInfo;
         updateDistrictOptions();
         updateOrderHistory();
         updateMailList();
@@ -794,27 +512,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             <p id="availability">${lang.inStock}</p>
             <button class="buy-button" onclick="buyProduct('${category}', ${id}, document.getElementById('citySelectModal').value, 'Patong', document.getElementById('weightSelect').value, document.getElementById('weightSelect').selectedOptions[0].dataset.price)">${lang.buyButton}</button>
             <button class="preorder-button" onclick="preorderProduct('${category}', ${id}, document.getElementById('citySelectModal').value, 'Patong', document.getElementById('weightSelect').value, document.getElementById('weightSelect').selectedOptions[0].dataset.preorderPrice)">${lang.preorderButton}</button>
-            <h3>${lang.reviewsTitle}</h3>
-            <div id="reviewList">
-        `;
-        const productReviews = reviews[productKey] || [];
-        if (productReviews.length > 0) {
-            productReviews.forEach(review => {
-                modalContent += `
-                    <div class="review">
-                        <span class="review-text">${review.text}</span>
-                        <span class="review-date">${review.date}</span>
-                    </div>
-                `;
-                if (review.response) {
-                    modalContent += `<div class="moderator-response">${review.response}</div>`;
-                }
-            });
-        } else {
-            modalContent += `<p>${lang.noReviews}</p>`;
-        }
-        modalContent += `
-            </div>
             <button class="buy-button" onclick="closeModal('productModal')">${lang.close}</button>
         `;
         document.getElementById('productContent').innerHTML = modalContent;
