@@ -903,16 +903,21 @@ const productImages = {
         // Инициализация
         document.addEventListener('DOMContentLoaded', async () => {
     console.log('Страница загружена');
-    currentUser = localStorage.getItem('currentUser');
-    if (currentUser) {
-        await loadCurrentUser();
-        loadLanguage();
-    } else {
-        showLoginModal();
+    while (typeof window.Supabase === 'undefined') {
+        console.log('Supabase ещё не готов, ждём инициализации...');
+        await new Promise(resolve => setTimeout(resolve, 100));
     }
-    initTabs();
-    if (window.supabase) await updateProductCards();
-    else console.warn('Supabase не готов, пропускаем updateProductCards');
+    console.log('Supabase SDK загружен:', window.Supabase);
+
+    window.supabase = Supabase.createClient(
+        'https://xtjijqrycwudjdsjngjb.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8'
+    );
+    console.log('Supabase клиент создан:', window.supabase);
+
+    // Запуск остальной логики
+    loadCurrentUser();
+    updateProductCards();
 });
 
         function loadLanguage() {
@@ -1202,43 +1207,36 @@ function filterByDistrict() {
             });
         }
 
-        function updateProductCards() {
+        async function updateProductCards() {
     const lang = translations[userLanguage] || translations['ru'];
-    fetch(`${API_BASE_URL}/products`)
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return response.json();
-        })
-        .then(products => {
-            console.log('Продукты с API:', products);
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(content => {
-                const category = content.id;
-                const categoryProducts = products.filter(p => p.category === category);
-                content.innerHTML = categoryProducts.length
-                    ? categoryProducts.map(product => `
-                        <div class="product-card" data-product="${category}-${product.id}">
-                            <img src="${product.image_url || 'https://via.placeholder.com/150'}" class="product-image" alt="${product.name}">
-                            <h3 onclick="showProductModal('${category}', ${product.id})">${product.name}</h3>
-                            <p>${product.description || 'Описание отсутствует'}</p>
-                            <p class="price">${lang.positionPrice} ${product.base_price || 0} ฿/г</p>
-                            <p class="crypto-price">~${((product.base_price || 0) / cryptoRates.USDT).toFixed(2)} USDT/г</p>
-                            <button class="buy-button" onclick="buyProduct('${category}', ${product.id}, 1, ${product.base_price || 0}, '${selectedCity}', '${selectedDistrict}')">${lang.buyButton}</button>
-                            <button class="preorder-button" onclick="preorderProduct('${category}', ${product.id}, 1, ${(product.base_price || 0) * 1.3}, '${selectedCity}', '${selectedDistrict}')">${lang.preorderButton}</button>
-                        </div>
-                    `).join('')
-                    : '<p>Нет товаров в этой категории.</p>';
-            });
-            filterProducts();
-        })
-        .catch(err => {
-            console.error('Ошибка загрузки товаров:', err);
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(content => {
-                content.innerHTML = `<p>Ошибка загрузки товаров: ${err.message}. Показаны заглушки.</p>`;
-                content.innerHTML += content.innerHTML || '<p>Нет данных.</p>';
-            });
+    try {
+        if (!window.supabase) throw new Error('Supabase не инициализирован');
+
+        const { data: products, error } = await window.supabase
+            .from('products')
+            .select('*')
+            .eq('category', selectedCategory === 'all' ? '*' : selectedCategory);
+        if (error) throw new Error(`Ошибка загрузки товаров: ${error.message}`);
+
+        const productGrid = document.getElementById('productGrid');
+        productGrid.innerHTML = '';
+
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}">
+                <h3 onclick="showProductModal('${product.category}', ${product.id})">${product.name}</h3>
+                <p>${product.description || lang.noDescription}</p>
+                <p class="price">${product.base_price} ฿/г</p>
+                <button onclick="showProductModal('${product.category}', ${product.id})">${lang.buyButton}</button>
+            `;
+            productGrid.appendChild(card);
         });
+    } catch (error) {
+        console.error('Ошибка загрузки товаров:', error);
+        document.getElementById('productGrid').innerHTML = `<p>${lang.errorLoadingProducts || 'Ошибка загрузки товаров'}: ${error.message}</p>`;
+    }
 }
 
 function openProductModal(category, id) {
@@ -1517,39 +1515,45 @@ function preorderProduct(productId, weight, price, city, district) {
 }
 
 async function loadCurrentUser() {
-    const lang = translations[userLanguage];
-    if (currentUser) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/user_info?nickname=${currentUser}`);
-            const user = await response.json();
+    const lang = translations[userLanguage] || translations['ru'];
+    try {
+        if (!window.supabase) throw new Error('Supabase не инициализирован');
 
-            if (!response.ok) {
-                console.error('Ошибка загрузки пользователя:', user.error);
-                if (response.status === 404) {
-                    showAlertModal('Пользователь не найден. Пожалуйста, войдите или зарегистрируйтесь.', () => {
-                        localStorage.removeItem('currentUser');
-                        currentUser = null;
-                        showLoginModal();
-                    });
-                }
-                return;
-            }
+        const nickname = currentUser || Telegram.WebApp.initDataUnsafe.user?.username || 'Гость';
+        const { data: user, error } = await window.supabase
+            .from('users')
+            .select('*')
+            .eq('nickname', nickname)
+            .single();
 
+        if (error && error.code !== 'PGRST116') { // PGRST116 — нет записей
+            throw new Error(`Ошибка загрузки пользователя: ${error.message}`);
+        }
+
+        if (!user) {
+            // Новый пользователь
+            const { data: newUser, error: insertError } = await window.supabase
+                .from('users')
+                .insert({ nickname, language: userLanguage, balance: 0, order_count: 0, referral_count: 0 })
+                .select()
+                .single();
+            if (insertError) throw new Error(`Ошибка создания пользователя: ${insertError.message}`);
+            userId = newUser.id;
+            balance = 0;
+            orderCount = 0;
+        } else {
+            userId = user.id;
             balance = user.balance;
             orderCount = user.order_count;
-            referralCount = user.referral_count;
-            orderHistory = user.orders || [];
-            userId = user.id;
-
-            document.getElementById('balance').innerText = `${balance} ฿`;
-            document.getElementById('profileNameLabel').innerText = `${lang.profileNameLabel}${currentUser}`;
-            document.getElementById('ordersLabel').innerText = `${lang.ordersLabel}${orderCount}`;
-            document.getElementById('referralsLabel').innerText = `${lang.referralsLabel}${referralCount}`;
-            updateOrderHistory();
-        } catch (error) {
-            console.error('Ошибка при загрузке пользователя:', error);
-            showAlertModal('Ошибка связи с сервером. Проверьте подключение.', () => {});
+            orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
         }
+
+        document.getElementById('balance').innerText = `${balance} ฿`;
+        document.getElementById('ordersLabel').innerText = `${lang.ordersLabel}${orderCount}`;
+        updateOrderHistory();
+    } catch (error) {
+        console.error('Ошибка при загрузке пользователя:', error);
+        document.getElementById('balance').innerText = 'Ошибка';
     }
 }
 
