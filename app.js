@@ -6,13 +6,13 @@ import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/9.22.
 
 // Конфигурация Firebase (замените на свои данные из Firebase Console)
 const firebaseConfig = {
-  apiKey: "AIzaSyDV-KMTFxBIEcSZlSBtf5tdw5dddQ_p_Cc",
-  authDomain: "dark-thailand.firebaseapp.com",
-  projectId: "dark-thailand",
-  storageBucket: "dark-thailand.firebasestorage.app",
-  messagingSenderId: "632514708868",
-  appId: "1:632514708868:web:0da8c14520745f4daa89d1",
-  measurementId: "G-BXBL6RDZXJ"
+  apiKey: "AIzaSyBHt6hTJxSReZ5QNVhz_lZjwKJkqUihDoY",
+  authDomain: "darkthai-5d1b3.firebaseapp.com",
+  projectId: "darkthai-5d1b3",
+  storageBucket: "darkthai-5d1b3.firebasestorage.app",
+  messagingSenderId: "647851024011",
+  appId: "1:647851024011:web:2194e7bd251ac725213e8e",
+  measurementId: "G-DSV6TS86LG"
 };
 
 // Инициализация Firebase
