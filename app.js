@@ -1,3 +1,16 @@
+// Импорт Firebase
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { getAnalytics } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js';
+
+// Конфигурация Firebase (доступна из index.html)
+const firebaseConfig = window.firebaseConfig;
+
+// Инициализация Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const analytics = getAnalytics(app);
+
 // Глобальные переменные
 let balance = 0;
 let orderCount = 0;
@@ -165,14 +178,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function manualAddBalance(nickname, amount) {
         try {
-            const userRef = db.collection('users').doc(nickname);
-            const userDoc = await userRef.get();
-            if (userDoc.exists && userDoc.data().received_bonus) {
+            const userRef = doc(db, 'users', nickname);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists() && userDoc.data().received_bonus) {
                 console.log(`${nickname} уже получил бонус!`);
                 return;
             }
-            const newBalance = (userDoc.exists ? userDoc.data().balance : 0) + amount;
-            await userRef.set({
+            const newBalance = (userDoc.exists() ? userDoc.data().balance : 0) + amount;
+            await setDoc(userRef, {
                 balance: newBalance,
                 received_bonus: true
             }, { merge: true });
@@ -190,8 +203,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             try {
-                const userDoc = await db.collection('users').doc(savedUser).get();
-                if (userDoc.exists) {
+                const userDoc = await getDoc(doc(db, 'users', savedUser));
+                if (userDoc.exists()) {
                     const user = userDoc.data();
                     currentUser = savedUser;
                     userLanguage = user.language;
@@ -225,13 +238,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            const userDoc = await db.collection('users').doc(nickname).get();
-            if (userDoc.exists) {
+            const userDoc = await getDoc(doc(db, 'users', nickname));
+            if (userDoc.exists()) {
                 document.getElementById('regError').innerText = lang.regErrorTaken;
                 return;
             }
 
-            await db.collection('users').doc(nickname).set({
+            await setDoc(doc(db, 'users', nickname), {
                 nickname,
                 language,
                 balance: 1000,
@@ -262,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function updateUserData() {
         if (!currentUser) return;
         try {
-            await db.collection('users').doc(currentUser).set({
+            await setDoc(doc(db, 'users', currentUser), {
                 nickname: currentUser,
                 language: userLanguage,
                 balance,
@@ -336,41 +349,111 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function loadLanguage() {
         const lang = translations[userLanguage];
-        document.getElementById('promoBanner').innerText = lang.promoBanner;
-        document.getElementById('headerText').innerText = lang.headerText;
-        document.getElementById('catalogButton').innerText = lang.catalogButton;
-        document.getElementById('vacanciesButton').innerText = lang.vacanciesButton;
-        document.getElementById('mailButton').innerText = lang.mailButton;
-        document.getElementById('allCitiesOption').innerText = lang.allCitiesOption;
-        document.getElementById('phuketOption').innerText = lang.phuketOption;
-        document.getElementById('pattayaOption').innerText = lang.pattayaOption;
-        document.getElementById('bangkokOption').innerText = lang.bangkokOption;
-        document.getElementById('samuiOption').innerText = lang.samuiOption;
-        document.getElementById('allDistrictsOption').innerText = lang.allDistrictsOption;
-        document.getElementById('weedDesc').innerText = lang.weedDesc;
-        document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + (currentUser || 'Гость');
-        document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
-        document.getElementById('referralsLabel').innerText = lang.referralsLabel + referralCount;
-        document.getElementById('depositTitle').innerText = lang.depositTitle;
-        document.getElementById('orderHistoryTitle').innerText = lang.orderHistoryTitle;
-        document.getElementById('vacanciesTitle').innerText = lang.vacanciesTitle;
-        document.getElementById('courierTitle').innerText = lang.courierTitle;
-        document.getElementById('courierDuties').innerText = lang.courierDuties;
-        document.getElementById('courierPay').innerText = lang.courierPay;
-        document.getElementById('warehousemanTitle').innerText = lang.warehousemanTitle;
-        document.getElementById('warehousemanDuties').innerText = lang.warehousemanDuties;
-        document.getElementById('warehousemanPay').innerText = lang.warehousemanPay;
-        document.getElementById('transporterTitle').innerText = lang.transporterTitle;
-        document.getElementById('transporterDuties').innerText = lang.transporterDuties;
-        document.getElementById('transporterPay').innerText = lang.transporterPay;
-        document.getElementById('smmTitle').innerText = lang.smmTitle;
-        document.getElementById('smmDuties').innerText = lang.smmDuties;
-        document.getElementById('smmPay').innerText = lang.smmPay;
-        document.getElementById('applyButton1').innerText = lang.applyButton;
-        document.getElementById('applyButton2').innerText = lang.applyButton;
-        document.getElementById('applyButton3').innerText = lang.applyButton;
-        document.getElementById('applyButton4').innerText = lang.applyButton;
-        document.getElementById('mailTitle').innerText = lang.mailTitle;
+        const promoBanner = document.getElementById('promoBanner');
+        if (promoBanner) promoBanner.innerText = lang.promoBanner;
+
+        const headerText = document.getElementById('headerText');
+        if (headerText) headerText.innerText = lang.headerText;
+
+        const catalogButton = document.getElementById('catalogButton');
+        if (catalogButton) catalogButton.innerText = lang.catalogButton;
+
+        const vacanciesButton = document.getElementById('vacanciesButton');
+        if (vacanciesButton) vacanciesButton.innerText = lang.vacanciesButton;
+
+        const mailButton = document.getElementById('mailButton');
+        if (mailButton) mailButton.innerText = lang.mailButton;
+
+        const allCitiesOption = document.getElementById('allCitiesOption');
+        if (allCitiesOption) allCitiesOption.innerText = lang.allCitiesOption;
+
+        const phuketOption = document.getElementById('phuketOption');
+        if (phuketOption) phuketOption.innerText = lang.phuketOption;
+
+        const pattayaOption = document.getElementById('pattayaOption');
+        if (pattayaOption) pattayaOption.innerText = lang.pattayaOption;
+
+        const bangkokOption = document.getElementById('bangkokOption');
+        if (bangkokOption) bangkokOption.innerText = lang.bangkokOption;
+
+        const samuiOption = document.getElementById('samuiOption');
+        if (samuiOption) samuiOption.innerText = lang.samuiOption;
+
+        const allDistrictsOption = document.getElementById('allDistrictsOption');
+        if (allDistrictsOption) allDistrictsOption.innerText = lang.allDistrictsOption;
+
+        const weedDesc = document.getElementById('weedDesc');
+        if (weedDesc) weedDesc.innerText = lang.weedDesc;
+
+        const profileNameLabel = document.getElementById('profileNameLabel');
+        if (profileNameLabel) profileNameLabel.innerText = lang.profileNameLabel + (currentUser || 'Гость');
+
+        const ordersLabel = document.getElementById('ordersLabel');
+        if (ordersLabel) ordersLabel.innerText = lang.ordersLabel + orderCount;
+
+        const referralsLabel = document.getElementById('referralsLabel');
+        if (referralsLabel) referralsLabel.innerText = lang.referralsLabel + referralCount;
+
+        const depositTitle = document.getElementById('depositTitle');
+        if (depositTitle) depositTitle.innerText = lang.depositTitle;
+
+        const orderHistoryTitle = document.getElementById('orderHistoryTitle');
+        if (orderHistoryTitle) orderHistoryTitle.innerText = lang.orderHistoryTitle;
+
+        const vacanciesTitle = document.getElementById('vacanciesTitle');
+        if (vacanciesTitle) vacanciesTitle.innerText = lang.vacanciesTitle;
+
+        const courierTitle = document.getElementById('courierTitle');
+        if (courierTitle) courierTitle.innerText = lang.courierTitle;
+
+        const courierDuties = document.getElementById('courierDuties');
+        if (courierDuties) courierDuties.innerText = lang.courierDuties;
+
+        const courierPay = document.getElementById('courierPay');
+        if (courierPay) courierPay.innerText = lang.courierPay;
+
+        const warehousemanTitle = document.getElementById('warehousemanTitle');
+        if (warehousemanTitle) warehousemanTitle.innerText = lang.warehousemanTitle;
+
+        const warehousemanDuties = document.getElementById('warehousemanDuties');
+        if (warehousemanDuties) warehousemanDuties.innerText = lang.warehousemanDuties;
+
+        const warehousemanPay = document.getElementById('warehousemanPay');
+        if (warehousemanPay) warehousemanPay.innerText = lang.warehousemanPay;
+
+        const transporterTitle = document.getElementById('transporterTitle');
+        if (transporterTitle) transporterTitle.innerText = lang.transporterTitle;
+
+        const transporterDuties = document.getElementById('transporterDuties');
+        if (transporterDuties) transporterDuties.innerText = lang.transporterDuties;
+
+        const transporterPay = document.getElementById('transporterPay');
+        if (transporterPay) transporterPay.innerText = lang.transporterPay;
+
+        const smmTitle = document.getElementById('smmTitle');
+        if (smmTitle) smmTitle.innerText = lang.smmTitle;
+
+        const smmDuties = document.getElementById('smmDuties');
+        if (smmDuties) smmDuties.innerText = lang.smmDuties;
+
+        const smmPay = document.getElementById('smmPay');
+        if (smmPay) smmPay.innerText = lang.smmPay;
+
+        const applyButton1 = document.getElementById('applyButton1');
+        if (applyButton1) applyButton1.innerText = lang.applyButton;
+
+        const applyButton2 = document.getElementById('applyButton2');
+        if (applyButton2) applyButton2.innerText = lang.applyButton;
+
+        const applyButton3 = document.getElementById('applyButton3');
+        if (applyButton3) applyButton3.innerText = lang.applyButton;
+
+        const applyButton4 = document.getElementById('applyButton4');
+        if (applyButton4) applyButton4.innerText = lang.applyButton;
+
+        const mailTitle = document.getElementById('mailTitle');
+        if (mailTitle) mailTitle.innerText = lang.mailTitle;
+
         updateDistrictOptions();
         updateOrderHistory();
         updateMailList();
