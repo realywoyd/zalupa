@@ -10,9 +10,6 @@ let userLanguage = 'ru';
 let mailMessages = [];
 const MIN_DEPOSIT = 1000;
 
-const POCKETBASE_URL = 'http://127.0.0.1:8090'; // Адрес вашего PocketBase сервера
-const pb = new PocketBase(POCKETBASE_URL);
-
 const BOT_B_TOKEN = '7589545725:AAHoedAqoGh_k0WWdUs1rcBN1yddUtBFhsk';
 const ADMIN_CHAT_ID = '5956080955';
 
@@ -168,16 +165,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function manualAddBalance(nickname, amount) {
         try {
-            const user = await pb.collection('users').getFirstListItem(`nickname="${nickname}"`);
-            if (user.received_bonus) {
+            const userRef = db.collection('users').doc(nickname);
+            const userDoc = await userRef.get();
+            if (userDoc.exists && userDoc.data().received_bonus) {
                 console.log(`${nickname} уже получил бонус!`);
                 return;
             }
-            const newBalance = (user.balance || 0) + amount;
-            await pb.collection('users').update(user.id, {
+            const newBalance = (userDoc.exists ? userDoc.data().balance : 0) + amount;
+            await userRef.set({
                 balance: newBalance,
                 received_bonus: true
-            });
+            }, { merge: true });
             if (currentUser === nickname) {
                 balance = newBalance;
                 document.getElementById('balance').innerText = `${balance} ฿`;
@@ -192,18 +190,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             try {
-                const user = await pb.collection('users').getFirstListItem(`nickname="${savedUser}"`);
-                currentUser = user.nickname;
-                userLanguage = user.language;
-                balance = user.balance;
-                orderCount = user.order_count;
-                referralCount = user.referral_count;
-                orderHistory = user.order_history || [];
+                const userDoc = await db.collection('users').doc(savedUser).get();
+                if (userDoc.exists) {
+                    const user = userDoc.data();
+                    currentUser = savedUser;
+                    userLanguage = user.language;
+                    balance = user.balance || 0;
+                    orderCount = user.order_count || 0;
+                    referralCount = user.referral_count || 0;
+                    orderHistory = user.order_history || [];
 
-                document.getElementById('balance').innerText = `${balance} ฿`;
-                document.getElementById('ordersLabel').innerText = translations[userLanguage].ordersLabel + orderCount;
-                document.getElementById('referralsLabel').innerText = translations[userLanguage].referralsLabel + referralCount;
-                updateOrderHistory();
+                    document.getElementById('balance').innerText = `${balance} ฿`;
+                    document.getElementById('ordersLabel').innerText = translations[userLanguage].ordersLabel + orderCount;
+                    document.getElementById('referralsLabel').innerText = translations[userLanguage].referralsLabel + referralCount;
+                    updateOrderHistory();
+                } else {
+                    localStorage.removeItem('currentUser');
+                }
             } catch (error) {
                 console.error('Ошибка загрузки юзера:', error);
                 localStorage.removeItem('currentUser');
@@ -222,20 +225,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            const existingUser = await pb.collection('users').getFirstListItem(`nickname="${nickname}"`);
-            if (existingUser) {
+            const userDoc = await db.collection('users').doc(nickname).get();
+            if (userDoc.exists) {
                 document.getElementById('regError').innerText = lang.regErrorTaken;
                 return;
             }
-        } catch (error) {
-            if (error.status !== 404) {
-                console.error('Ошибка проверки юзера:', error);
-                return;
-            }
-        }
 
-        try {
-            const user = await pb.collection('users').create({
+            await db.collection('users').doc(nickname).set({
                 nickname,
                 language,
                 balance: 1000,
@@ -244,12 +240,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 order_history: []
             });
 
-            currentUser = user.nickname;
-            userLanguage = user.language;
-            balance = user.balance;
-            orderCount = user.order_count;
-            referralCount = user.referral_count;
-            orderHistory = user.order_history;
+            currentUser = nickname;
+            userLanguage = language;
+            balance = 1000;
+            orderCount = 0;
+            referralCount = 0;
+            orderHistory = [];
 
             document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
             document.getElementById('balance').innerText = `${balance} ฿`;
@@ -266,13 +262,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function updateUserData() {
         if (!currentUser) return;
         try {
-            const user = await pb.collection('users').getFirstListItem(`nickname="${currentUser}"`);
-            await pb.collection('users').update(user.id, {
+            await db.collection('users').doc(currentUser).set({
+                nickname: currentUser,
+                language: userLanguage,
                 balance,
                 order_count: orderCount,
                 referral_count: referralCount,
                 order_history: orderHistory
-            });
+            }, { merge: true });
         } catch (error) {
             console.error('Ошибка обновления юзера:', error);
         }
