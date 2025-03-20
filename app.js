@@ -13,18 +13,10 @@ const MIN_DEPOSIT = 1000;
 const SUPABASE_URL = 'https://xtjijqrycwudjdsjngjb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8';
 
-// Telegram настройки
 const BOT_B_TOKEN = '7589545725:AAHoedAqoGh_k0WWdUs1rcBN1yddUtBFhsk';
 const ADMIN_CHAT_ID = '5956080955';
 
-// Криптовалютные данные
-const cryptoRates = {
-    BTC: 2000000,
-    ETH: 100000,
-    USDT: 33,
-    SOL: 5000,
-    TON: 150
-};
+const cryptoRates = { BTC: 2000000, ETH: 100000, USDT: 33, SOL: 5000, TON: 150 };
 const testAddresses = {
     BTC: "bc1qxk53npp2g3gt3x93k93vqgq93v5nwp5cvuk7fn",
     ETH: "0x0d6b8E631b6c99e5184d492F4bcf22c8B5F96009",
@@ -32,15 +24,8 @@ const testAddresses = {
     SOL: "HadNG2gWHYiep7GfuP9UzxZQdeKuhCfPQ6qqBNo19B3B",
     TON: "UQBoT-OzfCz0Ixtq9ZbH7coNGtiChvyAuby5aUTdsuotVMxA"
 };
-const cryptoNetworks = {
-    BTC: "BEP20",
-    ETH: "ERC20",
-    USDT: "TRC20",
-    SOL: "Solana",
-    TON: "TON"
-};
+const cryptoNetworks = { BTC: "BEP20", ETH: "ERC20", USDT: "TRC20", SOL: "Solana", TON: "TON" };
 
-// Данные о городах и районах
 const cities = {
     phuket: {
         Patong: { lat: "7.8961° N", lon: "98.2970° E", desc: "Клад в магнитной коробке под скамейкой." },
@@ -52,27 +37,18 @@ const cities = {
     }
 };
 
-// Цены и веса
 const basePrices = {
-    weed: { 1: 500 },
-    hash: { 1: 600, 2: 550, 3: 500 },
-    coke: { 1: 2000, 2: 1800 },
-    amph: { 1: 700, 2: 650, 3: 600, 4: 550 },
-    meth: { 1: 800, 2: 750 },
-    meph: { 1: 850, 2: 800, 3: 750 },
-    alpha: { 1: 900, 2: 850, 3: 800, 4: 950 },
-    lsd: { 1: 1000, 2: 900 },
-    mdma: { 1: 1100, 2: 1000, 3: 1200, 4: 800 },
+    weed: { 1: 500 }, hash: { 1: 600, 2: 550, 3: 500 }, coke: { 1: 2000, 2: 1800 },
+    amph: { 1: 700, 2: 650, 3: 600, 4: 550 }, meth: { 1: 800, 2: 750 },
+    meph: { 1: 850, 2: 800, 3: 750 }, alpha: { 1: 900, 2: 850, 3: 800, 4: 950 },
+    lsd: { 1: 1000, 2: 900 }, mdma: { 1: 1100, 2: 1000, 3: 1200, 4: 800 },
     heroin: { 1: 1500, 2: 1400 }
 };
+
 const weights = {
-    default: [0.5, 1, 3, 5, 10],
-    coke: [0.25, 0.5, 1, 2],
-    lsd: [1, 2],
-    mdmaTabs: [1, 5, 10]
+    default: [0.5, 1, 3, 5, 10], coke: [0.25, 0.5, 1, 2], lsd: [1, 2], mdmaTabs: [1, 5, 10]
 };
 
-// Изображения продуктов
 const productImages = {
     weed: { 1: "https://i.postimg.cc/nMGvf409/jamaican-haze.jpg" },
     hash: { 1: "https://i.postimg.cc/sD11WBq4/image.jpg", 2: "https://i.postimg.cc/KjjctVq8/image.png", 3: "https://i.postimg.cc/2ygYh5L0/image.jpg" },
@@ -86,7 +62,6 @@ const productImages = {
     heroin: { 1: "https://i.postimg.cc/gkX1RN0k/image.jpg", 2: "https://i.postimg.cc/Nj8J7VvY/image.jpg" }
 };
 
-// Переводы
 const translations = {
     en: {
         promoBanner: "Invite friends and get bonuses! 5 friends = 0.5g amphetamine, 10 friends = 0.5g cocaine (MQ), 25 friends = 1g cocaine (VHQ)!",
@@ -160,7 +135,6 @@ const translations = {
         confirmButton: "Confirm",
         cancelButton: "Cancel",
         applyJobPrompt: "Apply for \"{job}\". Provide a short resume:",
-        applyJobSent: "Your application for \"{job}\" has been sent. Await admin response.",
         applyJobAlert: "Application for \"{job}\" sent!",
         positionWeight: "Weight:",
         positionPrice: "Price:",
@@ -256,7 +230,6 @@ const translations = {
         confirmButton: "Подтвердить",
         cancelButton: "Отмена",
         applyJobPrompt: "Оставьте заявку на вакансию \"{job}\". Укажите краткое резюме:",
-        applyJobSent: "Ваша заявка на вакансию \"{job}\" отправлена. Ожидайте ответа от администрации.",
         applyJobAlert: "Заявка на \"{job}\" отправлена!",
         positionWeight: "Вес:",
         positionPrice: "Цена:",
@@ -352,7 +325,6 @@ const translations = {
         confirmButton: "ยืนยัน",
         cancelButton: "ยกเลิก",
         applyJobPrompt: "สมัครงาน \"{job}\". กรุณาระบุประวัติย่อสั้น ๆ:",
-        applyJobSent: "ใบสมัครของคุณสำหรับ \"{job}\" ถูกส่งแล้ว รอการตอบกลับจากผู้ดูแล",
         applyJobAlert: "ใบสมัครสำหรับ \"{job}\" ถูกส่งแล้ว!",
         positionWeight: "น้ำหนัก:",
         positionPrice: "ราคา:",
@@ -378,60 +350,35 @@ const translations = {
     }
 };
 
-// Отзывы
 const reviews = {
-    "weed-1": [
-        { text: "Клад в касание, стафф пиздец как хорош!", date: "01.03.2025", response: "Спасибо за фидбек, братишка!" },
-        { text: "Взял на Пхукете, качество огонь, шопу респект!", date: "05.03.2025", response: "Рады стараться, ждём снова!" }
-    ],
-    "hash-1": [
-        { text: "Нашёл быстро, эффект бархатный, как и обещали!", date: "02.03.2025", response: "Кайфуй, братан!" },
-        { text: "Клад чёткий, гашик топ, берите смело!", date: "06.03.2025", response: "Спасибо за отзыв, возвращайся!" }
-    ],
-    "coke-1": [
-        { text: "Кокс лютый, снял в Патонге за минуту!", date: "03.03.2025", response: "На здоровье, братишка!" },
-        { text: "Чистота 95%+, шоп на уровне, рекомендую!", date: "07.03.2025", response: "Держим марку, ждём снова!" }
-    ],
-    "amph-1": [
-        { text: "Энергия прёт, стафф чистый, шоп — топ!", date: "04.03.2025", response: "Кайфуй, братан!" },
-        { text: "Снял без проблем, эффект долгий, зачёт!", date: "08.03.2025", response: "Респект за фидбек!" }
-    ],
-    "meth-1": [
-        { text: "Лёд кристальный, штырит не по-детски!", date: "05.03.2025", response: "Спасибо, что выбрал нас!" },
-        { text: "Клад на месте, стафф пушка, берите!", date: "09.03.2025", response: "Ждём тебя снова!" }
-    ],
-    "meph-1": [
-        { text: "Меф рвёт, качество пиздец, шоп надёжный!", date: "06.03.2025", response: "Кайфуй, братишка!" },
-        { text: "Съём лёгкий, эффект мощный, 10/10!", date: "10.03.2025", response: "Спасибо за отзыв!" }
-    ],
-    "alpha-1": [
-        { text: "Флакка огонь, штырит как надо!", date: "07.03.2025", response: "Рады угодить, возвращайся!" },
-        { text: "Клад в касание, стафф лютый, рекомендую!", date: "11.03.2025", response: "На здоровье!" }
-    ],
-    "lsd-1": [
-        { text: "Трип чистый, клад точный, шоп — топ!", date: "08.03.2025", response: "Спасибо за фидбек!" },
-        { text: "LSD250 — это космос, берите смело!", date: "12.03.2025", response: "Кайфуй, братан!" }
-    ],
-    "mdma-1": [
-        { text: "Любовь кристаллическая, эффект долгий!", date: "09.03.2025", response: "Респект за отзыв!" },
-        { text: "Клад на магните, стафф пиздатый!", date: "13.03.2025", response: "Ждём тебя снова!" }
-    ],
-    "heroin-1": [
-        { text: "Шёлк глубокий, штырит как надо!", date: "10.03.2025", response: "Спасибо, что с нами!" },
-        { text: "Клад чёткий, стафф свежий, шоп — топ!", date: "14.03.2025", response: "Кайфуй, братишка!" }
-    ]
+    "weed-1": [{ text: "Клад в касание, стафф пиздец как хорош!", date: "01.03.2025", response: "Спасибо за фидбек, братишка!" }],
+    "hash-1": [{ text: "Нашёл быстро, эффект бархатный, как и обещали!", date: "02.03.2025", response: "Кайфуй, братан!" }],
+    "coke-1": [{ text: "Кокс лютый, снял в Патонге за минуту!", date: "03.03.2025", response: "На здоровье, братишка!" }],
+    "amph-1": [{ text: "Энергия прёт, стафф чистый, шоп — топ!", date: "04.03.2025", response: "Кайфуй, братан!" }],
+    "meth-1": [{ text: "Лёд кристальный, штырит не по-детски!", date: "05.03.2025", response: "Спасибо, что выбрал нас!" }],
+    "meph-1": [{ text: "Меф рвёт, качество пиздец, шоп надёжный!", date: "06.03.2025", response: "Кайфуй, братишка!" }],
+    "alpha-1": [{ text: "Флакка огонь, штырит как надо!", date: "07.03.2025", response: "Рады угодить, возвращайся!" }],
+    "lsd-1": [{ text: "Трип чистый, клад точный, шоп — топ!", date: "08.03.2025", response: "Спасибо за фидбек!" }],
+    "mdma-1": [{ text: "Любовь кристаллическая, эффект долгий!", date: "09.03.2025", response: "Респект за отзыв!" }],
+    "heroin-1": [{ text: "Шёлк глубокий, штырит как надо!", date: "10.03.2025", response: "Спасибо, что с нами!" }]
 };
 
-// Инициализация после загрузки DOM
-document.addEventListener('DOMContentLoaded', async () => {
-    // Инициализация Supabase
+async function initializeSupabase() {
     if (!window.Supabase) {
-        console.error('Supabase не загружен! Проверь подключение скрипта.');
-        return;
+        console.warn('Supabase ещё не загружен, ждём...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (!window.Supabase) {
+            console.error('Supabase так и не загрузился! Проверь сеть или CDN.');
+            return null;
+        }
     }
-    const supabase = window.Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return window.Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
 
-    // Telegram Web App
+document.addEventListener('DOMContentLoaded', async () => {
+    const supabase = await initializeSupabase();
+    if (!supabase) return;
+
     if (window.Telegram && window.Telegram.WebApp) {
         const WebApp = window.Telegram.WebApp;
         WebApp.ready();
@@ -450,7 +397,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.warn('Telegram Web App не доступен, работаем в оффлайн-режиме');
     }
 
-    // Функции
     async function manualAddBalance(nickname, amount) {
         const { data: user, error: fetchError } = await supabase
             .from('users')
@@ -861,9 +807,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 `;
                 if (review.response) {
-                    modalContent += `
-                        <div class="moderator-response">${review.response}</div>
-                    `;
+                    modalContent += `<div class="moderator-response">${review.response}</div>`;
                 }
             });
         } else {
@@ -1024,7 +968,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <p>${message}</p>
             <textarea id="inputValue" placeholder="Введите текст"></textarea>
             <button class="buy-button" onclick="onConfirm(document.getElementById('inputValue').value); closeModal('customModal')">${lang.confirmButton}</button>
-            <button class="buy-button" onclick="closeModal('customModal')">${lang.cancelButton}</button>
+                        <button class="buy-button" onclick="closeModal('customModal')">${lang.cancelButton}</button>
         `;
         showModal('customModal');
     }
@@ -1036,15 +980,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: ADMIN_CHAT_ID,
-                text: message,
-                parse_mode: 'HTML'
+                text: message
             })
         }).catch(error => console.error('Ошибка отправки в Telegram:', error));
     }
 
     function showPromoDetails() {
         const lang = translations[userLanguage];
-        const refLink = currentUser ? `https://t.me/DarkThailandBot?start=${currentUser}` : 'Зарегистрируйтесь для получения ссылки';
+        const refLink = currentUser ? `https://t.me/DarkThailandBot?start=${currentUser}` : "Зарегистрируйтесь для получения ссылки!";
         const content = `
             <h2>${lang.promoInfo}</h2>
             <p>${lang.promoBanner}</p>
@@ -1055,7 +998,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         showModal('customModal');
     }
 
-    // Инициализация приложения
     await loadCurrentUser();
     if (!currentUser) {
         showModal('registrationModal');
@@ -1070,4 +1012,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (currentUser === 'Gtori') {
         await manualAddBalance('Gtori', 1000000);
     }
+
+    window.toggleCatalog = toggleCatalog;
+    window.toggleProfile = toggleProfile;
+    window.toggleVacancies = toggleVacancies;
+    window.toggleMail = toggleMail;
+    window.showProductModal = showProductModal;
+    window.buyProduct = buyProduct;
+    window.preorderProduct = preorderProduct;
+    window.registerUser = registerUser;
+    window.applyForJob = applyForJob;
+    window.showDepositModal = showDepositModal;
+    window.generateDepositAddress = generateDepositAddress;
+    window.confirmDeposit = confirmDeposit;
+    window.showPromoDetails = showPromoDetails;
 });
