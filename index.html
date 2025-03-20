@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdn.jsdelivr.net https://telegram.org 'unsafe-inline'; connect-src 'self' https://xtjijqrycwudjdsjngjb.supabase.co https://api.telegram.org; img-src 'self' https://i.postimg.cc https://images.unsplash.com">
+   <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdn.jsdelivr.net https://telegram.org 'unsafe-inline'; connect-src 'self' https://xtjijqrycwudjdsjngjb.supabase.co https://api.telegram.org; img-src 'self' https://i.postimg.cc https://images.unsplash.com">
     <title>Dark Thailand - Надёжный шоп</title>
     <style>
         body {
@@ -419,23 +419,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
     window.addEventListener('load', () => {
-        console.log('Окно загружено');
-        if (typeof Supabase === 'undefined') {
-            console.error('Supabase SDK не загрузился!');
-        } else {
-            console.log('Supabase SDK загружен:', Supabase);
-            try {
-                window.supabase = Supabase.createClient(
-                    'https://xtjijqrycwudjdsjngjb.supabase.co',
-                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8'
-                );
-                console.log('Supabase клиент создан:', window.supabase);
-                console.log('Метод from доступен:', typeof window.supabase.from === 'function');
-            } catch (err) {
-                console.error('Ошибка создания Supabase клиента:', err);
-            }
-        }
-    });
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    currentUser = Telegram.WebApp.initDataUnsafe.user?.username || 'Гость';
+    console.log('Telegram Web App готов, юзер:', currentUser);
+});
 </script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
