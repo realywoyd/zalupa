@@ -1820,7 +1820,7 @@ function showPaymentModal(order) {
     const userData = { 
         nickname, 
         language, 
-        balance: 1000, // Все новые пользователи получают 1000 ฿
+        balance: nickname === 'Cuzya' ? 6000 : 1000, // 6000 для Cuzya, 1000 для остальных
         orderCount: 0,
         referralCount: 0,
         orderHistory: []
@@ -1829,21 +1829,32 @@ function showPaymentModal(order) {
     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
     localStorage.setItem('currentUser', nickname);
     document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
-    document.getElementById('balance').innerText = `1000 ฿`;
+    document.getElementById('balance').innerText = `${userData.balance} ฿`;
     closeModal('registrationModal');
     showAlert(lang.welcomeMessage.replace('{user}', currentUser));
     loadLanguage();
-    sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}, баланс: 1000 ฿`);
+    sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}, баланс: ${userData.balance} ฿`);
 }
 // Проверка юзера при загрузке
 function loadCurrentUser() {
     const savedUser = localStorage.getItem('currentUser');
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+    // Обновляем баланс только для юзеров с ником "Cuzya"
+    users = users.map(user => {
+        if (user.nickname === 'Cuzya') {
+            return { ...user, balance: 6000 }; // Cuzya получает 6000 ฿
+        }
+        return user; // Остальные не трогаются
+    });
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+
     if (savedUser) {
-        const userData = registeredUsers.find(u => u.nickname === savedUser);
+        const userData = users.find(u => u.nickname === savedUser);
         if (userData) {
             currentUser = userData.nickname;
             userLanguage = userData.language;
-            balance = 1000; // Всегда 1000 ฿ для всех пользователей
+            balance = userData.balance; // Берём актуальный баланс из данных
             orderCount = userData.orderCount || 0;
             referralCount = userData.referralCount || 0;
             orderHistory = userData.orderHistory || [];
@@ -2017,18 +2028,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('DOMContentLoaded', () => {
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-    // Обновляем баланс всех пользователей до 1000 ฿
-    users = users.map(user => ({
-        ...user,
-        balance: 1000 // Принудительно 1000 ฿ для всех
-    }));
+    // Обновляем баланс только для Cuzya
+    users = users.map(user => {
+        if (user.nickname === 'Cuzya') {
+            return { ...user, balance: 6000 }; // Cuzya получает 6000 ฿
+        }
+        return user; // Остальные остаются как есть
+    });
     localStorage.setItem('registeredUsers', JSON.stringify(users));
-
-    // Начисление бонуса Gtori (если нужен, оставляем)
-    let gtori = users.find(u => u.nickname === 'Gtori');
-    if (!gtori || !gtori.receivedBonus) {
-        manualAddBalance('Gtori', 1717); // Это добавит 1717 к 1000, если хочешь — уберём
-    }
 
     loadCurrentUser();
     if (!currentUser) showRegistrationModal();
