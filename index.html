@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdn.jsdelivr.net https://telegram.org 'unsafe-inline'; connect-src 'self' https://xtjijqrycwudjdsjngjb.supabase.co https://api.telegram.org; img-src 'self' https://i.postimg.cc https://images.unsplash.com">
+    <meta http-equiv="Content-Security-Policy" content="sandbox allow-same-origin allow-modals allow-scripts; img-src 'self' https://i.postimg.cc https://images.unsplash.com">
     <title>Dark Thailand - Надёжный шоп</title>
     <style>
         body {
@@ -52,18 +53,11 @@
         .promo-banner { background-color: #ff4444; color: #000; padding: 10px; text-align: center; margin-bottom: 20px; border-radius: 5px; font-weight: bold; }
         .vacancy { margin-bottom: 15px; }
         .vacancy h3 { color: #ff6666; }
-        input[type="text"], textarea, input[type="number"], select, input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; background-color: #2b2b2b; color: #ff4444; border: 1px solid #ff4444; border-radius: 5px; }
+        input[type="text"], textarea, input[type="number"], select { width: 100%; padding: 10px; margin: 10px 0; background-color: #2b2b2b; color: #ff4444; border: 1px solid #ff4444; border-radius: 5px; }
         textarea { height: 100px; resize: none; }
     </style>
 </head>
 <body>
-    <div id="alertModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span id="alertMessage"></span>
-            <button class="close-button" onclick="hideModal('alertModal')">Закрыть</button>
-        </div>
-    </div>
-    
     <div class="container">
         <div class="promo-banner" id="promoBanner"></div>
 
@@ -274,68 +268,32 @@
         <div class="product-modal" id="productModal">
             <div class="product-content" id="productContent"></div>
         </div>
-
+    </div>
         <div class="profile-menu" id="profileMenu">
-    <div class="profile-info">
-        <h3>☠️</h3>
-        <p id="profileNameLabel"></p>
-        <p>Баланс: <span id="balance">0 ฿</span></p>
-        <p id="ordersLabel"></p>
-        <p id="referralsLabel"></p>
-    </div>
-<div class="promo-info">
-        <p id="promoInfo"></p>
-        <button class="nav-button" onclick="showPromoDetails()">Подробнее</button>
-    </div>
-    <div class="deposit-options">
-        <h3 id="depositTitle"></h3>
-        <button class="nav-button" onclick="showDepositModal('BTC')">Bitcoin (BTC)</button>
-        <button class="nav-button" onclick="showDepositModal('ETH')">Ethereum (ETH)</button>
-        <button class="nav-button" onclick="showDepositModal('USDT')">Tether (USDT)</button>
-        <button class="nav-button" onclick="showDepositModal('SOL')">Solana (SOL)</button>
-        <button class="nav-button" onclick="showDepositModal('TON')">Toncoin (TON)</button>
-    </div>
-    <div class="order-history">
-        <h3 id="orderHistoryTitle"></h3>
-        <div id="orderList"></div>
-    </div>
-    <button class="nav-button" id="logoutButton" onclick="logout()">Выйти</button>
-</div>
-
-<style>
-    #logoutButton {
-        background-color: #ff5555;
-        margin-top: 10px;
-    }
-
-    #logoutButton:hover {
-        background-color: #ff7777;
-    }
-.login-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    align-items: center;
-}
-
-.login-content {
-    background: #333;
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-    color: #ff4444;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
-    border: 2px solid #ff4444;
-    box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
-}
-</style>
+            <div class="profile-info">
+                <h3>☠️</h3>
+                <p id="profileNameLabel"></p>
+                <p>Баланс: <span id="balance">0 ฿</span></p>
+                <p id="ordersLabel"></p>
+                <p id="referralsLabel"></p>
+            </div>
+            <div class="deposit-options">
+                <h3 id="depositTitle"></h3>
+                <button class="nav-button" onclick="showDepositModal('BTC')">Bitcoin (BTC)</button>
+                <button class="nav-button" onclick="showDepositModal('ETH')">Ethereum (ETH)</button>
+                <button class="nav-button" onclick="showDepositModal('USDT')">Tether (USDT)</button>
+                <button class="nav-button" onclick="showDepositModal('SOL')">Solana (SOL)</button>
+                <button class="nav-button" onclick="showDepositModal('TON')">Toncoin (TON)</button>
+            </div>
+            <div class="order-history">
+                <h3 id="orderHistoryTitle"></h3>
+                <div id="orderList"></div>
+            </div>
+            <div class="promo-info">
+                <p id="promoInfo"></p>
+                <button class="nav-button" onclick="showPromoDetails()">Подробнее</button>
+            </div>
+        </div>
 
         <div class="vacancy-menu" id="vacancyMenu">
             <h2 id="vacanciesTitle">Вакансии</h2>
@@ -370,6 +328,10 @@
             <div id="mailList"></div>
         </div>
 
+        <div class="product-modal" id="productModal">
+            <div class="product-content" id="productContent"></div>
+        </div>
+
         <div class="payment-modal" id="paymentModal">
             <div class="payment-content" id="paymentContent"></div>
         </div>
@@ -382,30 +344,21 @@
             <div class="preorder-content" id="preorderContent"></div>
         </div>
 
-        <div id="registrationModal" class="registration-modal">
-            <div class="registration-content">
+        <div class="registration-modal" id="registrationModal">
+            <div class="registration-content" id="registrationContent">
                 <h2>Регистрация</h2>
-                <input type="text" id="regNickname" placeholder="Nickname (a-z, A-Z, max 12)" maxlength="12">
-                <input type="password" id="regPassword" placeholder="Password">
+                <p>Введите желаемый никнейм:</p>
+                <input type="text" id="regNickname" placeholder="Ваш никнейм">
+                <p>Выберите язык:</p>
                 <select id="regLanguage">
-                    <option value="ru">Русский</option>
                     <option value="en">English</option>
-                    <option value="th">ไทย</option>
+                    <option value="th">ไทย (Thai)</option>
+                    <option value="ru">Русский</option>
                 </select>
                 <button class="buy-button" onclick="registerUser()">Зарегистрироваться</button>
-                <button class="buy-button" onclick="hideRegistrationModal()">Отмена</button>
+                <p id="regError" style="color: #ff9999;"></p>
             </div>
         </div>
-
-<div id="loginModal" class="login-modal">
-    <div class="login-content">
-        <h2>Авторизация</h2>
-        <input type="text" id="loginNickname" placeholder="Nickname">
-        <input type="password" id="loginPassword" placeholder="Password">
-        <button class="buy-button" onclick="loginUser()">Войти</button>
-        <button class="buy-button" onclick="showRegistrationFromLogin()">Зарегистрироваться</button>
-    </div>
-</div>
 
         <div class="custom-modal" id="customModal">
             <div class="custom-content" id="customContent"></div>
@@ -415,53 +368,60 @@
             <div class="confirm-content" id="confirmContent"></div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>
-    window.addEventListener('load', () => {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    currentUser = Telegram.WebApp.initDataUnsafe.user?.username || 'Гость';
-    console.log('Telegram Web App готов, юзер:', currentUser);
-});
-</script>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-       document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Страница загружена');
-    currentUser = localStorage.getItem('currentUser');
-
-    if (!window.supabase || typeof window.supabase.from !== 'function') {
-        console.warn('Supabase ещё не готов, ждём инициализации...');
-        await new Promise(resolve => {
-            const interval = setInterval(() => {
-                if (window.supabase && typeof window.supabase.from === 'function') {
-                    clearInterval(interval);
-                    resolve();
-                }
-            }, 100);
-        });
-    }
-    console.log('Supabase готов:', window.supabase);
-
-    if (currentUser) {
-        await loadCurrentUser();
-        loadLanguage();
+        const SUPABASE_URL = 'https://xtjijqrycwudjdsjngjb.supabase.co'; // Твой URL
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8'; // Твой Anon Key
+const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        function manualAddBalance(nickname, amount) {
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    let user = users.find(u => u.nickname === nickname);
+    if (user) {
+        // Если бонус ещё не выдан, начисляем
+        if (!user.receivedBonus) {
+            user.balance = (user.balance || 0) + amount; // Прибавляем к текущему балансу
+            user.receivedBonus = true; // Помечаем, что бонус выдан
+            console.log(`Начислил ${amount} ฿ для ${nickname}, новый баланс: ${user.balance}`);
+            sendToTelegram(`Админ начислил ${amount} ฿ юзеру ${nickname}. Новый баланс: ${user.balance}`);
+        } else {
+            console.log(`${nickname} уже получил свои бабки, пиздец жадности!`);
+        }
     } else {
-        showLoginModal();
+        // Если юзера нет, создаём с бонусом
+        user = { 
+            nickname: nickname, 
+            language: 'ru', 
+            balance: amount, 
+            orderCount: 0, 
+            referralCount: 0, 
+            orderHistory: [],
+            receivedBonus: true // Сразу флаг, чтобы не повторялось
+        };
+        users.push(user);
+        console.log(`Создал ${nickname} и начислил ${amount} ฿`);
+        sendToTelegram(`Новый юзер ${nickname} создан с ${amount} ฿`);
     }
-    initTabs();
-    await updateProductCards();
-});
-
-        function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-    } else {
-        console.warn(`Модальное окно ${modalId} не найдено`);
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+    if (currentUser === nickname) {
+        balance = user.balance;
+        document.getElementById('balance').innerText = `${balance} ฿`;
     }
 }
+
+// Разовое начисление для Gtori при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+    let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    let gtori = users.find(u => u.nickname === 'Gtori');
+    if (!gtori || !gtori.receivedBonus) {
+        manualAddBalance('Gtori', 1488); // Разово даём Gtori 1488 ฿
+    }
+    loadCurrentUser();
+    if (!currentUser) showRegistrationModal();
+    loadLanguage();
+    updateTabs();
+    updateProductCards();
+});
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
@@ -476,20 +436,18 @@
         let selectedCity = 'all';
         let selectedDistrict = 'all';
         let currentUser = null;
-        let userId = null;
-        let userLanguage = 'ru'; // По умолчанию русский, так как <html lang="ru">
+        let userLanguage = 'en';
         let mailMessages = [];
         let pendingPayments = {};
         const MIN_DEPOSIT = 1000;
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-        const API_BASE_URL = 'https://dark-p1j0.onrender.com'; // Локальный API
 
         let cryptoRates = {
             BTC: 2000000,
             ETH: 100000,
             USDT: 33,
             SOL: 5000,
-            TON: 200
+            TON: 150
         };
 
         const BOT_B_TOKEN = '7589545725:AAHoedAqoGh_k0WWdUs1rcBN1yddUtBFhsk';
@@ -500,41 +458,8 @@
             ETH: "0x0d6b8E631b6c99e5184d492F4bcf22c8B5F96009",
             USDT: "TCZUbqocgdwWx7AJVf6Kk5bq6cQETbWu54",
             SOL: "HadNG2gWHYiep7GfuP9UzxZQdeKuhCfPQ6qqBNo19B3B",
-            TON: "UQAXS4W2EW4gTFvpZqf-zR1zDrnLcNkjpZOkh-2EXFjwQ2Vh"
+            TON: "UQBoT-OzfCz0Ixtq9ZbH7coNGtiChvyAuby5aUTdsuotVMxA"
         };
-        
-        const weights = {
-    coke: Array.from({ length: 39 }, (_, i) => 0.5 + i * 0.5), // 0.5, 1, 1.5, ..., 20
-    default: Array.from({ length: 20 }, (_, i) => 1 + i), // 1, 2, 3, ..., 20
-    lsd: Array.from({ length: 20 }, (_, i) => 1 + i), // 1, 2, 3, ..., 20 (дозы)
-    mdmaTabs: Array.from({ length: 20 }, (_, i) => 1 + i) // 1, 2, 3, ..., 20 (таблетки)
-};
-
-const basePrices = {
-    weed: { 1: 1000 },
-    hash: { 1: 1200, 2: 1100, 3: 1000 },
-    coke: { 1: 3000, 2: 2800 },
-    amph: { 1: 800, 2: 750, 3: 700, 4: 650 },
-    meth: { 1: 2000, 2: 1800 },
-    meph: { 1: 1500, 2: 1400, 3: 1300 },
-    alpha: { 1: 1600, 2: 1500, 3: 1400, 4: 1700 },
-    lsd: { 1: 500, 2: 450 },
-    mdma: { 1: 1800, 2: 1600, 3: 2000, 4: 1400 },
-    heroin: { 1: 2500, 2: 2300 }
-};
-
-const productImages = {
-    weed: { 1: "https://i.postimg.cc/nMGvf409/jamaican-haze.jpg" },
-    hash: { 1: "https://i.postimg.cc/sD11WBq4/image.jpg", 2: "https://i.postimg.cc/KjjctVq8/image.png", 3: "https://i.postimg.cc/2ygYh5L0/image.jpg" },
-    coke: { 1: "https://i.postimg.cc/3W512jLd/image.jpg", 2: "https://i.postimg.cc/xTLDh6Vp/2.jpg" },
-    amph: { 1: "https://i.postimg.cc/3Jgrmg9p/image.jpg", 2: "https://i.postimg.cc/90y2PhPV/image.jpg", 3: "https://i.postimg.cc/BvtGYD5m/image.jpg", 4: "https://i.postimg.cc/qMX0zpMx/image.jpg" },
-    meth: { 1: "https://i.postimg.cc/dVPkKsNR/image.jpg", 2: "https://i.postimg.cc/765jVVNV/image.jpg" },
-    meph: { 1: "https://i.postimg.cc/4NMvHRLn/image.jpg", 2: "https://i.postimg.cc/prxYTVyF/image.jpg", 3: "https://i.postimg.cc/ZqLycGc8/vava.jpg" },
-    alpha: { 1: "https://i.postimg.cc/hjmpv3rH/image.jpg", 2: "https://i.postimg.cc/4x3PV3Pv/image.jpg", 3: "https://i.postimg.cc/TwHC3LBH/image.jpg", 4: "https://i.postimg.cc/yNLw0Nw0/image.jpg" },
-    lsd: { 1: "https://i.postimg.cc/yNHGMRzm/250.jpg", 2: "https://i.postimg.cc/Xqp1fcwb/image.jpg" },
-    mdma: { 1: "https://i.postimg.cc/521GGvJw/image.jpg", 2: "https://i.postimg.cc/Z5y9Gt5t/image.jpg", 3: "https://i.postimg.cc/SRCT1QtT/image.jpg", 4: "https://i.postimg.cc/52j5jR9n/image.jpg" },
-    heroin: { 1: "https://i.postimg.cc/gkX1RN0k/image.jpg", 2: "https://i.postimg.cc/Nj8J7VvY/image.jpg" }
-};
 
         const cryptoNetworks = {
             BTC: "BEP20",
@@ -827,8 +752,8 @@ const productImages = {
                 cokeTab: "โคเคน",
                 amphTab: "แอมเฟตามีน",
                 methTab: "เมทแอมเฟตามีน",
-                mephTab: "เมเฟดรอน",
-                alphaTab: "อัลฟ่า-PVP",
+                mephTab: "เมเฟโดรน",
+                alphaTab: "อัลฟ่า-พีวีพี",
                 lsdTab: "แอลเอสดี",
                 mdmaTab: "เอ็มดีเอ็มเอ",
                 heroinTab: "เฮโรอีน"
@@ -836,250 +761,639 @@ const productImages = {
         };
 
         const cities = {
-            phuket: {
-                "Patong": { lat: "7.8961", lon: "98.2966", desc: "Клад в районе пляжа, за баром у пальмы, магнит под скамейкой." },
-                "Karon": { lat: "7.8467", lon: "98.2945", desc: "Тайник у забора храма, в кустах, смотри под камнем." },
-                "Phuket Town": { lat: "7.8833", lon: "98.3917", desc: "Возле старого рынка, в щели стены, аккуратно." },
-                "Kata": { lat: "7.8202", lon: "98.2988", desc: "Под мостиком у пляжа, в пакете, закопано 10 см." },
-                "Chalong": { lat: "7.8461", lon: "98.3398", desc: "Рядом с пирсом, в трубе, магнит." },
-                "Kamala": { lat: "7.9506", lon: "98.2842", desc: "У кафе на углу, под мусоркой, не копай глубоко." },
-                "Mai Khao": { lat: "8.1333", lon: "98.3000", desc: "Возле заброшенного ангара, в траве, магнит." }
+    phuket: {
+        "Patong": { lat: "7.8961", lon: "98.2966", desc: "Клад в районе пляжа, за баром у пальмы, магнит под скамейкой." },
+        "Karon": { lat: "7.8467", lon: "98.2945", desc: "Тайник у забора храма, в кустах, смотри под камнем." },
+        "Phuket Town": { lat: "7.8833", lon: "98.3917", desc: "Возле старого рынка, в щели стены, аккуратно." },
+        "Kata": { lat: "7.8202", lon: "98.2988", desc: "Под мостиком у пляжа, в пакете, закопано 10 см." },
+        "Chalong": { lat: "7.8461", lon: "98.3398", desc: "Рядом с пирсом, в трубе, магнит." },
+        "Kamala": { lat: "7.9506", lon: "98.2842", desc: "У кафе на углу, под мусоркой, не копай глубоко." },
+        "Mai Khao": { lat: "8.1333", lon: "98.3000", desc: "Возле заброшенного ангара, в траве, магнит." }
+    },
+    pattaya: {
+        "Central Pattaya": { lat: "12.9386", lon: "100.8891", desc: "За клубом, в щели стены, смотри под вывеской." },
+        "Jomtien": { lat: "12.8996", lon: "100.8678", desc: "У пляжа, под скамейкой, магнит приклеен." },
+        "Naklua": { lat: "12.9751", lon: "100.9078", desc: "Рядом с рыбным рынком, в урне, пакет." },
+        "South Pattaya": { lat: "12.9236", lon: "100.8825", desc: "Возле Walking Street, под ступенькой, аккуратно." },
+        "Wong Amat": { lat: "12.9667", lon: "100.8833", desc: "У башни, в кустах, закопано чуть-чуть." },
+        "Pratumnak": { lat: "12.9167", lon: "100.8667", desc: "На холме, под деревом, магнит в коре." }
+    },
+    bangkok: {
+        "Sukhumvit": { lat: "13.7367", lon: "100.5613", desc: "У метро, в щели столба, не светись." },
+        "Khao San": { lat: "13.7589", lon: "100.4975", desc: "За хостелом, под мусоркой, магнит." },
+        "Silom": { lat: "13.7234", lon: "100.5353", desc: "Рядом с баром, в урне, пакетик." },
+        "Chatuchak": { lat: "13.7996", lon: "100.5487", desc: "У рынка, под скамейкой, закопано." },
+        "Ratchada": { lat: "13.7718", lon: "100.5735", desc: "Возле клуба, в кустах, смотри внимательно." },
+        "Banglamphu": { lat: "13.7625", lon: "100.4978", desc: "У канала, под мостиком, магнит." }
+    },
+    samui: {
+        "Chaweng": { lat: "9.5333", lon: "100.0667", desc: "У пляжного бара, под столиком, магнит." },
+        "Lamai": { lat: "9.4667", lon: "100.0500", desc: "Возле камней на пляже, закопано 15 см." },
+        "Bo Phut": { lat: "9.5667", lon: "100.0333", desc: "У пирса, в щели досок, аккуратно." },
+        "Maenam": { lat: "9.5833", lon: "100.0000", desc: "Рядом с пальмой, в траве, магнит." },
+        "Lipa Noi": { lat: "9.5000", lon: "99.9333", desc: "У заброшенной лодки, под доской, пакет." },
+        "Bang Po": { lat: "9.5833", lon: "99.9667", desc: "На пляже, под камнем, смотри ночью." }
+    }
+};
+
+        const basePrices = {
+    weed: { 1: 900 },
+    hash: { 1: 2500, 2: 1900, 3: 1500, 4: 450, 5: 650 },
+    coke: { 1: 6000, 2: 5000, 3: 2500, 4: 2000, 5: 3200 },
+    amph: { 1: 1500, 2:1200, 3: 1100, 4: 1100, 5: 850 },
+    meth: { 1: 2400, 2: 2000, 3: 900, 4: 850, 5: 1100 },
+    meph: { 1: 2500, 2: 2300, 3: 2100, 4: 750, 5: 950 },
+    alpha: { 1: 2000, 2: 1700, 3: 1800, 4: 2000, 5: 1000 },
+    lsd: { 1: 1200, 2: 1100, 3: 500, 4: 450, 5: 650 },
+    mdma: { 1: 2000, 2: 400, 3: 500, 4: 300, 5: 700 },
+    heroin: { 1: 4000, 2: 3000, 3: 1800, 4: 1700, 5: 2100 }
+};
+
+        const weights = {
+    coke: [0.5, 1, 2, 3, 5, 10, 15, 20], // Для кокаина от 0.5 до 20
+    default: [1, 2, 3, 5, 10, 15, 20],    // Для остальных от 1 до 20
+    lsd: [1, 2, 5, 10],                   // ЛСД в "табах"
+    mdmaTabs: [1, 2, 5]                   // МДМА в таблетках (для id 3)
+};
+
+        const productImages = {
+            weed: { 1: "https://i.postimg.cc/nMGvf409/jamaican-haze.jpg" },
+            hash: {
+                1: "https://i.postimg.cc/sD11WBq4/image.jpg",
+                2: "https://i.postimg.cc/KjjctVq8/image.png",
+                3: "https://i.postimg.cc/2ygYh5L0/image.jpg",
             },
-            pattaya: {
-                "Central Pattaya": { lat: "12.9386", lon: "100.8891", desc: "За клубом, в щели стены, смотри под вывеской." },
-                "Jomtien": { lat: "12.8996", lon: "100.8678", desc: "У пляжа, под скамейкой, магнит приклеен." },
-                "Naklua": { lat: "12.9751", lon: "100.9078", desc: "Рядом с рыбным рынком, в урне, пакет." },
-                "South Pattaya": { lat: "12.9236", lon: "100.8825", desc: "У ночного рынка, за киоском, магнит." },
-                "Wong Amat": { lat: "12.9667", lon: "100.8833", desc: "На пляже, в камнях, смотри внимательно." },
-                "Pratumnak": { lat: "12.9167", lon: "100.8667", desc: "У смотровой площадки, в кустах, закопано." }
+            coke: {
+                1: "https://i.postimg.cc/3W512jLd/image.jpg",
+                2: "https://i.postimg.cc/xTLDh6Vp/2.jpg",
             },
-            bangkok: {
-                "Sukhumvit": { lat: "13.7367", lon: "100.5333", desc: "Возле метро, за киоском, магнит под скамейкой." },
-                "Khao San": { lat: "13.7592", lon: "100.4972", desc: "Рядом с баром, в щели забора, аккуратно." },
-                "Silom": { lat: "13.7234", lon: "100.5342", desc: "У ночного рынка, под мусоркой, магнит." },
-                "Chatuchak": { lat: "13.7992", lon: "100.5489", desc: "На рынке, за прилавком, в пакете." },
-                "Ratchada": { lat: "13.7692", lon: "100.5733", desc: "Возле клубов, в кустах, закопано 10 см." },
-                "Banglamphu": { lat: "13.7611", lon: "100.4989", desc: "У канала, под мостиком, магнит." }
+            amph: {
+                1: "https://i.postimg.cc/3Jgrmg9p/image.jpg",
+                2: "https://i.postimg.cc/90y2PhPV/image.jpg",
+                3: "https://i.postimg.cc/BvtGYD5m/image.jpg",
+                4: "https://i.postimg.cc/qMX0zpMx/image.jpg",
             },
-            samui: {
-                "Chaweng": { lat: "9.5357", lon: "100.0644", desc: "На пляже, за баром, в камнях, магнит." },
-                "Lamai": { lat: "9.4682", lon: "100.0483", desc: "У ночного рынка, под скамейкой, закопано." },
-                "Bo Phut": { lat: "9.5657", lon: "100.0258", desc: "Рядом с пирсом, в кустах, смотри под камнем." },
-                "Maenam": { lat: "9.5703", lon: "100.0014", desc: "На пляже, за кафе, магнит под доской." },
-                "Lipa Noi": { lat: "9.4969", lon: "99.9364", desc: "У пирса, в щели забора, аккуратно." },
-                "Bang Po": { lat: "9.5778", lon: "99.9833", desc: "На пляже, в траве, закопано 10 см." }
+            meth: {
+                1: "https://i.postimg.cc/dVPkKsNR/image.jpg",
+                2: "https://i.postimg.cc/765jVVNV/image.jpg",
+            },
+            meph: {
+                1: "https://i.postimg.cc/4NMvHRLn/image.jpg",
+                2: "https://i.postimg.cc/prxYTVyF/image.jpg",
+                3: "https://i.postimg.cc/ZqLycGc8/vava.jpg",
+            },
+            alpha: {
+                1: "https://i.postimg.cc/hjmpv3rH/image.jpg",
+                2: "https://i.postimg.cc/4x3PV3Pv/image.jpg",
+                3: "https://i.postimg.cc/TwHC3LBH/image.jpg",
+                4: "https://i.postimg.cc/yNLw0Nw0/image.jpg"
+            },
+            lsd: {
+                1: "https://i.postimg.cc/yNHGMRzm/250.jpg",
+                2: "https://i.postimg.cc/Xqp1fcwb/image.jpg",
+            },
+            mdma: {
+                1: "https://i.postimg.cc/521GGvJw/image.jpg",
+                2: "https://i.postimg.cc/Z5y9Gt5t/image.jpg",
+                3: "https://i.postimg.cc/SRCT1QtT/image.jpg",
+                4: "https://i.postimg.cc/52j5jR9n/image.jpg"
+            },
+            heroin: {
+                1: "https://i.postimg.cc/gkX1RN0k/image.jpg",
+                2: "https://i.postimg.cc/Nj8J7VvY/image.jpg",
             }
         };
 
-        const reviews = {
-            "weed-1": [
-                { text: "Клад в касание, стафф пушка, шопу респект!", date: "12.03.2025", response: "Спасибо, братишка! Ждём тебя снова!" },
-                { text: "На месте, всё чётко, эффект мощный!", date: "08.03.2025", response: "Рады, что зашло! Возвращайся за добавкой!" },
-                { text: "Съём лёгкий, но стафф слабоват.", date: "05.03.2025", response: "Спасибо за фидбек, проверим партию!" },
-                { text: "Коорды огонь, стафф рвёт, 10/10!", date: "03.03.2025", response: "Кайфуй, братан! Шоп всегда для тебя!" }
-            ],
-            "hash-1": [
-                { text: "Всё идеально, стафф топ, беру ещё!", date: "11.03.2025", response: "Спасибо за отзыв, ждём тебя снова!" },
-                { text: "Клад нашёл быстро, качество пушка!", date: "07.03.2025", response: "Рады угодить! Бери ещё, будет огонь!" }
-            ],
-            "coke-1": [
-                { text: "Чётко, как в аптеке, стафф лютый!", date: "09.03.2025", response: "Спасибо, что выбрал нас! Ждём обратно!" }
-            ]
-            // Здесь обрезано для краткости, но в оригинале есть отзывы для всех товаров
-        };
+        const reviewTemplates = {
+    positive: [
+        "Касание за 5 минут, стафф пушка, берите смело!",
+        "Всё чётко, клад на месте, качество на высоте!",
+        "Съём лёгкий, ориентиры точные, эффект лютый.",
+        "На месте, как в аптеке, шоп — топчик!",
+        "Клад идеальный, стафф свежий, 10/10!",
+        "Нашёл за минуту, описание огонь, рекомендую!",
+        "Стафф бодрый, координаты точные, спасибо, ребята!",
+        "Всё как надо, эффект мощный, беру второй раз!",
+        "Клад в касание, качество пиздец как радует!",
+        "Шоп знает своё дело, стафф чистый, съём быстрый!",
+        "На месте через 10 минут, эффект штырит, топ!",
+        "Ориентиры как по учебнику, стафф лютый, зачёт!",
+        "Взял без проблем, качество выше ожиданий!",
+        "Клад на точке, стафф свежак, шопу респект!",
+        "Съём чёткий, эффект долгий, буду брать ещё!",
+        "Нашёл сразу, упаковка норм, стафф пиздатый!",
+        "Коорды идеальные, качество на уровне, доволен!",
+        "Всё в лучшем виде, стафф рвёт, шоп надёжный!",
+        "Клад на магните, снял за секунду, стафф огонь!",
+        "Точка точная, эффект мощный, ребята красавцы!",
+        "Стафф свежий, клад лёгкий, шоп — номер один!",
+        "Всё по красоте, снял быстро, качество топ!",
+        "На месте без лишних поисков, стафф штырит!",
+        "Клад как на блюдечке, эффект пиздец, берите!"
+    ],
+    neutral: [
+        "На месте, но искал минут 20, стафф нормальный.",
+        "Клад ок, но место людное, качество среднее.",
+        "Съём норм, описание мутное, стафф рабочий.",
+        "Нашёл, но ожидал большего от эффекта.",
+        "Коорды точные, а стафф слабоват, пойдёт.",
+        "Клад на месте, но место неудобное, стафф ок.",
+        "Всё нашёл, эффект средний, за эти бабки норм.",
+        "Съём долгий, минут 15 искал, качество сойдёт.",
+        "Ориентиры путаные, но стафф в порядке.",
+        "На точке, упаковка так себе, эффект не вау.",
+        "Клад нашёл, но место стремноватое, стафф норм.",
+        "Стафф рабочий, но искал долго, корды нечёткие.",
+        "Всё ок, но эффект быстро прошёл, среднячок.",
+        "На месте, но упаковка хлипкая, стафф пойдёт.",
+        "Съём нормальный, качество не огонь, но жить можно.",
+        "Клад был, искал полчаса, стафф не разочаровал.",
+        "Ориентиры так себе, но стафф рабочий, берите.",
+        "Нашёл с трудом, эффект средний, ожидал больше.",
+        "Клад на месте, место людное, стафф терпимый.",
+        "Стафф норм, но искать задолбался, корды хуйня.",
+        "Всё в наличии, но эффект слабый, за цену ок."
+    ],
+    negative: [
+        "Место пиздец, чуть не спалился, стафф говно.",
+        "Клад у мусорки, вонь пиздец, качество отстой.",
+        "Искал час, корды кривые, стафф не тянет.",
+        "Стафф слабый, за такие бабки — наебалово!",
+        "Место стремное, чуть не попался, шлак полный.",
+        "Клад не нашёл, описание хуйня, выбросил время!",
+        "Стафф как мел, эффекта ноль, шоп — днище.",
+        "Место людное, снял с нервами, качество херня.",
+        "Искал 40 минут, клад хуй знает где, развод!",
+        "Стафф просроченный, эффекта нет, пиздец шопу!",
+        "Клад в говне, вонь пиздец, стафф не работает.",
+        "Корды пиздец, искал зря, качество дно.",
+        "Место опасное, чуть не спалили, стафф отстой.",
+        "Съём — ад, описание хуйня, стафф слабый.",
+        "Клад у дороги, снял с риском, качество шлак.",
+        "Стафф не тянет, место пиздец, шоп подвёл!",
+        "Искал два часа, корды фуфло, разочарование.",
+        "Место стремное, стафф как пыль, не берите!",
+        "Клад потерял час, качество дерьмо, пиздец!",
+        "Стафф никакой, место хуйня, шоп — наебалово!"
+    ]
+};
 
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Страница загружена');
+const moderatorResponses = {
+    positive: [
+        "Спасибо, братишка! Заходи ещё, всегда рады!",
+        "Рады, что зашло! Бери снова, не пожалеешь!",
+        "Топчик для топовых ребят, ждём тебя обратно!",
+        "На здоровье, братишка! Новые поставки скоро!",
+        "Кайфуй, братан! Шоп всегда для тебя открыт!",
+        "Спасибо за отзыв, держим марку, возвращайся!",
+        "Рады стараться, бери ещё, всё будет чётко!",
+        "Зачёт тебе, братишка! Ждём новых заказов!",
+        "Стафф для своих, заходи, не стесняйся!",
+        "Спасибо за добрые слова, шоп в деле!",
+        "Кайфуй на полную, братишка! Всё для вас!",
+        "Респект за фидбек, ждём тебя снова!",
+        "Ты знаешь толк, возвращайся за добавкой!",
+        "Спасибо, что с нами! Шоп всегда на связи!",
+        "Рады угодить, братан! Бери ещё, будет пушка!",
+        "Заходи снова, братишка! Всё для твоего кайфа!",
+        "Ты в теме, шоп для тебя, ждём обратно!",
+        "Спасибо за поддержку, держим уровень!",
+        "Кайфуй, братишка! Шоп не подведёт!",
+        "Респект тебе, возвращайся за свежаком!",
+        "Стафф для ценителей, ждём тебя ещё!",
+        "Спасибо за отзыв, братан! Шоп на высоте!"
+    ],
+    neutral: [
+        "Поправим описание, спасибо за фидбек, братишка!",
+        "Учтём, будем точнее с местами, держись!",
+        "Проверим партию, извини за косяк, исправимся!",
+        "Спасибо за сигнал, работаем над улучшениями!",
+        "Сделаем выводы, братан, спасибо за инфу!",
+        "Принято, уточним корды, держи нас в курсе!",
+        "Проверим место, сорян за неудобства!",
+        "Спасибо, что написал, подтянем качество!",
+        "Будем точнее, братишка, извини за мутки!",
+        "Поправим тайник, спасибо за терпение!",
+        "Учтём твои слова, шоп в деле, не переживай!",
+        "Проверим стафф, извини, если не зашло!",
+        "Спасибо за честность, будем лучше!",
+        "Сделаем работу над ошибками, держись с нами!",
+        "Принято к сведению, братан, исправим косяки!",
+        "Спасибо за подсказку, точность улучшим!",
+        "Проверим локацию, извини за гемор!",
+        "Будем работать над этим, спасибо за отзыв!",
+        "Сорян за неудобства, учтём твои слова!",
+        "Поправим всё, братишка, держи связь!",
+        "Спасибо, что указал, шоп на чеку!"
+    ],
+    negative: [
+        "Извини за косяк, исправим локацию, братишка!",
+        "Проверим качество, спасибо за инфу, разберёмся!",
+        "Поправим место, не злись, всё наладим!",
+        "Сорян за неудобства, будем лучше, держись!",
+        "Приносим извинения, уточним корды, не переживай!",
+        "Проверим стафф, извини, что подвели!",
+        "Спасибо за сигнал, место поменяем, братан!",
+        "Сорян, косяк наш, исправим, не грусти!",
+        "Разберёмся с качеством, извини за фейл!",
+        "Поправим всё, братишка, спасибо, что написал!",
+        "Извини за гемор, локацию проверим!",
+        "Стафф подтянем, сорян за разочарование!",
+        "Спасибо за честность, шоп исправится!",
+        "Проверим тайник, извини за пиздец!",
+        "Не злись, братан, косяк на нас, исправим!",
+        "Сорян за кривые корды, уточним всё!",
+        "Разберёмся с местом, извини за неудобства!",
+        "Проверим партию, спасибо, что указал!",
+        "Извинения наши, братишка, шоп починит косяки!",
+        "Сделаем лучше, сорян за факап, держись!",
+        "Спасибо за фидбек, всё поправим, не кипишуй!"
+    ]
+};
 
-    // Ждём Supabase максимум 5 секунд
-    let attempts = 50;
-    while (typeof window.Supabase === 'undefined' && attempts > 0) {
-        console.log('Supabase ещё не готов, ждём инициализации...');
-        await new Promise(resolve => setTimeout(resolve, 100));
-        attempts--;
-    }
-
-    if (typeof window.Supabase === 'undefined') {
-        console.error('Supabase SDK не загрузился даже после ожидания!');
-        alert('Ошибка: Supabase не доступен. Проверьте подключение.');
-        return;
-    }
-
-    console.log('Supabase SDK загружен:', window.Supabase);
-    window.supabase = window.Supabase.createClient(
-        'https://xtjijqrycwudjdsjngjb.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8'
-    );
-    console.log('Supabase клиент создан:', window.supabase);
-    console.log('Метод from доступен:', typeof window.supabase.from === 'function');
-
-    // Запускаем остальную логику
-    loadCurrentUser();
-    updateProductCards();
-});
+// Фиксированный объект reviews для всех позиций из basePrices
+const reviews = {
+    "weed-1": [
+        { text: "Касание за 5 минут, стафф пушка, берите смело!", date: "03.03.2025", response: "Спасибо, братишка! Заходи ещё, всегда рады!" },
+        { text: "Всё чётко, клад на месте, качество на высоте!", date: "07.03.2025", response: "Рады, что зашло! Бери снова, не пожалеешь!" },
+        { text: "Съём лёгкий, ориентиры точные, эффект лютый.", date: "10.03.2025", response: "Топчик для топовых ребят, ждём тебя обратно!" },
+        { text: "На месте, но искал минут 20, стафф нормальный.", date: "12.03.2025", response: "Поправим описание, спасибо за фидбек, братишка!" },
+        { text: "Клад ок, но место людное, качество среднее.", date: "05.03.2025", response: "Учтём, будем точнее с местами, держись!" }
+    ],
+    "hash-1": [
+        { text: "Клад идеальный, стафф свежий, 10/10!", date: "01.03.2025", response: "На здоровье, братишка! Новые поставки скоро!" },
+        { text: "Нашёл за минуту, описание огонь, рекомендую!", date: "08.03.2025", response: "Кайфуй, братан! Шоп всегда для тебя открыт!" },
+        { text: "Стафф бодрый, координаты точные, спасибо, ребята!", date: "11.03.2025", response: "Спасибо за отзыв, держим марку, возвращайся!" },
+        { text: "Съём норм, описание мутное, стафф рабочий.", date: "04.03.2025", response: "Проверим партию, извини за косяк, исправимся!" },
+        { text: "Коорды точные, а стафф слабоват, пойдёт.", date: "09.03.2025", response: "Сделаем выводы, братан, спасибо за инфу!" }
+    ],
+    "hash-2": [
+        { text: "Всё как надо, эффект мощный, беру второй раз!", date: "02.03.2025", response: "Рады стараться, бери ещё, всё будет чётко!" },
+        { text: "Клад в касание, качество пиздец как радует!", date: "06.03.2025", response: "Зачёт тебе, братишка! Ждём новых заказов!" },
+        { text: "Шоп знает своё дело, стафф чистый, съём быстрый!", date: "13.03.2025", response: "Стафф для своих, заходи, не стесняйся!" },
+        { text: "Нашёл, но ожидал большего от эффекта.", date: "03.03.2025", response: "Спасибо за сигнал, работаем над улучшениями!" },
+        { text: "Место пиздец, чуть не спалился, стафф говно.", date: "07.03.2025", response: "Извини за косяк, исправим локацию, братишка!" }
+    ],
+    "hash-3": [
+        { text: "На месте через 10 минут, эффект штырит, топ!", date: "05.03.2025", response: "Спасибо за добрые слова, шоп в деле!" },
+        { text: "Ориентиры как по учебнику, стафф лютый, зачёт!", date: "09.03.2025", response: "Кайфуй на полную, братишка! Всё для вас!" },
+        { text: "Взял без проблем, качество выше ожиданий!", date: "11.03.2025", response: "Респект за фидбек, ждём тебя снова!" },
+        { text: "Клад на месте, но место неудобное, стафф ок.", date: "02.03.2025", response: "Принято, уточним корды, держи нас в курсе!" },
+        { text: "Всё нашёл, эффект средний, за эти бабки норм.", date: "06.03.2025", response: "Проверим место, сорян за неудобства!" }
+    ],
+    "hash-4": [
+        { text: "Клад на точке, стафф свежак, шопу респект!", date: "04.03.2025", response: "Ты знаешь толк, возвращайся за добавкой!" },
+        { text: "Съём чёткий, эффект долгий, буду брать ещё!", date: "08.03.2025", response: "Спасибо, что с нами! Шоп всегда на связи!" },
+        { text: "Нашёл сразу, упаковка норм, стафф пиздатый!", date: "12.03.2025", response: "Рады угодить, братан! Бери ещё, будет пушка!" },
+        { text: "Съём долгий, минут 15 искал, качество сойдёт.", date: "01.03.2025", response: "Спасибо, что написал, подтянем качество!" },
+        { text: "Ориентиры путаные, но стафф в порядке.", date: "10.03.2025", response: "Будем точнее, братишка, извини за мутки!" }
+    ],
+    "hash-5": [
+        { text: "Коорды идеальные, качество на уровне, доволен!", date: "03.03.2025", response: "Заходи снова, братишка! Всё для твоего кайфа!" },
+        { text: "Всё в лучшем виде, стафф рвёт, шоп надёжный!", date: "07.03.2025", response: "Ты в теме, шоп для тебя, ждём обратно!" },
+        { text: "Клад на магните, снял за секунду, стафф огонь!", date: "13.03.2025", response: "Спасибо за поддержку, держим уровень!" },
+        { text: "На точке, упаковка так себе, эффект не вау.", date: "05.03.2025", response: "Поправим тайник, спасибо за терпение!" },
+        { text: "Клад нашёл, но место стремноватое, стафф норм.", date: "09.03.2025", response: "Учтём твои слова, шоп в деле, не переживай!" }
+    ],
+    "coke-1": [
+        { text: "Точка точная, эффект мощный, ребята красавцы!", date: "02.03.2025", response: "Кайфуй, братишка! Шоп не подведёт!" },
+        { text: "Стафф свежий, клад лёгкий, шоп — номер один!", date: "06.03.2025", response: "Респект тебе, возвращайся за свежаком!" },
+        { text: "Всё по красоте, снял быстро, качество топ!", date: "10.03.2025", response: "Стафф для ценителей, ждём тебя ещё!" },
+        { text: "Стафф рабочий, но искал долго, корды нечёткие.", date: "04.03.2025", response: "Проверим стафф, извини, если не зашло!" },
+        { text: "Клад у мусорки, вонь пиздец, качество отстой.", date: "08.03.2025", response: "Проверим качество, спасибо за инфу, разберёмся!" }
+    ],
+    "coke-2": [
+        { text: "Были проблемы, но поддержка всё разрулила!Процветание вашему магазину! Качество топ! 10/10", date: "18.03.2025", response: "Рад, что ты остался доволен, бро!Активировал тебе промокод 10%, заходи ещё!" },
+        { text: "На месте без лишних поисков, стафф штырит!", date: "01.03.2025", response: "Спасибо за отзыв, братан! Шоп на высоте!" },
+        { text: "Клад как на блюдечке, эффект пиздец, берите!", date: "05.03.2025", response: "Спасибо, братишка! Заходи ещё, всегда рады!" },
+        { text: "Касание за 5 минут, стафф пушка, берите смело!", date: "09.03.2025", response: "Рады, что зашло! Бери снова, не пожалеешь!" },
+        { text: "Всё ок, но эффект быстро прошёл, среднячок.", date: "03.03.2025", response: "Спасибо за честность, будем лучше!" },
+        { text: "Искал час, корды кривые, стафф не тянет.", date: "11.03.2025", response: "Поправим место, не злись, всё наладим!" }
+    ],
+    "coke-3": [
+        { text: "Всё чётко, клад на месте, качество на высоте!", date: "07.03.2025", response: "Топчик для топовых ребят, ждём тебя обратно!" },
+        { text: "Съём лёгкий, ориентиры точные, эффект лютый.", date: "12.03.2025", response: "На здоровье, братишка! Новые поставки скоро!" },
+        { text: "На месте, как в аптеке, шоп — топчик!", date: "04.03.2025", response: "Кайфуй, братан! Шоп всегда для тебя открыт!" },
+        { text: "На месте, но упаковка хлипкая, стафф пойдёт.", date: "08.03.2025", response: "Сделаем работу над ошибками, держись с нами!" },
+        { text: "Стафф слабый, за такие бабки — наебалово!", date: "02.03.2025", response: "Сорян за неудобства, будем лучше, держись!" }
+    ],
+    "coke-4": [
+        { text: "Клад идеальный, стафф свежий, 10/10!", date: "06.03.2025", response: "Спасибо за отзыв, держим марку, возвращайся!" },
+        { text: "Нашёл за минуту, описание огонь, рекомендую!", date: "10.03.2025", response: "Рады стараться, бери ещё, всё будет чётко!" },
+        { text: "Стафф бодрый, координаты точные, спасибо, ребята!", date: "13.03.2025", response: "Зачёт тебе, братишка! Ждём новых заказов!" },
+        { text: "Съём нормальный, качество не огонь, но жить можно.", date: "01.03.2025", response: "Принято к сведению, братан, исправим косяки!" },
+        { text: "Место стремное, чуть не попался, шлак полный.", date: "05.03.2025", response: "Приносим извинения, уточним корды, не переживай!" }
+    ],
+    "coke-5": [
+        { text: "Всё как надо, эффект мощный, беру второй раз!", date: "03.03.2025", response: "Стафф для своих, заходи, не стесняйся!" },
+        { text: "Клад в касание, качество пиздец как радует!", date: "07.03.2025", response: "Спасибо за добрые слова, шоп в деле!" },
+        { text: "Шоп знает своё дело, стафф чистый, съём быстрый!", date: "11.03.2025", response: "Кайфуй на полную, братишка! Всё для вас!" },
+        { text: "Клад был, искал полчаса, стафф не разочаровал.", date: "09.03.2025", response: "Спасибо за подсказку, точность улучшим!" },
+        { text: "Клад не нашёл, описание хуйня, выбросил время!", date: "02.03.2025", response: "Проверим стафф, извини, что подвели!" }
+    ],
+    "amph-1": [
+        { text: "На месте через 10 минут, эффект штырит, топ!", date: "04.03.2025", response: "Респект за фидбек, ждём тебя снова!" },
+        { text: "Ориентиры как по учебнику, стафф лютый, зачёт!", date: "08.03.2025", response: "Ты знаешь толк, возвращайся за добавкой!" },
+        { text: "Взял без проблем, качество выше ожиданий!", date: "12.03.2025", response: "Спасибо, что с нами! Шоп всегда на связи!" },
+        { text: "Ориентиры так себе, но стафф рабочий, берите.", date: "06.03.2025", response: "Проверим локацию, извини за гемор!" },
+        { text: "Стафф как мел, эффекта ноль, шоп — днище.", date: "01.03.2025", response: "Спасибо за сигнал, место поменяем, братан!" }
+    ],
+    "amph-2": [
+        { text: "Клад на точке, стафф свежак, шопу респект!", date: "05.03.2025", response: "Рады угодить, братан! Бери ещё, будет пушка!" },
+        { text: "Съём чёткий, эффект долгий, буду брать ещё!", date: "09.03.2025", response: "Заходи снова, братишка! Всё для твоего кайфа!" },
+        { text: "Нашёл сразу, упаковка норм, стафф пиздатый!", date: "13.03.2025", response: "Ты в теме, шоп для тебя, ждём обратно!" },
+        { text: "Нашёл с трудом, эффект средний, ожидал больше.", date: "03.03.2025", response: "Будем работать над этим, спасибо за отзыв!" },
+        { text: "Место людное, снял с нервами, качество херня.", date: "07.03.2025", response: "Сорян, косяк наш, исправим, не грусти!" }
+    ],
+    "amph-3": [
+        { text: "Коорды идеальные, качество на уровне, доволен!", date: "02.03.2025", response: "Спасибо за поддержку, держим уровень!" },
+        { text: "Всё в лучшем виде, стафф рвёт, шоп надёжный!", date: "06.03.2025", response: "Кайфуй, братишка! Шоп не подведёт!" },
+        { text: "Клад на магните, снял за секунду, стафф огонь!", date: "10.03.2025", response: "Респект тебе, возвращайся за свежаком!" },
+        { text: "Клад на месте, место людное, стафф терпимый.", date: "04.03.2025", response: "Сорян за неудобства, учтём твои слова!" },
+        { text: "Искал 40 минут, клад хуй знает где, развод!", date: "08.03.2025", response: "Разберёмся с качеством, извини за фейл!" }
+    ],
+    "amph-4": [
+        { text: "Точка точная, эффект мощный, ребята красавцы!", date: "01.03.2025", response: "Стафф для ценителей, ждём тебя ещё!" },
+        { text: "Стафф свежий, клад лёгкий, шоп — номер один!", date: "05.03.2025", response: "Спасибо за отзыв, братан! Шоп на высоте!" },
+        { text: "Всё по красоте, снял быстро, качество топ!", date: "09.03.2025", response: "Спасибо, братишка! Заходи ещё, всегда рады!" },
+        { text: "Стафф норм, но искать задолбался, корды хуйня.", date: "03.03.2025", response: "Поправим всё, братишка, держи связь!" },
+        { text: "Стафф просроченный, эффекта нет, пиздец шопу!", date: "11.03.2025", response: "Поправим всё, братишка, спасибо, что написал!" }
+    ],
+    "amph-5": [
+        { text: "На месте без лишних поисков, стафф штырит!", date: "07.03.2025", response: "Рады, что зашло! Бери снова, не пожалеешь!" },
+        { text: "Клад как на блюдечке, эффект пиздец, берите!", date: "12.03.2025", response: "Топчик для топовых ребят, ждём тебя обратно!" },
+        { text: "Касание за 5 минут, стафф пушка, берите смело!", date: "04.03.2025", response: "На здоровье, братишка! Новые поставки скоро!" },
+        { text: "Всё в наличии, но эффект слабый, за цену ок.", date: "08.03.2025", response: "Спасибо, что указал, шоп на чеку!" },
+        { text: "Клад в говне, вонь пиздец, стафф не работает.", date: "02.03.2025", response: "Извини за гемор, локацию проверим!" }
+    ],
+    "meth-1": [
+        { text: "Всё чётко, клад на месте, качество на высоте!", date: "06.03.2025", response: "Кайфуй, братан! Шоп всегда для тебя открыт!" },
+        { text: "Съём лёгкий, ориентиры точные, эффект лютый.", date: "10.03.2025", response: "Спасибо за отзыв, держим марку, возвращайся!" },
+        { text: "На месте, как в аптеке, шоп — топчик!", date: "13.03.2025", response: "Рады стараться, бери ещё, всё будет чётко!" },
+        { text: "Клад ок, но место людное, качество среднее.", date: "01.03.2025", response: "Проверим партию, извини за косяк, исправимся!" },
+        { text: "Корды пиздец, искал зря, качество дно.", date: "05.03.2025", response: "Стафф подтянем, сорян за разочарование!" }
+    ],
+    "meth-2": [
+        { text: "Клад идеальный, стафф свежий, 10/10!", date: "03.03.2025", response: "Зачёт тебе, братишка! Ждём новых заказов!" },
+        { text: "Нашёл за минуту, описание огонь, рекомендую!", date: "07.03.2025", response: "Стафф для своих, заходи, не стесняйся!" },
+        { text: "Стафф бодрый, координаты точные, спасибо, ребята!", date: "11.03.2025", response: "Спасибо за добрые слова, шоп в деле!" },
+        { text: "Съём норм, описание мутное, стафф рабочий.", date: "09.03.2025", response: "Спасибо за сигнал, работаем над улучшениями!" },
+        { text: "Место опасное, чуть не спалили, стафф отстой.", date: "04.03.2025", response: "Спасибо за честность, шоп исправится!" }
+    ],
+    "meth-3": [
+        { text: "Всё как надо, эффект мощный, беру второй раз!", date: "08.03.2025", response: "Кайфуй на полную, братишка! Всё для вас!" },
+        { text: "Клад в касание, качество пиздец как радует!", date: "12.03.2025", response: "Респект за фидбек, ждём тебя снова!" },
+        { text: "Шоп знает своё дело, стафф чистый, съём быстрый!", date: "02.03.2025", response: "Ты знаешь толк, возвращайся за добавкой!" },
+        { text: "Нашёл, но ожидал большего от эффекта.", date: "06.03.2025", response: "Принято, уточним корды, держи нас в курсе!" },
+        { text: "Съём — ад, описание хуйня, стафф слабый.", date: "10.03.2025", response: "Проверим тайник, извини за пиздец!" }
+    ],
+    "meth-4": [
+        { text: "На месте через 10 минут, эффект штырит, топ!", date: "01.03.2025", response: "Спасибо, что с нами! Шоп всегда на связи!" },
+        { text: "Ориентиры как по учебнику, стафф лютый, зачёт!", date: "05.03.2025", response: "Рады угодить, братан! Бери ещё, будет пушка!" },
+        { text: "Взял без проблем, качество выше ожиданий!", date: "09.03.2025", response: "Заходи снова, братишка! Всё для твоего кайфа!" },
+        { text: "Коорды точные, а стафф слабоват, пойдёт.", date: "03.03.2025", response: "Проверим место, сорян за неудобства!" },
+        { text: "Клад у дороги, снял с риском, качество шлак.", date: "07.03.2025", response: "Не злись, братан, косяк на нас, исправим!" }
+    ],
+    "meth-5": [
+        { text: "Клад на точке, стафф свежак, шопу респект!", date: "11.03.2025", response: "Ты в теме, шоп для тебя, ждём обратно!" },
+        { text: "Съём чёткий, эффект долгий, буду брать ещё!", date: "04.03.2025", response: "Спасибо за поддержку, держим уровень!" },
+        { text: "Нашёл сразу, упаковка норм, стафф пиздатый!", date: "08.03.2025", response: "Кайфуй, братишка! Шоп не подведёт!" },
+        { text: "Всё нашёл, эффект средний, за эти бабки норм.", date: "02.03.2025", response: "Спасибо, что написал, подтянем качество!" },
+        { text: "Стафф не тянет, место пиздец, шоп подвёл!", date: "06.03.2025", response: "Сорян за кривые корды, уточним всё!" }
+    ],
+    "meph-1": [
+        { text: "Коорды идеальные, качество на уровне, доволен!", date: "10.03.2025", response: "Респект тебе, возвращайся за свежаком!" },
+        { text: "Всё в лучшем виде, стафф рвёт, шоп надёжный!", date: "13.03.2025", response: "Стафф для ценителей, ждём тебя ещё!" },
+        { text: "Клад на магните, снял за секунду, стафф огонь!", date: "01.03.2025", response: "Спасибо за отзыв, братан! Шоп на высоте!" },
+        { text: "Съём долгий, минут 15 искал, качество сойдёт.", date: "05.03.2025", response: "Будем точнее, братишка, извини за мутки!" },
+        { text: "Искал два часа, корды фуфло, разочарование.", date: "09.03.2025", response: "Разберёмся с местом, извини за неудобства!" }
+    ],
+    "meph-2": [
+        { text: "Точка точная, эффект мощный, ребята красавцы!", date: "03.03.2025", response: "Спасибо, братишка! Заходи ещё, всегда рады!" },
+        { text: "Стафф свежий, клад лёгкий, шоп — номер один!", date: "07.03.2025", response: "Рады, что зашло! Бери снова, не пожалеешь!" },
+        { text: "Всё по красоте, снял быстро, качество топ!", date: "11.03.2025", response: "Топчик для топовых ребят, ждём тебя обратно!" },
+        { text: "Ориентиры путаные, но стафф в порядке.", date: "04.03.2025", response: "Поправим тайник, спасибо за терпение!" },
+        { text: "Место стремное, стафф как пыль, не берите!", date: "08.03.2025", response: "Проверим партию, спасибо, что указал!" }
+    ],
+    "meph-3": [
+        { text: "На месте без лишних поисков, стафф штырит!", date: "02.03.2025", response: "На здоровье, братишка! Новые поставки скоро!" },
+        { text: "Клад как на блюдечке, эффект пиздец, берите!", date: "06.03.2025", response: "Кайфуй, братан! Шоп всегда для тебя открыт!" },
+        { text: "Касание за 5 минут, стафф пушка, берите смело!", date: "10.03.2025", response: "Спасибо за отзыв, держим марку, возвращайся!" },
+        { text: "На точке, упаковка так себе, эффект не вау.", date: "01.03.2025", response: "Учтём твои слова, шоп в деле, не переживай!" },
+        { text: "Клад потерял час, качество дерьмо, пиздец!", date: "05.03.2025", response: "Извинения наши, братишка, шоп починит косяки!" }
+    ],
+    "meph-4": [
+        { text: "Всё чётко, клад на месте, качество на высоте!", date: "09.03.2025", response: "Рады стараться, бери ещё, всё будет чётко!" },
+        { text: "Съём лёгкий, ориентиры точные, эффект лютый.", date: "13.03.2025", response: "Зачёт тебе, братишка! Ждём новых заказов!" },
+        { text: "На месте, как в аптеке, шоп — топчик!", date: "03.03.2025", response: "Стафф для своих, заходи, не стесняйся!" },
+        { text: "Клад нашёл, но место стремноватое, стафф норм.", date: "07.03.2025", response: "Проверим стафф, извини, если не зашло!" },
+        { text: "Стафф никакой, место хуйня, шоп — наебалово!", date: "11.03.2025", response: "Сделаем лучше, сорян за факап, держись!" }
+    ],
+    "meph-5": [
+        { text: "Клад идеальный, стафф свежий, 10/10!", date: "04.03.2025", response: "Спасибо за добрые слова, шоп в деле!" },
+        { text: "Нашёл за минуту, описание огонь, рекомендую!", date: "08.03.2025", response: "Кайфуй на полную, братишка! Всё для вас!" },
+        { text: "Стафф бодрый, координаты точные, спасибо, ребята!", date: "12.03.2025", response: "Респект за фидбек, ждём тебя снова!" },
+        { text: "Стафф рабочий, но искал долго, корды нечёткие.", date: "02.03.2025", response: "Спасибо за честность, будем лучше!" },
+        { text: "Место пиздец, чуть не спалился, стафф говно.", date: "06.03.2025", response: "Спасибо за фидбек, всё поправим, не кипишуй!" }
+    ],
+    "alpha-1": [
+        { text: "Всё как надо, эффект мощный, беру второй раз!", date: "10.03.2025", response: "Ты знаешь толк, возвращайся за добавкой!" },
+        { text: "Клад в касание, качество пиздец как радует!", date: "01.03.2025", response: "Спасибо, что с нами! Шоп всегда на связи!" },
+        { text: "Шоп знает своё дело, стафф чистый, съём быстрый!", date: "05.03.2025", response: "Рады угодить, братан! Бери ещё, будет пушка!" },
+        { text: "Клад был, искал полчаса, стафф не разочаровал.", date: "09.03.2025", response: "Сделаем работу над ошибками, держись с нами!" },
+        { text: "Клад у мусорки, вонь пиздец, качество отстой.", date: "03.03.2025", response: "Извини за косяк, исправим локацию, братишка!" }
+    ],
+    "alpha-2": [
+        { text: "На месте через 10 минут, эффект штырит, топ!", date: "07.03.2025", response: "Заходи снова, братишка! Всё для твоего кайфа!" },
+        { text: "Ориентиры как по учебнику, стафф лютый, зачёт!", date: "11.03.2025", response: "Ты в теме, шоп для тебя, ждём обратно!" },
+        { text: "Взял без проблем, качество выше ожиданий!", date: "04.03.2025", response: "Спасибо за поддержку, держим уровень!" },
+        { text: "Ориентиры так себе, но стафф рабочий, берите.", date: "08.03.2025", response: "Принято к сведению, братан, исправим косяки!" },
+        { text: "Искал час, корды кривые, стафф не тянет.", date: "02.03.2025", response: "Проверим качество, спасибо за инфу, разберёмся!" }
+    ],
+    "alpha-3": [
+        { text: "Клад на точке, стафф свежак, шопу респект!", date: "06.03.2025", response: "Кайфуй, братишка! Шоп не подведёт!" },
+        { text: "Съём чёткий, эффект долгий, буду брать ещё!", date: "10.03.2025", response: "Респект тебе, возвращайся за свежаком!" },
+        { text: "Нашёл сразу, упаковка норм, стафф пиздатый!", date: "13.03.2025", response: "Стафф для ценителей, ждём тебя ещё!" },
+        { text: "На месте, но искал минут 20, стафф нормальный.", date: "01.03.2025", response: "Спасибо за подсказку, точность улучшим!" },
+        { text: "Стафф слабый, за такие бабки — наебалово!", date: "05.03.2025", response: "Поправим место, не злись, всё наладим!" }
+    ],
+    "alpha-4": [
+        { text: "Коорды идеальные, качество на уровне, доволен!", date: "09.03.2025", response: "Спасибо за отзыв, братан! Шоп на высоте!" },
+        { text: "Всё в лучшем виде, стафф рвёт, шоп надёжный!", date: "03.03.2025", response: "Спасибо, братишка! Заходи ещё, всегда рады!" },
+        { text: "Клад на магните, снял за секунду, стафф огонь!", date: "07.03.2025", response: "Рады, что зашло! Бери снова, не пожалеешь!" },
+        { text: "Съём норм, описание мутное, стафф рабочий.", date: "11.03.2025", response: "Проверим локацию, извини за гемор!" },
+        { text: "Место стремное, чуть не попался, шлак полный.", date: "04.03.2025", response: "Сорян за неудобства, будем лучше, держись!" }
+    ],
+    "alpha-5": [
+        { text: "Точка точная, эффект мощный, ребята красавцы!", date: "08.03.2025", response: "Топчик для топовых ребят, ждём тебя обратно!" },
+        { text: "Стафф свежий, клад лёгкий, шоп — номер один!", date: "12.03.2025", response: "На здоровье, братишка! Новые поставки скоро!" },
+        { text: "Всё по красоте, снял быстро, качество топ!", date: "02.03.2025", response: "Кайфуй, братан! Шоп всегда для тебя открыт!" },
+        { text: "Клад ок, но место людное, качество среднее.", date: "06.03.2025", response: "Будем работать над этим, спасибо за отзыв!" },
+        { text: "Клад не нашёл, описание хуйня, выбросил время!", date: "10.03.2025", response: "Приносим извинения, уточним корды, не переживай!" }
+    ],
+    "lsd-1": [
+        { text: "На месте без лишних поисков, стафф штырит!", date: "01.03.2025", response: "Спасибо за отзыв, держим марку, возвращайся!" },
+        { text: "Клад как на блюдечке, эффект пиздец, берите!", date: "05.03.2025", response: "Рады стараться, бери ещё, всё будет чётко!" },
+        { text: "Касание за 5 минут, стафф пушка, берите смело!", date: "09.03.2025", response: "Зачёт тебе, братишка! Ждём новых заказов!" },
+        { text: "Нашёл, но ожидал большего от эффекта.", date: "03.03.2025", response: "Сорян за неудобства, учтём твои слова!" },
+        { text: "Стафф как мел, эффекта ноль, шоп — днище.", date: "07.03.2025", response: "Проверим стафф, извини, что подвели!" }
+    ],
+    "lsd-2": [
+        { text: "Всё чётко, клад на месте, качество на высоте!", date: "11.03.2025", response: "Стафф для своих, заходи, не стесняйся!" },
+        { text: "Съём лёгкий, ориентиры точные, эффект лютый.", date: "04.03.2025", response: "Спасибо за добрые слова, шоп в деле!" },
+        { text: "На месте, как в аптеке, шоп — топчик!", date: "08.03.2025", response: "Кайфуй на полную, братишка! Всё для вас!" },
+        { text: "Коорды точные, а стафф слабоват, пойдёт.", date: "02.03.2025", response: "Спасибо за сигнал, работаем над улучшениями!" },
+        { text: "Место людное, снял с нервами, качество херня.", date: "06.03.2025", response: "Спасибо за сигнал, место поменяем, братан!" }
+    ],
+    "lsd-3": [
+        { text: "Клад идеальный, стафф свежий, 10/10!", date: "10.03.2025", response: "Респект за фидбек, ждём тебя снова!" },
+        { text: "Нашёл за минуту, описание огонь, рекомендую!", date: "13.03.2025", response: "Ты знаешь толк, возвращайся за добавкой!" },
+        { text: "Стафф бодрый, координаты точные, спасибо, ребята!", date: "01.03.2025", response: "Спасибо, что с нами! Шоп всегда на связи!" },
+        { text: "Съём долгий, минут 15 искал, качество сойдёт.", date: "05.03.2025", response: "Сделаем выводы, братан, спасибо за инфу!" },
+        { text: "Искал 40 минут, клад хуй знает где, развод!", date: "09.03.2025", response: "Сорян, косяк наш, исправим, не грусти!" }
+    ],
+    "lsd-4": [
+        { text: "Всё как надо, эффект мощный, беру второй раз!", date: "03.03.2025", response: "Рады угодить, братан! Бери ещё, будет пушка!" },
+        { text: "Клад в касание, качество пиздец как радует!", date: "07.03.2025", response: "Заходи снова, братишка! Всё для твоего кайфа!" },
+        { text: "Шоп знает своё дело, стафф чистый, съём быстрый!", date: "11.03.2025", response: "Ты в теме, шоп для тебя, ждём обратно!" },
+        { text: "Ориентиры путаные, но стафф в порядке.", date: "04.03.2025", response: "Проверим место, сорян за неудобства!" },
+        { text: "Стафф просроченный, эффекта нет, пиздец шопу!", date: "08.03.2025", response: "Разберёмся с качеством, извини за фейл!" }
+    ],
+    "lsd-5": [
+        { text: "На месте через 10 минут, эффект штырит, топ!", date: "02.03.2025", response: "Спасибо за поддержку, держим уровень!" },
+        { text: "Ориентиры как по учебнику, стафф лютый, зачёт!", date: "06.03.2025", response: "Кайфуй, братишка! Шоп не подведёт!" },
+        { text: "Взял без проблем, качество выше ожиданий!", date: "10.03.2025", response: "Респект тебе, возвращайся за свежаком!" },
+        { text: "На точке, упаковка так себе, эффект не вау.", date: "01.03.2025", response: "Спасибо, что написал, подтянем качество!" },
+        { text: "Клад в говне, вонь пиздец, стафф не работает.", date: "05.03.2025", response: "Поправим всё, братишка, спасибо, что написал!" }
+    ],
+    "mdma-1": [
+        { text: "Клад на точке, стафф свежак, шопу респект!", date: "09.03.2025", response: "Стафф для ценителей, ждём тебя ещё!" },
+        { text: "Съём чёткий, эффект долгий, буду брать ещё!", date: "13.03.2025", response: "Спасибо за отзыв, братан! Шоп на высоте!" },
+        { text: "Нашёл сразу, упаковка норм, стафф пиздатый!", date: "03.03.2025", response: "Спасибо, братишка! Заходи ещё, всегда рады!" },
+        { text: "Клад нашёл, но место стремноватое, стафф норм.", date: "07.03.2025", response: "Будем точнее, братишка, извини за мутки!" },
+        { text: "Корды пиздец, искал зря, качество дно.", date: "11.03.2025", response: "Извини за гемор, локацию проверим!" }
+    ],
+    "mdma-2": [
+        { text: "Коорды идеальные, качество на уровне, доволен!", date: "04.03.2025", response: "Рады, что зашло! Бери снова, не пожалеешь!" },
+        { text: "Всё в лучшем виде, стафф рвёт, шоп надёжный!", date: "08.03.2025", response: "Топчик для топовых ребят, ждём тебя обратно!" },
+        { text: "Клад на магните, снял за секунду, стафф огонь!", date: "12.03.2025", response: "На здоровье, братишка! Новые поставки скоро!" },
+        { text: "Стафф рабочий, но искал долго, корды нечёткие.", date: "02.03.2025", response: "Поправим тайник, спасибо за терпение!" },
+        { text: "Место опасное, чуть не спалили, стафф отстой.", date: "06.03.2025", response: "Стафф подтянем, сорян за разочарование!" }
+    ],
+    "mdma-3": [
+        { text: "Точка точная, эффект мощный, ребята красавцы!", date: "10.03.2025", response: "Кайфуй, братан! Шоп всегда для тебя открыт!" },
+        { text: "Стафф свежий, клад лёгкий, шоп — номер один!", date: "01.03.2025", response: "Спасибо за отзыв, держим марку, возвращайся!" },
+        { text: "Всё по красоте, снял быстро, качество топ!", date: "05.03.2025", response: "Рады стараться, бери ещё, всё будет чётко!" },
+        { text: "Всё ок, но эффект быстро прошёл, среднячок.", date: "09.03.2025", response: "Учтём твои слова, шоп в деле, не переживай!" },
+        { text: "Съём — ад, описание хуйня, стафф слабый.", date: "03.03.2025", response: "Спасибо за честность, шоп исправится!" }
+    ],
+    "mdma-4": [
+        { text: "На месте без лишних поисков, стафф штырит!", date: "07.03.2025", response: "Зачёт тебе, братишка! Ждём новых заказов!" },
+        { text: "Клад как на блюдечке, эффект пиздец, берите!", date: "11.03.2025", response: "Стафф для своих, заходи, не стесняйся!" },
+        { text: "Касание за 5 минут, стафф пушка, берите смело!", date: "04.03.2025", response: "Спасибо за добрые слова, шоп в деле!" },
+        { text: "На месте, но искал минут 20, стафф нормальный.", date: "08.03.2025", response: "Проверим стафф, извини, если не зашло!" },
+        { text: "Клад у дороги, снял с риском, качество шлак.", date: "02.03.2025", response: "Проверим тайник, извини за пиздец!" }
+    ],
+    "mdma-5": [
+        { text: "Всё чётко, клад на месте, качество на высоте!", date: "06.03.2025", response: "Кайфуй на полную, братишка! Всё для вас!" },
+        { text: "Съём лёгкий, ориентиры точные, эффект лютый.", date: "10.03.2025", response: "Респект за фидбек, ждём тебя снова!" },
+        { text: "На месте, как в аптеке, шоп — топчик!", date: "13.03.2025", response: "Ты знаешь толк, возвращайся за добавкой!" },
+        { text: "Клад ок, но место людное, качество среднее.", date: "01.03.2025", response: "Спасибо за сигнал, работаем над улучшениями!" },
+        { text: "Стафф не тянет, место пиздец, шоп подвёл!", date: "05.03.2025", response: "Не злись, братан, косяк на нас, исправим!" }
+    ],
+    "heroin-1": [
+        { text: "Клад идеальный, стафф свежий, 10/10!", date: "09.03.2025", response: "Спасибо, что с нами! Шоп всегда на связи!" },
+        { text: "Нашёл за минуту, описание огонь, рекомендую!", date: "03.03.2025", response: "Рады угодить, братан! Бери ещё, будет пушка!" },
+        { text: "Стафф бодрый, координаты точные, спасибо, ребята!", date: "07.03.2025", response: "Заходи снова, братишка! Всё для твоего кайфа!" },
+        { text: "Съём норм, описание мутное, стафф рабочий.", date: "11.03.2025", response: "Сделаем выводы, братан, спасибо за инфу!" },
+        { text: "Место стремное, стафф как пыль, не берите!", date: "04.03.2025", response: "Сорян за кривые корды, уточним всё!" }
+    ],
+    "heroin-2": [
+        { text: "Всё как надо, эффект мощный, беру второй раз!", date: "08.03.2025", response: "Ты в теме, шоп для тебя, ждём обратно!" },
+        { text: "Клад в касание, качество пиздец как радует!", date: "12.03.2025", response: "Спасибо за поддержку, держим уровень!" },
+        { text: "Шоп знает своё дело, стафф чистый, съём быстрый!", date: "02.03.2025", response: "Кайфуй, братишка! Шоп не подведёт!" },
+        { text: "Нашёл, но ожидал большего от эффекта.", date: "06.03.2025", response: "Принято, уточним корды, держи нас в курсе!" },
+        { text: "Клад потерял час, качество дерьмо, пиздец!", date: "10.03.2025", response: "Разберёмся с местом, извини за неудобства!" }
+    ],
+    "heroin-3": [
+        { text: "На месте через 10 минут, эффект штырит, топ!", date: "01.03.2025", response: "Респект тебе, возвращайся за свежаком!" },
+        { text: "Ориентиры как по учебнику, стафф лютый, зачёт!", date: "05.03.2025", response: "Стафф для ценителей, ждём тебя ещё!" },
+        { text: "Взял без проблем, качество выше ожиданий!", date: "09.03.2025", response: "Спасибо за отзыв, братан! Шоп на высоте!" },
+        { text: "Коорды точные, а стафф слабоват, пойдёт.", date: "03.03.2025", response: "Проверим место, сорян за неудобства!" },
+        { text: "Стафф никакой, место хуйня, шоп — наебалово!", date: "07.03.2025", response: "Проверим партию, спасибо, что указал!" }
+    ],
+    "heroin-4": [
+        { text: "Клад на точке, стафф свежак, шопу респект!", date: "11.03.2025", response: "Спасибо, братишка! Заходи ещё, всегда рады!" },
+        { text: "Съём чёткий, эффект долгий, буду брать ещё!", date: "04.03.2025", response: "Рады, что зашло! Бери снова, не пожалеешь!" },
+        { text: "Нашёл сразу, упаковка норм, стафф пиздатый!", date: "08.03.2025", response: "Топчик для топовых ребят, ждём тебя обратно!" },
+        { text: "Съём долгий, минут 15 искал, качество сойдёт.", date: "02.03.2025", response: "Спасибо, что написал, подтянем качество!" },
+        { text: "Место пиздец, чуть не спалился, стафф говно.", date: "06.03.2025", response: "Извинения наши, братишка, шоп починит косяки!" }
+    ],
+    "heroin-5": [
+        { text: "Коорды идеальные, качество на уровне, доволен!", date: "10.03.2025", response: "На здоровье, братишка! Новые поставки скоро!" },
+        { text: "Всё в лучшем виде, стафф рвёт, шоп надёжный!", date: "13.03.2025", response: "Кайфуй, братан! Шоп всегда для тебя открыт!" },
+        { text: "Клад на магните, снял за секунду, стафф огонь!", date: "01.03.2025", response: "Спасибо за отзыв, держим марку, возвращайся!" },
+        { text: "Ориентиры так себе, но стафф рабочий, берите.", date: "05.03.2025", response: "Будем точнее, братишка, извини за мутки!" },
+        { text: "Искал час, корды кривые, стафф не тянет.", date: "09.03.2025", response: "Сделаем лучше, сорян за факап, держись!" }
+    ]
+};
 
         function loadLanguage() {
-            const lang = translations[userLanguage] || translations['ru'];
-            console.log('Загружаем язык:', userLanguage);
-
-            // Промо-баннер и заголовок
-            const promoBanner = document.getElementById('promoBanner');
-            if (promoBanner) promoBanner.innerText = lang.promoBanner;
-
-            const headerText = document.getElementById('headerText');
-            if (headerText) headerText.innerText = lang.headerText;
-
-            // Кнопки навигации
-            const catalogButton = document.getElementById('catalogButton');
-            if (catalogButton) catalogButton.innerText = lang.catalogButton;
-
-            const vacanciesButton = document.getElementById('vacanciesButton');
-            if (vacanciesButton) vacanciesButton.innerText = lang.vacanciesButton;
-
-            const mailButton = document.getElementById('mailButton');
-            if (mailButton) mailButton.innerText = lang.mailButton;
-
-            // Фильтр городов
-            const allCitiesOption = document.getElementById('allCitiesOption');
-            if (allCitiesOption) allCitiesOption.innerText = lang.allCitiesOption;
-
-            const phuketOption = document.getElementById('phuketOption');
-            if (phuketOption) phuketOption.innerText = lang.phuketOption;
-
-            const pattayaOption = document.getElementById('pattayaOption');
-            if (pattayaOption) pattayaOption.innerText = lang.pattayaOption;
-
-            const bangkokOption = document.getElementById('bangkokOption');
-            if (bangkokOption) bangkokOption.innerText = lang.bangkokOption;
-
-            const samuiOption = document.getElementById('samuiOption');
-            if (samuiOption) samuiOption.innerText = lang.samuiOption;
-
-            const allDistrictsOption = document.getElementById('allDistrictsOption');
-            if (allDistrictsOption) allDistrictsOption.innerText = lang.allDistrictsOption;
-
-            // Описание товаров
-            const weedDesc = document.getElementById('weedDesc');
-            if (weedDesc) weedDesc.innerText = lang.weedDesc;
-
-            // Профиль
-            const profileNameLabel = document.getElementById('profileNameLabel');
-            if (profileNameLabel) profileNameLabel.innerText = lang.profileNameLabel + (currentUser || 'Гость');
-
-            const ordersLabel = document.getElementById('ordersLabel');
-            if (ordersLabel) ordersLabel.innerText = lang.ordersLabel + orderCount;
-
-            const referralsLabel = document.getElementById('referralsLabel');
-            if (referralsLabel) referralsLabel.innerText = lang.referralsLabel + referralCount;
-
-            const depositTitle = document.getElementById('depositTitle');
-            if (depositTitle) depositTitle.innerText = lang.depositTitle;
-
-            const orderHistoryTitle = document.getElementById('orderHistoryTitle');
-            if (orderHistoryTitle) orderHistoryTitle.innerText = lang.orderHistoryTitle;
-
-            // Вакансии
-            const vacanciesTitle = document.getElementById('vacanciesTitle');
-            if (vacanciesTitle) vacanciesTitle.innerText = lang.vacanciesTitle;
-
-            const courierTitle = document.getElementById('courierTitle');
-            if (courierTitle) courierTitle.innerText = lang.courierTitle;
-
-            const courierDuties = document.getElementById('courierDuties');
-            if (courierDuties) courierDuties.innerText = lang.courierDuties;
-
-            const courierPay = document.getElementById('courierPay');
-            if (courierPay) courierPay.innerText = lang.courierPay;
-
-            const warehousemanTitle = document.getElementById('warehousemanTitle');
-            if (warehousemanTitle) warehousemanTitle.innerText = lang.warehousemanTitle;
-
-            const warehousemanDuties = document.getElementById('warehousemanDuties');
-            if (warehousemanDuties) warehousemanDuties.innerText = lang.warehousemanDuties;
-
-            const warehousemanPay = document.getElementById('warehousemanPay');
-            if (warehousemanPay) warehousemanPay.innerText = lang.warehousemanPay;
-
-            const transporterTitle = document.getElementById('transporterTitle');
-            if (transporterTitle) transporterTitle.innerText = lang.transporterTitle;
-
-            const transporterDuties = document.getElementById('transporterDuties');
-            if (transporterDuties) transporterDuties.innerText = lang.transporterDuties;
-
-            const transporterPay = document.getElementById('transporterPay');
-            if (transporterPay) transporterPay.innerText = lang.transporterPay;
-
-            const smmTitle = document.getElementById('smmTitle');
-            if (smmTitle) smmTitle.innerText = lang.smmTitle;
-
-            const smmDuties = document.getElementById('smmDuties');
-            if (smmDuties) smmDuties.innerText = lang.smmDuties;
-
-            const smmPay = document.getElementById('smmPay');
-            if (smmPay) smmPay.innerText = lang.smmPay;
-
-            const applyButton1 = document.getElementById('applyButton1');
-            if (applyButton1) applyButton1.innerText = lang.applyButton;
-
-            const applyButton2 = document.getElementById('applyButton2');
-            if (applyButton2) applyButton2.innerText = lang.applyButton;
-
-            const applyButton3 = document.getElementById('applyButton3');
-            if (applyButton3) applyButton3.innerText = lang.applyButton;
-
-            const applyButton4 = document.getElementById('applyButton4');
-            if (applyButton4) applyButton4.innerText = lang.applyButton;
-
-            // Почта
-            const mailTitle = document.getElementById('mailTitle');
-            if (mailTitle) mailTitle.innerText = lang.mailTitle;
-
-            // Вкладки
-            const weedTab = document.getElementById('weedTab');
-            if (weedTab) weedTab.innerText = lang.weedTab;
-
-            const hashTab = document.getElementById('hashTab');
-            if (hashTab) hashTab.innerText = lang.hashTab;
-
-            const cokeTab = document.getElementById('cokeTab');
-            if (cokeTab) cokeTab.innerText = lang.cokeTab;
-
-            const amphTab = document.getElementById('amphTab');
-            if (amphTab) amphTab.innerText = lang.amphTab;
-
-            const methTab = document.getElementById('methTab');
-            if (methTab) methTab.innerText = lang.methTab;
-
-            const mephTab = document.getElementById('mephTab');
-            if (mephTab) mephTab.innerText = lang.mephTab;
-
-            const alphaTab = document.getElementById('alphaTab');
-            if (alphaTab) alphaTab.innerText = lang.alphaTab;
-
-            const lsdTab = document.getElementById('lsdTab');
-            if (lsdTab) lsdTab.innerText = lang.lsdTab;
-
-            const mdmaTab = document.getElementById('mdmaTab');
-            if (mdmaTab) mdmaTab.innerText = lang.mdmaTab;
-
-            const heroinTab = document.getElementById('heroinTab');
-            if (heroinTab) heroinTab.innerText = lang.heroinTab;
-
-            // Промо
-            const promoInfo = document.getElementById('promoInfo');
-            if (promoInfo) promoInfo.innerText = lang.promoInfo;
-
+            const lang = translations[userLanguage];
+            document.getElementById('promoBanner').innerText = lang.promoBanner;
+            document.getElementById('headerText').innerText = lang.headerText;
+            document.getElementById('catalogButton').innerText = lang.catalogButton;
+            document.getElementById('vacanciesButton').innerText = lang.vacanciesButton;
+            document.getElementById('mailButton').innerText = lang.mailButton;
+            document.getElementById('allCitiesOption').innerText = lang.allCitiesOption;
+            document.getElementById('phuketOption').innerText = lang.phuketOption;
+            document.getElementById('pattayaOption').innerText = lang.pattayaOption;
+            document.getElementById('bangkokOption').innerText = lang.bangkokOption;
+            document.getElementById('samuiOption').innerText = lang.samuiOption;
+            document.getElementById('allDistrictsOption').innerText = lang.allDistrictsOption;
+            document.getElementById('weedDesc').innerText = lang.weedDesc;
+            document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + (currentUser || 'Гость');
+            document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+            document.getElementById('referralsLabel').innerText = lang.referralsLabel + referralCount;
+            document.getElementById('depositTitle').innerText = lang.depositTitle;
+            document.getElementById('orderHistoryTitle').innerText = lang.orderHistoryTitle;
+            document.getElementById('vacanciesTitle').innerText = lang.vacanciesTitle;
+            document.getElementById('courierTitle').innerText = lang.courierTitle;
+            document.getElementById('courierDuties').innerText = lang.courierDuties;
+            document.getElementById('courierPay').innerText = lang.courierPay;
+            document.getElementById('warehousemanTitle').innerText = lang.warehousemanTitle;
+            document.getElementById('warehousemanDuties').innerText = lang.warehousemanDuties;
+            document.getElementById('warehousemanPay').innerText = lang.warehousemanPay;
+            document.getElementById('transporterTitle').innerText = lang.transporterTitle;
+            document.getElementById('transporterDuties').innerText = lang.transporterDuties;
+            document.getElementById('transporterPay').innerText = lang.transporterPay;
+            document.getElementById('smmTitle').innerText = lang.smmTitle;
+            document.getElementById('smmDuties').innerText = lang.smmDuties;
+            document.getElementById('smmPay').innerText = lang.smmPay;
+            document.getElementById('applyButton1').innerText = lang.applyButton;
+            document.getElementById('applyButton2').innerText = lang.applyButton;
+            document.getElementById('applyButton3').innerText = lang.applyButton;
+            document.getElementById('applyButton4').innerText = lang.applyButton;
+            document.getElementById('mailTitle').innerText = lang.mailTitle;
+            document.getElementById('weedTab').innerText = lang.weedTab;
+            document.getElementById('hashTab').innerText = lang.hashTab;
+            document.getElementById('cokeTab').innerText = lang.cokeTab;
+            document.getElementById('amphTab').innerText = lang.amphTab;
+            document.getElementById('methTab').innerText = lang.methTab;
+            document.getElementById('mephTab').innerText = lang.mephTab;
+            document.getElementById('alphaTab').innerText = lang.alphaTab;
+            document.getElementById('lsdTab').innerText = lang.lsdTab;
+            document.getElementById('mdmaTab').innerText = lang.mdmaTab;
+            document.getElementById('heroinTab').innerText = lang.heroinTab;
+            document.getElementById('promoInfo').innerText = lang.promoInfo;
             updateOrderHistory();
             updateMailList();
+            updateTabs();
+            updateProductCards();
         }
 
         function updateDistricts() {
             const districtSelect = document.getElementById('districtSelect');
-            if (!districtSelect) {
-                console.warn('Элемент districtSelect не найден');
-                return;
-            }
             districtSelect.innerHTML = `<option value="all">${translations[userLanguage].allDistrictsOption}</option>`;
             if (selectedCity !== 'all' && cities[selectedCity]) {
                 const districts = translations[userLanguage][`${selectedCity}Districts`];
@@ -1092,16 +1406,15 @@ const productImages = {
 
         function filterByCity() {
     selectedCity = document.getElementById('citySelect').value;
-    console.log(`Выбран город: ${selectedCity}`);
-    updateDistricts(); // Исправляем вызов на существующую функцию
-    // filterByDistrict() здесь не нужен, так как он вызывается в updateDistricts
+    updateDistricts();
+    filterProducts();
+    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал город: ${translations[userLanguage][`${selectedCity}Option`]}`);
 }
 
 function filterByDistrict() {
     selectedDistrict = document.getElementById('districtSelect').value;
-    console.log(`Выбран район: ${selectedDistrict}`);
-    updateProductCards(); // Обновляем карточки товаров
-    sendToTelegram(`Выбран новый район: ${selectedDistrict}`); // Отправляем в Telegram
+    filterProducts();
+    sendToTelegram(`Юзер ${currentUser || 'Гость'} выбрал район: ${translations[userLanguage][`${selectedCity}Districts`][selectedDistrict] || 'Все районы'} в ${translations[userLanguage][`${selectedCity}Option`]}`);
 }
 
         function filterProducts() {
@@ -1133,6 +1446,7 @@ function filterByDistrict() {
             profileMenu.style.display = 'none';
             vacancyMenu.style.display = 'none';
             mailMenu.style.display = 'none';
+            updateTabs();
         }
 
         function toggleProfile() {
@@ -1145,7 +1459,6 @@ function filterByDistrict() {
             vacancyMenu.style.display = 'none';
             mailMenu.style.display = 'none';
             if (!currentUser) showRegistrationModal();
-            else loadCurrentUser();
         }
 
         function toggleVacancies() {
@@ -1171,619 +1484,575 @@ function filterByDistrict() {
             updateMailList();
         }
 
-        function initTabs() {
+        function updateTabs() {
             const tabs = document.querySelectorAll('.tab');
             const tabContents = document.querySelectorAll('.tab-content');
-
-            console.log('Найдено вкладок:', tabs.length);
-            console.log('Найдено контента:', tabContents.length);
-
-            if (tabs.length === 0 || tabContents.length === 0) {
-                console.error('Вкладки или контент не найдены');
-                return;
-            }
-
-            tabs[0].classList.add('active');
-            tabContents[0].style.display = 'block';
-
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
-                    console.log(`Клик на: ${tab.dataset.tab}`);
                     tabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
                     tabContents.forEach(content => content.style.display = 'none');
-                    const content = document.getElementById(tab.dataset.tab);
-                    if (content) {
-                        content.style.display = 'block';
-                        if (!content.innerHTML.trim()) {
-                            content.innerHTML = '<p>Нет товаров, скоро будут!</p>';
-                        }
-                    } else {
-                        console.error(`Контент для ${tab.dataset.tab} не найден`);
-                    }
+                    document.getElementById(tab.dataset.tab).style.display = 'block';
                     filterProducts();
                 });
             });
+            if (!document.querySelector('.tab.active')) {
+                tabs[0].classList.add('active');
+                tabContents[0].style.display = 'block';
+            }
+            filterProducts();
         }
 
-        async function updateProductCards() {
-    const lang = translations[userLanguage] || translations['ru'];
-    try {
-        if (!window.supabase) throw new Error('Supabase не инициализирован');
+        function updateProductCards() {
+    const lang = translations[userLanguage];
+    const products = document.querySelectorAll('.product-card');
+    products.forEach(card => {
+        const productId = card.dataset.product;
+        const [category, id] = productId.split('-');
+        const basePrice = basePrices[category][id];
+        const image = productImages[category][id];
+        const name = card.querySelector('h3').innerText;
+        const description = card.querySelector('p').innerText;
 
-        const { data: products, error } = await window.supabase
-            .from('products')
-            .select('*')
-            .eq('category', selectedCategory === 'all' ? '*' : selectedCategory);
-        if (error) throw new Error(`Ошибка загрузки товаров: ${error.message}`);
-
-        const productGrid = document.getElementById('productGrid');
-        productGrid.innerHTML = '';
-
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.innerHTML = `
-                <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}">
-                <h3 onclick="showProductModal('${product.category}', ${product.id})">${product.name}</h3>
-                <p>${product.description || lang.noDescription}</p>
-                <p class="price">${product.base_price} ฿/г</p>
-                <button onclick="showProductModal('${product.category}', ${product.id})">${lang.buyButton}</button>
-            `;
-            productGrid.appendChild(card);
-        });
-    } catch (error) {
-        console.error('Ошибка загрузки товаров:', error);
-        document.getElementById('productGrid').innerHTML = `<p>${lang.errorLoadingProducts || 'Ошибка загрузки товаров'}: ${error.message}</p>`;
-    }
-}
-
-function openProductModal(category, id) {
-    showProductModal(category, id).catch(error => {
-        console.error('Ошибка в showProductModal:', error);
-        const lang = translations[userLanguage];
-        document.getElementById('productContent').innerHTML = `
-            <p>Ошибка: ${error.message}</p>
-            <button class="buy-button" onclick="closeModal('productModal')">${lang.close}</button>
+        card.innerHTML = `
+            <img src="${image}" class="product-image" alt="${name}">
+            <h3 onclick="showProductModal('${category}', ${id})">${name}</h3>
+            <p>${description}</p>
+            <p class="price">${lang.positionPrice} ${basePrice} ฿/г</p>
+            <p class="crypto-price">~${(basePrice / cryptoRates.USDT).toFixed(2)} USDT/г</p>
         `;
-        document.getElementById('productModal').style.display = 'flex';
     });
 }
 
-// Оставь твою текущую showProductModal без изменений
-async function showProductModal(category, id) {
-    const lang = translations[userLanguage] || translations['ru'];
-    try {
-        // Инициализация Supabase (должна быть глобальной или вызываться раньше)
-        if (!window.supabase) {
-            window.supabase = Supabase.createClient(
-                'https://xtjijqrycwudjdsjngjb.supabase.co',
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY8NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8'
-            );
-        }
+        function showProductModal(category, id) {
+    const lang = translations[userLanguage];
+    const productCard = document.querySelector(`[data-product="${category}-${id}"]`);
+    const name = productCard.querySelector('h3').innerText;
+    const shortDesc = productCard.querySelector('p').innerText;
+    const basePrice = basePrices[category][id];
+    const weightsList = (category === 'coke') ? weights.coke : (category === 'lsd' ? weights.lsd : (category === 'mdma' && id === 3 ? weights.mdmaTabs : weights.default));
+    const image = productImages[category][id];
+    const detailedDesc = `${shortDesc}. Этот продукт — чистый кайф для тех, кто знает толк в стаффе. Произведён с душой, доставка в твой район.`;
 
-        // Запрос к таблице products
-        const { data: product, error: productError } = await window.supabase
-            .from('products')
-            .select('*')
-            .eq('category', category)
-            .eq('id', id)
-            .single();
-        if (productError) throw new Error(`Ошибка загрузки продукта: ${productError.message}`);
+    // Уведомление в Telegram — пусть админы знают, что ты копаешься в их шопе
+    sendToTelegram(`Юзер ${currentUser || 'Гость'} смотрит товар: ${name} (категория: ${translations[userLanguage][`${category}Tab`]})`);
 
-        // Запрос к таблице product_availability
-        const { data: availability, error: availError } = await window.supabase
-            .from('product_availability')
-            .select('weight, in_stock')
-            .eq('product_id', id)
-            .eq('city', selectedCity === 'all' ? '*' : selectedCity)
-            .eq('district', selectedDistrict === 'all' ? '*' : selectedDistrict);
-        if (availError) throw new Error(`Ошибка доступности: ${availError.message}`);
+    let content = `
+        <img src="${image}" class="product-image" alt="${name}">
+        <h2>${name}</h2>
+        <p>${detailedDesc}</p>
+    `;
 
-        const stockInfo = availability && availability.length > 0
-            ? availability.map(item => `${item.weight}г - ${item.in_stock ? lang.inStock : lang.outOfStock}`).join('<br>')
-            : 'Нет данных о наличии';
-
-        document.getElementById('productContent').innerHTML = `
-            <h2>${product.name}</h2>
-            <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}" style="max-width: 200px;">
-            <p>${product.description || lang.noDescription}</p>
-            <p class="price">${lang.positionPrice} ${product.base_price || 0} ฿/г</p>
-            <p class="crypto-price">~${((product.base_price || 0) / cryptoRates.USDT).toFixed(2)} USDT/г</p>
-            <p>${lang.availability}:<br>${stockInfo}</p>
-            <input type="number" id="productWeight" placeholder="${lang.enterWeight}" min="1" step="1">
-            <button class="buy-button" onclick="buyProduct('${category}', ${id}, document.getElementById('productWeight').value, ${product.base_price || 0}, '${selectedCity}', '${selectedDistrict}')">${lang.buyButton}</button>
-            <button class="preorder-button" onclick="preorderProduct('${category}', ${id}, document.getElementById('productWeight').value, ${(product.base_price || 0) * 1.3}, '${selectedCity}', '${selectedDistrict}')">${lang.preorderButton}</button>
-            <button class="close-button" onclick="closeModal('productModal')">${lang.close}</button>
-        `;
-        document.getElementById('productModal').style.display = 'flex';
-    } catch (error) {
-        console.error('Ошибка в showProductModal:', error);
-        document.getElementById('productContent').innerHTML = `
-            <p>${lang.errorLoadingProduct || 'Ошибка загрузки товара'}: ${error.message}</p>
+    if (selectedCity === 'all' || selectedDistrict === 'all') {
+        content += `
+            <p>Выбери город и район, чтобы увидеть позиции.</p>
             <button class="buy-button" onclick="closeModal('productModal')">${lang.close}</button>
         `;
-        document.getElementById('productModal').style.display = 'flex';
-    }
-}
-
-        async function buyProduct(category, id, weight, price, city, district) {
-    const lang = translations[userLanguage];
-    const total = price * weight;
-    if (balance < total) {
-        showConfirmModal(`${lang.insufficientFunds}`, () => showDepositModal(), () => hideModal('confirmModal'), lang.yes, lang.no);
-        return;
-    }
-
-    try {
-        const { data, error } = await window.supabase
-            .from('orders')
-            .insert({
-                user_id: userId,
-                product_id: id,
-                weight,
-                price: total,
-                city,
-                district,
-                date: new Date().toISOString()
-            });
-        if (error) throw new Error(`Ошибка заказа: ${error.message}`);
-
-        balance -= total;
-        orderCount++;
-        orderHistory.push({ productId: id, weight, price: total, city, district, date: new Date().toLocaleDateString() });
-
-        await window.supabase
-            .from('users')
-            .update({ balance, order_count: orderCount })
-            .eq('id', userId);
-
-        localStorage.setItem('balance', balance);
-        localStorage.setItem('orderCount', orderCount);
-        localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-
-        document.getElementById('balance').innerText = `${balance} ฿`;
-        document.getElementById('ordersLabel').innerText = `${lang.ordersLabel}${orderCount}`;
-        updateOrderHistory();
-        showAlertModal(`${lang.paymentSuccess}`);
-        sendToTelegram(`Юзер ${currentUser} купил ${category}-${id} (${weight}г) за ${total}฿ в ${city}, ${district}`);
-    } catch (error) {
-        console.error('Ошибка в buyProduct:', error);
-        showAlertModal(`Ошибка: ${error.message}`);
-    }
-}
-
-function preorderProduct(productId, weight, price, city, district) {
-    const lang = translations[userLanguage];
-    const total = price * weight;
-    if (balance < total) {
-        showConfirmModal(`${lang.insufficientFunds}`, () => {
-            showDepositModal(); // Открываем окно депозита
-            hideModal('confirmModal');
-        }, () => hideModal('confirmModal'), lang.yes, lang.no);
     } else {
-        balance -= total;
-        orderCount++;
-        orderHistory.push({ productId, weight, price: total, city, district, date: new Date().toLocaleDateString(), status: 'preorder' });
-        localStorage.setItem('balance', balance);
-        localStorage.setItem('orderCount', orderCount);
-        localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-        document.getElementById('balance').innerText = `${balance} ฿`;
-        document.getElementById('ordersLabel').innerText = `${lang.ordersLabel}${orderCount}`;
-        updateOrderHistory();
-        showAlertModal(`${lang.preorderPlaced}`, () => hideModal('customModal'));
-        sendToTelegram(`Юзер ${currentUser} оформил предзаказ ${productId} (${weight}г) за ${total}฿ в ${city}, ${district}`);
+        const cityName = translations[userLanguage][`${selectedCity}Option`];
+        const districtName = translations[userLanguage][`${selectedCity}Districts`][selectedDistrict];
+        content += `<h3>${cityName} - ${districtName}</h3>`;
+
+        weightsList.forEach(weight => {
+            let inStock;
+
+            // Мои новые условия для твоих позиций
+            if (category === 'mdma' && (id === 2 || id === 3)) {
+                // Pink Hearts (mdma-2) и Ecstasy Givenchy (mdma-3) — в наличии только от 3 грамм
+                inStock = weight >= 3;
+            } else if (category === 'mdma' && id === 4) {
+                // Street Pills (mdma-4) — в наличии только от 5 грамм
+                inStock = weight >= 5;
+            } else if (category === 'weed' && id === 1 && selectedCity === 'phuket' && weight === 1) {
+                // Твоё старое условие для OG Kush на Пхукете
+                inStock = false;
+            } else {
+                // Стандартная логика для остальных товаров
+                inStock = (weight === 0.5 || weight === 1) ? true : Math.random() > 0.2;
+            }
+
+            const price = Math.round(basePrice * weight);
+            const preorderPrice = Math.round(price * 1.3); // Предзаказ с наценкой 30%
+
+            content += `
+                <p>${lang.positionWeight}: ${weight} г | ${lang.positionPrice}: ${price} ฿ (~${(price / cryptoRates.USDT).toFixed(2)} USDT) | 
+                ${lang.positionAvailability}: ${inStock ? lang.inStock : lang.outOfStock}</p>
+            `;
+            if (inStock) {
+                content += `<button class="buy-button" onclick="buyProduct('${category}', ${id}, '${selectedCity}', '${selectedDistrict}', ${weight}, ${price})">${lang.buyButton}</button>`;
+            }
+            content += `<button class="preorder-button" onclick="preorderProduct('${category}', ${id}, '${selectedCity}', '${selectedDistrict}', ${weight}, ${preorderPrice})">${lang.preorderButton}</button>`;
+        });
     }
+
+    // Отзывы — оставляем как в твоём оригинале
+    content += `
+        <h3>${lang.reviewsTitle}</h3>
+        <div id="reviews">
+    `;
+    const productReviews = reviews[`${category}-${id}`];
+    if (productReviews && productReviews.length) {
+        content += productReviews.map(review => `
+            <div class="review">
+                <div class="review-text">${review.text}</div>
+                <div class="review-date">${review.date}</div>
+            </div>
+            <div class="moderator-response">${review.response}</div>
+        `).join('');
+    } else {
+        content += lang.noReviews;
+    }
+    content += `
+        </div>
+        <button class="buy-button" onclick="closeModal('productModal')">${lang.close}</button>
+    `;
+
+    document.getElementById('productContent').innerHTML = content;
+    document.getElementById('productModal').style.display = 'flex';
 }
 
-        function showDepositModal(crypto = 'USDT') {
-            const lang = translations[userLanguage];
-            let content = `
-                <h2>${lang.depositFunds}</h2>
-                <select id="cryptoSelect" onchange="updateDepositAddress()">
-                    <option value="BTC">Bitcoin (BTC)</option>
-                    <option value="ETH">Ethereum (ETH)</option>
-                    <option value="USDT">Tether (USDT)</option>
-                    <option value="SOL">Solana (SOL)</option>
-                    <option value="TON">Toncoin (TON)</option>
-                </select>
-                <p>${lang.networkLabel} ${cryptoNetworks[crypto]}</p>
-                <input type="number" id="depositAmount" placeholder="${lang.enterAmount}" min="${MIN_DEPOSIT}">
-                <button class="buy-button" onclick="generateDepositAddress()">${lang.generateAddress}</button>
-            `;
-            document.getElementById('depositContent').innerHTML = content;
-            document.getElementById('cryptoSelect').value = crypto;
-            showModal('depositModal');
+// Обновляем buyProduct для работы с конкретным городом, районом и весом
+async function buyProduct(category, id, city, district, weight, price) {
+    const lang = translations[userLanguage];
+    if (balance >= price) {
+        balance -= price;
+        orderCount += 1;
+        const order = {
+            id: orderCount,
+            product: `${category}-${id}`,
+            weight: weight,
+            price: price,
+            date: new Date().toLocaleString(),
+            city: city,
+            district: district
+        };
+        orderHistory.push(order);
+
+        const { error } = await supabase
+            .from('users')
+            .update({
+                balance,
+                order_count: orderCount,
+                order_history: orderHistory
+            })
+            .eq('nickname', currentUser);
+
+        if (error) {
+            console.error('Покупка наебнулась:', error);
+            return;
         }
 
-        function updateDepositAddress() {
+        document.getElementById('balance').innerText = `${balance} ฿`;
+        document.getElementById('ordersLabel').innerText = lang.ordersLabel + orderCount;
+        updateOrderHistory();
+        showPaymentModal(order);
+        sendToTelegram(`New order #${order.id}: ${order.product}, ${order.weight}g, ${order.price} ฿, ${order.city}/${order.district}`);
+    } else {
+        showConfirmModal(lang.insufficientFunds, () => showDepositModal('USDT'), () => closeModal('confirmModal'));
+    }
+    closeModal('productModal');
+}
+
+// Обновляем showPaymentModal с координатами
+function showPaymentModal(order) {
+    const lang = translations[userLanguage];
+    let content;
+
+    // Проверяем, что это OG Kush (weed-1)
+    if (order.product === 'weed-1') {
+        content = `
+            <h2>${lang.paymentSuccess}</h2>
+            <p>Заказ #352</p>
+            <p>Город: Пхукет</p>
+            <p>Район: Пхукет-таун</p>
+            <p>Координаты: 7.8833° N, 98.3917° E</p>
+            <p>Описание: Клад немного прикопан, жёлтая изолента. Рекомендуем забрать в ближайшее время.</p>
+            <p>Фотографии места:</p>
+            <img src="https://i.postimg.cc/056HvFtv/yy.jpg" class="product-image" alt="Место закладки">
+            <img src="https://i.postimg.cc/RZTgGB07/ww.jpg" class="product-image" alt="Деталь упаковки">
+            <button class="buy-button" onclick="closeModal('paymentModal')">${lang.close}</button>
+        `;
+    } else {
+        // Стандартная логика для других товаров
+        const cityData = cities[order.city][order.district];
+        content = `
+            <h2>${lang.paymentSuccess}</h2>
+            <p>Заказ #${order.id}</p>
+            <p>Город: ${translations[userLanguage][`${order.city}Option`]}</p>
+            <p>Район: ${translations[userLanguage][`${order.city}Districts`][order.district]}</p>
+            <p>Координаты: ${cityData.lat}, ${cityData.lon}</p>
+            <p>Описание: ${cityData.desc}</p>
+            <button class="buy-button" onclick="closeModal('paymentModal')">${lang.close}</button>
+        `;
+    }
+
+    document.getElementById('paymentContent').innerHTML = content;
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+
+        function showPreorderModal(order) {
+            const lang = translations[userLanguage];
+            const content = `
+                <h2>${lang.preorderTitle}</h2>
+                <p>${lang.preorderPlaced}</p>
+                <p>Заказ #${order.id}</p>
+                <p>Ожидайте доставку в ${order.city}/${order.district}</p>
+                <button class="buy-button" onclick="closeModal('preorderModal')">${lang.close}</button>
+            `;
+            document.getElementById('preorderContent').innerHTML = content;
+            document.getElementById('preorderModal').style.display = 'flex';
+        }
+
+        function showDepositModal(crypto) {
+            const lang = translations[userLanguage];
+            const content = `
+                <h2>${lang.depositFunds}</h2>
+                <p>${lang.selectCrypto}</p>
+                <select id="cryptoSelect" onchange="updateDepositNetwork()">
+                    <option value="BTC" ${crypto === 'BTC' ? 'selected' : ''}>Bitcoin (BTC)</option>
+                    <option value="ETH" ${crypto === 'ETH' ? 'selected' : ''}>Ethereum (ETH)</option>
+                    <option value="USDT" ${crypto === 'USDT' ? 'selected' : ''}>Tether (USDT)</option>
+                    <option value="SOL" ${crypto === 'SOL' ? 'selected' : ''}>Solana (SOL)</option>
+                    <option value="TON" ${crypto === 'TON' ? 'selected' : ''}>Toncoin (TON)</option>
+                </select>
+                <p>${lang.networkLabel} <span id="cryptoNetwork">${cryptoNetworks[crypto]}</span></p>
+                <p>${lang.enterAmount}</p>
+                <input type="number" id="depositAmount" placeholder="฿" min="${MIN_DEPOSIT}">
+                <button class="buy-button" onclick="generateDepositAddress()">${lang.generateAddress}</button>
+                <div id="depositAddress"></div>
+                <button class="buy-button" onclick="closeModal('depositModal')">${lang.close}</button>
+            `;
+            document.getElementById('depositContent').innerHTML = content;
+            document.getElementById('depositModal').style.display = 'flex';
+        }
+
+        function updateDepositNetwork() {
             const crypto = document.getElementById('cryptoSelect').value;
-            const network = document.getElementById('depositContent').querySelector('p');
-            if (network) network.innerText = `${lang.networkLabel} ${cryptoNetworks[crypto]}`;
+            document.getElementById('cryptoNetwork').innerText = cryptoNetworks[crypto];
         }
 
         function generateDepositAddress() {
             const lang = translations[userLanguage];
-            const amountInput = document.getElementById('depositAmount');
-            const amount = parseFloat(amountInput.value) || 0;
+            const crypto = document.getElementById('cryptoSelect').value;
+            const amount = parseInt(document.getElementById('depositAmount').value);
             if (amount < MIN_DEPOSIT) {
-                showAlertModal(`${lang.minDepositError}`, () => hideModal('alertModal'));
+                showAlert(lang.minDepositError);
                 return;
             }
-            const crypto = document.getElementById('cryptoSelect').value;
             const cryptoAmount = (amount / cryptoRates[crypto]).toFixed(6);
             const address = testAddresses[crypto];
             const content = `
-                <h2>${lang.depositFunds}</h2>
                 <p>${lang.depositInstruction.replace('{amount}', amount).replace('{cryptoAmount}', cryptoAmount).replace('{crypto}', crypto)}</p>
-                <p>${address}</p>
+                <p><strong>${address}</strong></p>
                 <p>${lang.depositFinal}</p>
                 <p>${lang.depositExpiry}</p>
                 <button class="buy-button" onclick="confirmDeposit('${crypto}', ${amount}, '${address}')">${lang.confirmPayment}</button>
-                <button class="buy-button" onclick="hideModal('depositModal')">${lang.close}</button>
             `;
-            document.getElementById('depositContent').innerHTML = content;
-            pendingPayments[address] = { amount, crypto, timestamp: Date.now() };
-            sendToTelegram(`Юзер ${currentUser} запросил адрес для депозита ${amount}฿ (~${cryptoAmount} ${crypto})`);
+            document.getElementById('depositAddress').innerHTML = content;
         }
 
         function confirmDeposit(crypto, amount, address) {
-            const lang = translations[userLanguage];
-            showAlertModal(`${lang.paymentPending}`, () => {
-                hideModal('alertModal');
-                setTimeout(() => {
-                    balance += amount;
-                    localStorage.setItem('balance', balance);
-                    document.getElementById('balance').innerText = `${balance} ฿`;
-                    delete pendingPayments[address];
-                    showAlertModal(`${lang.paymentSuccess}`, () => hideModal('alertModal'));
-                    sendToTelegram(`Юзер ${currentUser} пополнил баланс на ${amount}฿ (${crypto})`);
-                }, 1000); // Симуляция проверки платежа
-            });
-            hideModal('depositModal');
-        }
+    const lang = translations[userLanguage];
+    const paymentId = Date.now(); // Уникальный ID платежа на основе времени
+    const pendingPayment = {
+        user: currentUser,
+        crypto: crypto,
+        amount: amount,
+        address: address,
+        paymentId: paymentId,
+        timestamp: new Date().toLocaleString()
+    };
+
+    // Сохраняем неподтверждённый платёж в localStorage
+    let pendingPayments = JSON.parse(localStorage.getItem('pendingPayments')) || [];
+    pendingPayments.push(pendingPayment);
+    localStorage.setItem('pendingPayments', JSON.stringify(pendingPayments));
+
+    // Отправляем запрос в Telegram с кнопкой "Подтвердить"
+    sendPaymentRequestToTelegram(pendingPayment);
+
+    // Закрываем модальное окно и показываем уведомление
+    closeModal('depositModal');
+    showAlert(lang.paymentPending);
+}
 
         function showRegistrationModal() {
-            const lang = translations[userLanguage];
-            const modal = document.getElementById('registrationModal');
-            if (modal) modal.style.display = 'flex';
-            else console.error('Модальное окно регистрации не найдено');
-        }
-
-        function hideRegistrationModal() {
-            const modal = document.getElementById('registrationModal');
-            if (modal) modal.style.display = 'none';
-            else console.error('Модальное окно регистрации не найдено');
+            document.getElementById('registrationModal').style.display = 'flex';
         }
 
         async function registerUser() {
     const lang = translations[userLanguage];
     const nickname = document.getElementById('regNickname').value.trim();
-    const password = document.getElementById('regPassword').value;
     const language = document.getElementById('regLanguage').value;
 
     if (!nickname) {
-        showAlertModal(lang.regErrorEmpty, () => hideModal('alertModal'));
+        document.getElementById('regError').innerText = lang.regErrorEmpty;
         return;
     }
 
-    try {
-        // Отправляем запрос на сервер
-        const response = await fetch(`${API_BASE_URL}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nickname, language, password })
-        });
+    // Проверяем, существует ли юзер
+    const { data: existingUser, error: checkError } = await supabase
+        .from('users')
+        .select('nickname')
+        .eq('nickname', nickname)
+        .single();
 
-        const result = await response.json();
+    if (existingUser) {
+        document.getElementById('regError').innerText = lang.regErrorTaken;
+        return;
+    }
+    if (checkError && checkError.code !== 'PGRST116') { // Код "нет данных" — норм
+        console.error('Ошибка проверки юзера, пиздец:', checkError);
+        return;
+    }
 
-        if (!response.ok) {
-            // Обрабатываем ошибки от сервера
-            showAlertModal(result.error || 'Ошибка регистрации', () => hideModal('alertModal'));
+    // Создаём нового юзера
+    const { data, error } = await supabase
+        .from('users')
+        .insert({
+            nickname,
+            language,
+            balance: 1000, // Даём 1000 батт на старте
+            order_count: 0,
+            referral_count: 0,
+            order_history: []
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Регистрация пошла по пизде:', error);
+        return;
+    }
+
+    currentUser = data.nickname;
+    userLanguage = data.language;
+    balance = data.balance;
+    orderCount = data.order_count;
+    referralCount = data.referral_count;
+    orderHistory = data.order_history;
+
+    document.getElementById('profileNameLabel').innerText = lang.profileNameLabel + currentUser;
+    document.getElementById('balance').innerText = `${balance} ฿`;
+    closeModal('registrationModal');
+    showAlert(lang.welcomeMessage.replace('{user}', currentUser));
+    loadLanguage();
+    sendToTelegram(`Новый юзер зарегался: ${nickname}, язык: ${language}, баланс: 1000 ฿`);
+}
+// Проверка юзера при загрузке
+async function loadCurrentUser() {
+    const savedUser = localStorage.getItem('currentUser'); // Оставим локально для удобства
+    if (savedUser) {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('nickname', savedUser)
+            .single();
+
+        if (error || !data) {
+            console.error('Юзер наебнулся при загрузке:', error);
+            localStorage.removeItem('currentUser');
             return;
         }
 
-        // Успешная регистрация
-        currentUser = result.nickname;
-        userLanguage = result.language;
-        userId = result.id; // ID от Supabase
-        balance = result.balance;
-        orderCount = 0;
-        referralCount = 0;
-        orderHistory = [];
-
-        // Сохраняем данные в localStorage
-        localStorage.setItem('currentUser', currentUser);
-        localStorage.setItem('userLanguage', userLanguage);
-        localStorage.setItem('userId', userId);
-        localStorage.setItem('balance', balance);
-        localStorage.setItem('orderCount', orderCount);
-        localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-
-        // Обновляем интерфейс и отправляем уведомление
-        loadLanguage();
-        loadCurrentUser();
-        hideRegistrationModal();
-        showAlertModal(lang.welcomeMessage.replace('{user}', nickname));
-        sendToTelegram(`Новый юзер ${nickname} зарегистрировался, ID: ${userId}`);
-
-    } catch (error) {
-        console.error('Ошибка при регистрации:', error);
-        showAlertModal('Ошибка связи с сервером', () => hideModal('alertModal'));
-    }
-}
-
-async function loadCurrentUser() {
-    const lang = translations[userLanguage] || translations['ru'];
-    try {
-        if (!window.supabase || typeof window.supabase.from !== 'function') {
-            throw new Error('Supabase не инициализирован');
-        }
-
-        const nickname = currentUser || Telegram.WebApp.initDataUnsafe.user?.username || 'Гость';
-        const { data: user, error } = await window.supabase
-            .from('users')
-            .select('*')
-            .eq('nickname', nickname)
-            .single();
-
-        if (error && error.code !== 'PGRST116') {
-            throw new Error(`Ошибка загрузки пользователя: ${error.message}`);
-        }
-
-        if (!user) {
-            const { data: newUser, error: insertError } = await window.supabase
-                .from('users')
-                .insert({ nickname, language: userLanguage, balance: 0, order_count: 0, referral_count: 0 })
-                .select()
-                .single();
-            if (insertError) throw new Error(`Ошибка создания пользователя: ${insertError.message}`);
-            userId = newUser.id;
-            balance = 0;
-            orderCount = 0;
-        } else {
-            userId = user.id;
-            balance = user.balance;
-            orderCount = user.order_count;
-            orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
-        }
+        currentUser = data.nickname;
+        userLanguage = data.language;
+        balance = data.balance;
+        orderCount = data.order_count;
+        referralCount = data.referral_count;
+        orderHistory = data.order_history;
 
         document.getElementById('balance').innerText = `${balance} ฿`;
-        document.getElementById('ordersLabel').innerText = `${lang.ordersLabel}${orderCount}`;
+        document.getElementById('ordersLabel').innerText = translations[userLanguage].ordersLabel + orderCount;
+        document.getElementById('referralsLabel').innerText = translations[userLanguage].referralsLabel + referralCount;
         updateOrderHistory();
-    } catch (error) {
-        console.error('Ошибка при загрузке пользователя:', error);
-        document.getElementById('balance').innerText = 'Ошибка';
-        showAlertModal(`Ошибка загрузки профиля: ${error.message}`);
     }
 }
+
+// Обновляем загрузку страницы
+document.addEventListener('DOMContentLoaded', () => {
+    loadCurrentUser(); // Сначала проверяем юзера
+    if (!currentUser) showRegistrationModal(); // Только если юзера нет, показываем регистрацию
+    loadLanguage();
+    updateTabs();
+    updateProductCards();
+});
+
         function updateOrderHistory() {
             const lang = translations[userLanguage];
             const orderList = document.getElementById('orderList');
-            if (orderList) {
-                orderList.innerHTML = orderHistory.length ? orderHistory.map(order => `
-                    <div class="review">
-                        <span class="review-text">Заказ ${order.productId} (${order.weight}г) за ${order.price}฿ в ${order.city}, ${order.district} (${order.date})</span>
-                        <span class="review-date">${order.status || 'Завершён'}</span>
-                    </div>
-                `).join('') : `<p>${lang.orderListEmpty}</p>`;
-            }
+            orderList.innerHTML = orderHistory.length ? orderHistory.map(order => `
+                <div>Заказ #${order.id}: ${order.product}, ${order.weight}г, ${order.price} ฿, ${order.date}</div>
+            `).join('') : lang.orderListEmpty;
         }
 
         function updateMailList() {
             const lang = translations[userLanguage];
             const mailList = document.getElementById('mailList');
-            if (mailList) {
-                mailList.innerHTML = mailMessages.length ? mailMessages.map(msg => `
-                    <div class="review">
-                        <span class="review-text">${msg.text}</span>
-                        <span class="review-date">${msg.date}</span>
-                    </div>
-                `).join('') : `<p>${lang.mailListEmpty}</p>`;
-            }
+            mailList.innerHTML = mailMessages.length ? mailMessages.map(msg => `<div>${msg}</div>`).join('') : lang.mailListEmpty;
         }
 
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.style.display = 'flex';
-            else console.error(`Модальное окно ${modalId} не найдено`);
-        }
-
-        function hideModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.style.display = 'none';
-            else console.error(`Модальное окно ${modalId} не найдено`);
-        }
-
-        function showAlertModal(message, callback) {
-    const modal = document.getElementById('alertModal');
-    if (modal) {
-        document.getElementById('alertMessage').innerText = message;
-        modal.style.display = 'flex';
-        if (callback) {
-            modal.querySelector('.close-button').onclick = () => {
-                hideModal('alertModal');
-                callback();
-            };
-        }
-    } else {
-        console.warn('alertModal не найден, использую alert');
-        alert(message);
-        if (callback) callback();
-    }
-}
-function showConfirmModal(message, confirmCallback, cancelCallback, confirmText, cancelText) {
+       function showAlert(message) {
     const lang = translations[userLanguage];
-    const content = `
-        <h2>${lang.confirmTitle}</h2>
+    document.getElementById('customContent').innerHTML = `
+        <h2>${lang.alertTitle}</h2>
         <p>${message}</p>
-        <button class="buy-button" id="confirmButton">${confirmText || lang.confirmButton}</button>
-        <button class="buy-button" id="cancelButton">${cancelText || lang.cancelButton}</button>
+        <button class="buy-button" onclick="closeModal('customModal')">${lang.close}</button>
     `;
-    document.getElementById('confirmContent').innerHTML = content;
-    showModal('confirmModal');
-    const confirmButton = document.getElementById('confirmButton');
-    const cancelButton = document.getElementById('cancelButton');
-    if (confirmButton) {
-        confirmButton.onclick = () => {
-            if (confirmCallback) confirmCallback();
-            hideModal('confirmModal');
-        };
-    }
-    if (cancelButton) {
-        cancelButton.onclick = () => {
-            if (cancelCallback) cancelCallback();
-            hideModal('confirmModal');
-        };
-    }
+    document.getElementById('customModal').style.display = 'flex';
 }
 
-function showInputModal(message, callback, placeholder) {
-    const lang = translations[userLanguage];
-    const content = `
-        <h2>${lang.inputTitle}</h2>
-        <p>${message}</p>
-        <input type="text" id="inputField" placeholder="${placeholder || ''}">
-        <button class="buy-button" id="confirmInputButton">${lang.confirmButton}</button>
-        <button class="buy-button" id="cancelInputButton">${lang.cancelButton}</button>
-    `;
-    document.getElementById('customContent').innerHTML = content;
-    showModal('customModal');
-    const confirmButton = document.getElementById('confirmInputButton');
-    const cancelButton = document.getElementById('cancelInputButton');
-    if (confirmButton) {
-        confirmButton.onclick = () => {
-            if (callback) callback();
-            hideModal('customModal');
-        };
-    }
-    if (cancelButton) {
-        cancelButton.onclick = () => hideModal('customModal');
-    }
-}
+        function showConfirmModal(message, onConfirm, onCancel) {
+            const lang = translations[userLanguage];
+            document.getElementById('confirmContent').innerHTML = `
+                <h2>${lang.confirmTitle}</h2>
+                <p>${message}</p>
+                <button class="buy-button" onclick="confirmAction()">${lang.yes}</button>
+                <button class="buy-button" onclick="cancelAction()">${lang.no}</button>
+            `;
+            document.getElementById('confirmModal').style.display = 'flex';
+            window.confirmAction = onConfirm;
+            window.cancelAction = onCancel;
+        }
+
+        function confirmAction() {
+            window.confirmAction();
+            closeModal('confirmModal');
+        }
+
+        function cancelAction() {
+            window.cancelAction();
+            closeModal('confirmModal');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
 
         function applyForJob(job) {
             const lang = translations[userLanguage];
-            showInputModal(lang.applyJobPrompt.replace('{job}', job), () => {
-                const resume = document.getElementById('inputField').value;
-                if (resume) {
-                    showAlertModal(lang.applyJobAlert.replace('{job}', job), () => {});
-                    sendToTelegram(`Заявка на вакансию ${job} от ${currentUser}: ${resume}`);
-                }
-            }, 'Краткое резюме...');
+            showInputModal(lang.applyJobPrompt.replace('{job}', job), resume => {
+                sendToTelegram(`Job application: ${job}\nResume: ${resume}\nUser: ${currentUser || 'Guest'}`);
+                showAlert(lang.applyJobSent.replace('{job}', job));
+            });
         }
+        function sendPaymentRequestToTelegram(payment) {
+    const lang = translations[userLanguage];
+    const message = `
+        Новый запрос на пополнение:
+        Пользователь: ${payment.user}
+        Сумма: ${payment.amount} ฿ (~${(payment.amount / cryptoRates[payment.crypto]).toFixed(6)} ${payment.crypto})
+        Адрес: ${payment.address}
+        ID платежа: ${payment.paymentId}
+        Время: ${payment.timestamp}
+    `;
 
-        function showPromoDetails() {
+    const keyboard = {
+        inline_keyboard: [
+            [
+                {
+                    text: "Подтвердить",
+                    callback_data: `confirm_payment_${payment.paymentId}`
+                }
+            ]
+        ]
+    };
+
+    const url = `https://api.telegram.org/bot${BOT_B_TOKEN}/sendMessage`;
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: ADMIN_CHAT_ID,
+            text: message,
+            reply_markup: keyboard
+        })
+    }).catch(err => console.error('Telegram API error:', err));
+}
+
+        function showInputModal(message, callback) {
             const lang = translations[userLanguage];
-            showAlertModal(lang.promoInfo, () => hideModal('alertModal'));
+            document.getElementById('customContent').innerHTML = `
+                <h2>${lang.inputTitle}</h2>
+                <p>${message}</p>
+                <textarea id="inputValue"></textarea>
+                <button class="buy-button" onclick="submitInput('${callback}')">${lang.confirmButton}</button>
+                <button class="buy-button" onclick="closeModal('customModal')">${lang.cancelButton}</button>
+            `;
+            document.getElementById('customModal').style.display = 'flex';
+            window.submitInput = value => {
+                const input = document.getElementById('inputValue').value;
+                closeModal('customModal');
+                callback(input);
+            };
         }
 
         function sendToTelegram(message) {
-            if (!BOT_B_TOKEN || !ADMIN_CHAT_ID) {
-                console.warn('Telegram Bot Token или Admin Chat ID не настроены');
-                return;
-            }
-            fetch(`https://api.telegram.org/bot${BOT_B_TOKEN}/sendMessage`, {
+            const url = `https://api.telegram.org/bot${BOT_B_TOKEN}/sendMessage`;
+            fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: ADMIN_CHAT_ID,
-                    text: `${message} | Дата: ${new Date().toLocaleString()}`
+                    text: message
                 })
-            }).catch(err => console.error('Ошибка отправки в Telegram:', err));
+            }).catch(err => console.error('Telegram API error:', err));
         }
-        function logout() {
-    const lang = translations[userLanguage];
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('userLanguage');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('balance');
-    localStorage.removeItem('orderCount');
-    localStorage.removeItem('orderHistory');
-    currentUser = null;
-    userLanguage = 'ru'; // Сбрасываем на русский по умолчанию
-    userId = null;
-    balance = 0;
-    orderCount = 0;
-    referralCount = 0;
-    orderHistory = [];
-    document.getElementById('balance').innerText = `${balance} ฿`;
-    document.getElementById('profileNameLabel').innerText = `${lang.profileNameLabel}Гость`;
-    document.getElementById('ordersLabel').innerText = `${lang.ordersLabel}${orderCount}`;
-    document.getElementById('referralsLabel').innerText = `${lang.referralsLabel}${referralCount}`;
-    updateOrderHistory();
-    hideModal('profileMenu'); // Закрываем профиль
-    showLoginModal(); // Показываем окно авторизации вместо регистрации
-    sendToTelegram(`Юзер ${currentUser || 'Гость'} вышел из аккаунта`);
+        async function updateUserData() {
+    if (!currentUser) return;
+
+    const { error } = await supabase
+        .from('users')
+        .update({
+            balance,
+            order_count: orderCount,
+            referral_count: referralCount,
+            order_history: orderHistory
+        })
+        .eq('nickname', currentUser);
+
+    if (error) {
+        console.error('Обновление юзера пошло по пизде:', error);
+        return;
+    }
+
+    localStorage.setItem('currentUser', currentUser); // Оставляем локально для удобства
+}
+        } else {
+            // Если пользователь новый, добавляем его
+            registeredUsers.push({
+                nickname: currentUser,
+                language: userLanguage,
+                balance: balance,
+                orderCount: orderCount,
+                referralCount: referralCount,
+                orderHistory: orderHistory
+            });
+        }
+        // Сохраняем в localStorage
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        localStorage.setItem('currentUser', currentUser);
+    }
 }
 
-function loginUser() {
-    const lang = translations[userLanguage];
-    const nickname = document.getElementById('loginNickname').value.trim();
-    const password = document.getElementById('loginPassword').value;
+        document.addEventListener('DOMContentLoaded', async () => {
+    await loadCurrentUser();
+    if (!currentUser) showRegistrationModal();
 
-    if (!nickname || !password) {
-        showAlertModal('Никнейм и пароль не могут быть пустыми!');
-        return;
+    // Начисление бонуса для Gtori
+    const { data: gtori } = await supabase
+        .from('users')
+        .select('received_bonus')
+        .eq('nickname', 'Gtori')
+        .single();
+    if (!gtori || !gtori.received_bonus) {
+        await manualAddBalance('Gtori', 1488);
     }
-
-    const user = registeredUsers.find(u => u.nickname === nickname && u.password === password);
-    if (!user) {
-        showAlertModal('Неверный никнейм или пароль!');
-        return;
-    }
-
-    // Успешная авторизация
-    currentUser = user.nickname;
-    userLanguage = user.language;
-    userId = user.userId;
-    balance = user.balance;
-    orderCount = user.orderCount;
-    referralCount = user.referralCount;
-    orderHistory = user.orderHistory;
-
-    localStorage.setItem('currentUser', currentUser);
-    localStorage.setItem('userLanguage', userLanguage);
-    localStorage.setItem('userId', userId);
-    localStorage.setItem('balance', balance);
-    localStorage.setItem('orderCount', orderCount);
-    localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
 
     loadLanguage();
-    loadCurrentUser();
-    hideLoginModal();
-    showAlertModal(`Добро пожаловать, ${nickname}!`);
-    sendToTelegram(`Юзер ${nickname} вошёл в аккаунт, ID: ${userId}`);
-}
-
-function showLoginModal() {
-    const modal = document.getElementById('loginModal');
-    if (modal) modal.style.display = 'flex';
-    else console.error('Модальное окно авторизации не найдено');
-}
-
-function hideLoginModal() {
-    const modal = document.getElementById('loginModal');
-    if (modal) modal.style.display = 'none';
-    else console.error('Модальное окно авторизации не найдено');
-}
-
-function showRegistrationFromLogin() {
-    hideLoginModal();
-    showRegistrationModal();
-}
-
-function hideModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        const content = modal.querySelector('.custom-content, .confirm-content, .payment-content, .product-content, .deposit-content, .preorder-content, .registration-content');
-        if (content) content.innerHTML = ''; // Очищаем содержимое
-    } else {
-        console.error(`Модальное окно ${modalId} не найдено`);
-    }
-}
+    updateTabs();
+    updateProductCards();
+});
     </script>
 </body>
 </html>
-                       
