@@ -11,7 +11,7 @@ let mailMessages = [];
 const MIN_DEPOSIT = 1000;
 
 const SUPABASE_URL = 'https://xtjijqrycwudjdsjngjb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amlqcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0amljcXJ5Y3d1ZGpkc2puZ2piIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMzc2ODUsImV4cCI6MjA1NzgxMzY4NX0.0zx0ykw_elHQ14TQXEBrzZGqUMhF1BD6MCazoNgNWi8';
 
 const BOT_B_TOKEN = '7589545725:AAHoedAqoGh_k0WWdUs1rcBN1yddUtBFhsk';
 const ADMIN_CHAT_ID = '5956080955';
@@ -968,7 +968,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <p>${message}</p>
             <textarea id="inputValue" placeholder="Введите текст"></textarea>
             <button class="buy-button" onclick="onConfirm(document.getElementById('inputValue').value); closeModal('customModal')">${lang.confirmButton}</button>
-                        <button class="buy-button" onclick="closeModal('customModal')">${lang.cancelButton}</button>
+            <button class="buy-button" onclick="closeModal('customModal')">${lang.cancelButton}</button>
         `;
         showModal('customModal');
     }
