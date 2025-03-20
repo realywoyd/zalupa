@@ -357,8 +357,23 @@
         </div>
     </div>
 
-    <!-- Подключение PocketBase SDK -->
-    <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
+    <!-- Подключение Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+    <script>
+        // Конфигурация Firebase (замени на свои данные после настройки)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     <script src="app.js"></script>
 </body>
 </html>
