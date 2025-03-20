@@ -2016,26 +2016,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    localStorage.setItem('currentUser', currentUser); // Оставляем локально для удобства
-}
-        } else {
-            // Если пользователь новый, добавляем его
-            registeredUsers.push({
-                nickname: currentUser,
-                language: userLanguage,
-                balance: balance,
-                orderCount: orderCount,
-                referralCount: referralCount,
-                orderHistory: orderHistory
-            });
-        }
-        // Сохраняем в localStorage
-        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-        localStorage.setItem('currentUser', currentUser);
-    }
+    localStorage.setItem('currentUser', currentUser); // Оставляем только ник для удобства
 }
 
-        document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async () => {
     await loadCurrentUser();
     if (!currentUser) showRegistrationModal();
 
